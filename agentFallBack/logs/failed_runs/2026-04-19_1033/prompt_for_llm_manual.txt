@@ -1,0 +1,596 @@
+
+🚨 CRITICAL: MARKERS ARE YOUR ONLY COMMUNICATION CHANNEL
+🚨 The automation script CANNOT read your explanations - it ONLY reads code between markers.
+
+TASK: Complete Playwright test implementation between // AI_IMPLEMENTATION_START and // AI_IMPLEMENTATION_END markers.
+
+MARKER COMMUNICATION RULES:
+❌ DO NOT write explanations outside the markers
+❌ DO NOT move, rename, or delete the markers  
+✅ ALL Playwright logic MUST be strictly between the markers
+✅ The script extracts ONLY the code between these markers
+
+FRAMEWORK REQUIREMENTS:
+
+1. SEARCH & REUSE (Priority 1):
+   - Search page-objects/ and utils/ directories for existing methods
+   - MUST reuse existing Page Object methods instead of raw page actions
+   - Use utils/ folder for testing helpers
+
+2. EXTEND (Priority 2):
+   - Add missing methods to existing Page Objects if needed
+   - Return updated Page Object code in /* FILE: path/to/file.ts */ blocks
+   - All major actions need console.log('...')
+
+3. CREATE (Priority 3):
+   - Create new Page Objects only if none exist
+   - Follow repository patterns with async methods and STEP logs
+   - Return new code in /* FILE: path/to/file.ts */ blocks
+
+4. INLINE (Last Resort):
+   - Write raw Playwright only if action is truly unique to this scenario
+
+CONFLUENCE:
+- PageId: manual
+- Title: confluence_manual
+- JiraKey: N/A
+
+REFERENCE STYLE:
+// tests/a2-login/login/successfulLogin.test.ts
+
+import { test } from 'page-objects/myFixtures';
+import { User, UserProvider } from '../../utils/UserProvider';
+import { testParallel } from '../../env.config';
+import { allureLogger } from '../../utils/allureLogger';
+
+interface LoginScenario {
+    user: User | undefined;
+}
+
+const loginScenarios: LoginScenario[] = [
+  {
+    user: UserProvider.getUserByRole('admin'),
+  },
+  {
+    user: UserProvider.getUserByRole('standard'),
+  },
+  {
+    user: UserProvider.getUserByRole('configurationUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('crossixUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('internalCrossixAnalyst'),
+  },
+  {
+    user: UserProvider.getUserByRole('publisher'),
+  },
+  {
+    user: UserProvider.getUserByRole('organizationAdminWithNetInPlatform'),
+  },
+  {
+    user: UserProvider.getUserByRole('organizationAdminWithAllAdditionalPrivileges'),
+  },
+  {
+    user: UserProvider.getUserByRole('publisherStandardUserGilaed'),
+  },
+  {
+    user: UserProvider.getUserByRole('publisherAdmin'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamAdmin'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamAdmin2'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamUser2'),
+  },
+  {
+    user: UserProvider.getUserByRole('difaOnlyExpiredProgramLessThan1YearUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('difaOnlyHcpAccessUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('configurationUserNoAdditionalPermissions'),
+  }
+];
+
+test.describe('Login/Logout Tests', () => {
+  // Force parallel execution for this suite
+  test.describe.configure({ mode: 'parallel' });
+
+  test.beforeEach(async ({ loginPage }) => {
+    // Ensure a clean session before each test to prevent state leakage in parallel runs
+    await loginPage.resetSession();
+    await loginPage.navigateToLoginPage();
+  });
+
+  loginScenarios.forEach((scenario, index) => {
+
+    const username = scenario.user?.username ?? 'UNKNOWN_USER';
+    const role = scenario.user?.role ?? 'UNKNOWN_ROLE';
+    const password = scenario.user?.password ?? 'UNKNOWN_ROLE';
+
+    test(`Should allow an ${role} user to log in successfully - ${index}`, {
+      tag: ['@beta'],
+      annotation: [
+        {
+          type: 'issue',
+          description: 'https://crossixsolutions.atlassian.net/browse/DIFA-11000'
+        },
+        {
+          type: 'tms',
+          description: 'https://crossixsolutions.atlassian.net/wiki/pages/resumedraft.action?draftId=3394797722'
+        },
+      ],
+    }, async ({ loginPage }) => { // IMPORTANT: Changed 'page' to 'loginPage' here
+
+      await loginPage.login(username, password);
+      await loginPage.expectLoginSuccess();
+
+      await allureLogger.step(`Login test for ${username} completed.`);
+    });
+  });
+});
+
+PAGE OBJECT MAP:
+CLASS: BusinessGroup
+USE FOR: Checks if the Next Page button is enabled.
+METHODS: [isNextPageEnabled, clickNextPage, goToFirstPage, verifyPageLoaded, verifyMainTitle, clickAddButton, verifyTableTitle, search, verifyTableHeaders, searchRandomValueFromColumn, getColumnIndex, getCellText, navigateToReports, navigateToInsights, verifyBusinessGroupViewerHeader, openOverallClientDropdown, clearSearch, getRowCount, verifySearchTermHighlighted, clickMoreDetails, clickExportButton, findBusinessGroupRow]
+
+ELEMENT MAPPER:
+
+
+REPO KNOWLEDGE:
+{
+  "generatedAt": "2026-04-15T08:01:33.509Z",
+  "repoRoot": "C:/Users/Public/playwright-e2e-automation",
+  "users": {
+    "source": "utils/testUsers/testUsers_beta.json",
+    "roles": [
+      "admin",
+      "configurationUser",
+      "configurationUserNoAdditionalPermissions",
+      "crossixUser",
+      "dataStreamAdmin",
+      "dataStreamAdmin2",
+      "dataStreamUser",
+      "dataStreamUser2",
+      "difaOnlyExpiredProgramLessThan1YearUser",
+      "difaOnlyHcpAccessUser",
+      "external_analyst_client_manager",
+      "external_standard",
+      "internalCrossixAnalyst",
+      "invalid",
+      "organizationAdminWithAllAdditionalPrivileges",
+      "organizationAdminWithNetInPlatform",
+      "organization_admin_external",
+      "organization_admin_external2",
+      "publisher",
+      "publisher3",
+      "publisherAdmin",
+      "publisherMultiClient",
+      "publisherStandardUserGilaed",
+      "publisher_Johnson",
+      "publisher_admin2",
+      "publisher_only_reports",
+      "publisher_user",
+      "standard",
+      "standard2",
+      "standard_no_additional_permissions_publisher"
+    ],
+    "invalidUserRole": "invalid",
+    "fields": [
+      "_comment",
+      "_commentL:",
+      "email",
+      "errorMessage",
+      "firstName",
+      "lastName",
+      "password",
+      "role",
+      "username"
+    ],
+    "sample": {
+      "role": "admin",
+      "username": "eyal.sooliman@veeva.com",
+      "password": "_password_",
+      "email": "eyal.sooliman@veeva.com",
+      "firstName": "Eyal",
+      "lastName": "Sooliman"
+    },
+    "rolesObservedInTests": [
+      "admin",
+      "configurationUser",
+      "configurationUserNoAdditionalPermissions",
+      "crossixUser",
+      "dataStreamAdmin",
+      "dataStreamAdmin2",
+      "dataStreamUser",
+      "dataStreamUser2",
+      "difaOnlyExpiredProgramLessThan1YearUser",
+      "difaOnlyHcpAccessUser",
+      "external_standard",
+      "internalCrossixAnalyst",
+      "invalid",
+      "organizationAdminWithAllAdditionalPrivileges",
+      "organizationAdminWithNetInPlatform",
+      "organization_admin_external2",
+      "publisher",
+      "publisherAdmin",
+      "publisherStandardUserGilaed",
+      "publisher_admin2",
+      "publisher_user",
+      "standard",
+      "standard2"
+    ],
+    "rolesUnion": [
+      "admin",
+      "configurationUser",
+      "configurationUserNoAdditionalPermissions",
+      "crossixUser",
+      "dataStreamAdmin",
+      "dataStreamAdmin2",
+      "dataStreamUser",
+      "dataStreamUser2",
+      "difaOnlyExpiredProgramLessThan1YearUser",
+      "difaOnlyHcpAccessUser",
+      "external_analyst_client_manager",
+      "external_standard",
+      "internalCrossixAnalyst",
+      "invalid",
+      "organizationAdminWithAllAdditionalPrivileges",
+      "organizationAdminWithNetInPlatform",
+      "organization_admin_external",
+      "organization_admin_external2",
+      "publisher",
+      "publisher3",
+      "publisherAdmin",
+      "publisherMultiClient",
+      "publisherStandardUserGilaed",
+      "publisher_Johnson",
+      "publisher_admin2",
+      "publisher_only_reports",
+      "publisher_user",
+      "standard",
+      "standard2",
+      "standard_no_additional_permissions_publisher"
+    ]
+  },
+  "login": {
+    "pageObject": "LoginPage",
+    "path": "page-objects/login/LoginPage.ts",
+    "methods": [
+      "clickOnForgotPassword",
+      "expectLoginFailureWhenParamsEmpty",
+      "expectLoginSuccess",
+      "login",
+      "navigateToLoginPage",
+      "resetSession",
+      "verifyLoginPageUElements"
+    ],
+    "preferredPattern": [
+      "resetSession",
+      "navigateToLoginPage",
+      "login",
+      "expectLoginSuccess"
+    ],
+    "evidenceFiles": [
+      "tests/a1-api/programAccessList/5723258881/DN-1291_objective_3462103169.test.ts",
+      "tests/a1-api/programAccessList/5723258881/programAccessList-5723258881-enhanced.test.ts",
+      "tests/a10-audit-on-gamma/auth-logout-admin.test.ts",
+      "tests/a2-login/login-concurrency.test.ts",
+      "tests/a3-settings/accessGroup/export_access_groups_data.test.ts",
+      "tests/a3-settings/accessGroup/verify_assigned_users.test.ts",
+      "tests/a3-settings/businessGroup/businessGroupAccess.test.ts",
+      "tests/a3-settings/businessGroup/publisher-business-group-creation-client-dropdown-validation.test.ts",
+      "tests/a3-settings/businessGroup/verify_business_group_rows_and_metadata.test.ts",
+      "tests/a3-settings/standardMeasurementGroups/DN-2485_table-of-contents_4379312193.test.ts",
+      "tests/a3-settings/users/A418_Verify_New_User_Created_With_The_Correct_User_Roles_And_Permissions.test.ts",
+      "tests/a4-reports/pubView-high-priority-5959090340/publisherCampaignVisibility.test.ts",
+      "tests/a4-reports/pubView-high-priority-5959090340/publisherClientVisibility.test.ts",
+      "tests/a4-reports/pubView-high-priority-5959090340/userAvailableReportValidation.test.ts",
+      "tests/a4-reports/PubView-Medium-Priority-5958107229/DNT-1119.test.ts",
+      "tests/a4-reports/PubView-Medium-Priority-5958107229/verifyClientDropdownPublisherOnly.test.ts",
+      "tests/a7-configure/measurement-groups/media-assignment/DNT-1052/media-assignment-standard-user-no-upload.test.ts",
+      "tests/a7-configure/metrics/linked-metrics/deleting_linked_metric.test.ts",
+      "tests/a7-configure/metrics/linked-metrics/verify_linked_metrics_api_and.test.ts",
+      "tests/a7-configure/metrics/linked-metrics/verify_linked_metrics_import_with.test.ts"
+    ]
+  },
+  "conventions": {
+    "testFrameworkImport": "page-objects/myFixtures",
+    "tagsObservedTop": [
+      "@access-control",
+      "@audit",
+      "@beta",
+      "@data-validation",
+      "@download",
+      "@edge-cases",
+      "@edit-restrictions",
+      "@gamma",
+      "@input-limits",
+      "@input-validation",
+      "@negative",
+      "@page-validation",
+      "@permissions",
+      "@phase2Group-${data.phase2Group}",
+      "@prod",
+      "@required-fields",
+      "@routing",
+      "@smoke",
+      "@stage",
+      "@table-validation",
+      "@uniqueness",
+      "@validation"
+    ],
+    "sampleFiles": {
+      "usesPlaywrightTest": [
+        "tests/a1-api/programAccessList/5723258881/DN-1291_objective_3462103169.test.ts",
+        "tests/a1-api/programAccessList/programAccessListHelper.ts",
+        "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-field/duplicated-field-metrics.test.ts",
+        "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-fields-case-changed/duplicate-fields-case-changed.test.ts",
+        "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-metric-in-file/duplicate-metric-in-file.test.ts",
+        "tests/a1-api/upload-metrics/negative/invalid-report-types/Nonexistant-Report-Type-ID/nonexistant-report-type-id.test.ts",
+        "tests/a1-api/upload-metrics/negative/invalid-report-types/report-type-doesnt-match-metrict-template/report-type-doesnt-match-metrict-template.test.ts",
+        "tests/a1-api/upload-metrics/negative/invalid-report-types/wrong-report-type-id/wrong-report-type-id.test.ts",
+        "tests/a1-api/upload-metrics/negative/limits/description-character-limit/description-character-limit.test.ts",
+        "tests/a1-api/upload-metrics/negative/limits/grater-then-25k-field-limit/greater-then-25k-field-limit.test.ts"
+      ],
+      "usesMyFixtures": [
+        "tests/a0-general-tests/connection.sanity.test.ts",
+        "tests/a1-api/benchmark/negative/duplicate-benchmarks/duplicate-benchmarks.test.ts",
+        "tests/a1-api/benchmark/negative/existing-benchmark-conflict/existing-benchmark-conflict.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-benchmark-version/invalid-benchmark-version.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-file-format/invalid-file-format.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-population-category/invalid-population-category.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-range/invalid-range.test.ts",
+        "tests/a1-api/benchmark/negative/missing-condition-size/missing-condition-size.test.ts",
+        "tests/a1-api/benchmark/negative/missing-required-fields/benchmark-upload-missing-fields.test.ts",
+        "tests/a1-api/benchmark/negative/row-limit-exceeded/row-limit-exceeded.test.ts"
+      ]
+    }
+  },
+  "generatedInsights": {
+    "commonSelectors": [],
+    "commonLocators": [
+      {
+        "selector": "table tbody tr",
+        "count": 1
+      },
+      {
+        "selector": "text=Assigned Users, text=Eligible Users",
+        "count": 1
+      }
+    ]
+  },
+  "pageObjectUsage": {
+    "Applications": {
+      "count": 36
+    },
+    "Avatar": {
+      "count": 1
+    },
+    "DataStreamDeliveryDestinationsMoreDetails": {
+      "count": 2
+    },
+    "DataStreamDeliveryDestinationsViewer": {
+      "count": 2
+    },
+    "DeliveryDestinationsWizardPage": {
+      "count": 1
+    },
+    "mediaAssignment": {
+      "count": 1
+    },
+    "MetricManagement": {
+      "count": 4
+    },
+    "MetricManagementPage": {
+      "count": 1
+    },
+    "Add_Programmatic_Partner_Wizard": {
+      "count": 1
+    },
+    "index": {
+      "count": 40
+    },
+    "PortfolioPage": {
+      "count": 1
+    },
+    "LeftSideMenu": {
+      "count": 143
+    },
+    "ForgotPasswordModal": {
+      "count": 1
+    },
+    "LoginPage": {
+      "count": 120
+    },
+    "PasswordResetHelper": {
+      "count": 1
+    },
+    "UnableToLoginModal": {
+      "count": 2
+    },
+    "DashboardPage": {
+      "count": 1
+    },
+    "MainContent": {
+      "count": 8
+    },
+    "TopLeftMenu": {
+      "count": 126
+    },
+    "TopRightMenu": {
+      "count": 197
+    },
+    "myFixtures": {
+      "count": 227
+    },
+    "LatestCumulativeDataChart": {
+      "count": 2
+    },
+    "TrendOverTimeChart": {
+      "count": 1
+    },
+    "ExportMenu": {
+      "count": 2
+    },
+    "glossary": {
+      "count": 3
+    },
+    "reportPage": {
+      "count": 8
+    },
+    "AccessGroupDetailsPage": {
+      "count": 0
+    },
+    "applicationsTables": {
+      "count": 19
+    },
+    "client": {
+      "count": 200
+    },
+    "instanceCreationLeftSideMenu": {
+      "count": 12
+    },
+    "InstanceCreationPageGeneral": {
+      "count": 32
+    },
+    "BusinessGroup": {
+      "count": 60
+    },
+    "BusinessGroupDetailsPage": {
+      "count": 8
+    },
+    "BusinessGroupWizardStep1": {
+      "count": 20
+    },
+    "BusinessGroupWizardStep2": {
+      "count": 3
+    },
+    "BusinessGroupWizardStep3": {
+      "count": 1
+    },
+    "AddNewUserWizard": {
+      "count": 1
+    },
+    "StandardMeasurementGroups": {
+      "count": 2
+    },
+    "UserViewer": {
+      "count": 1
+    },
+    "TableViewPage": {
+      "count": 83
+    },
+    "UiUtils": {
+      "count": 1
+    }
+  }
+}
+
+DATA INPUTS:
+- DATA_INPUTS are loaded from agent/test_data_manual.json
+- Use scenario.dataInputs.<KEY>
+
+CURRENT CODE SKELETON:
+```typescript
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ */
+
+import { test, expect } from 'page-objects/myFixtures';
+import { LoginPage } from '../../page-objects/login/LoginPage';
+import { UserProvider } from '../../utils/UserProvider';
+
+interface TestScenario {
+  name: string;
+  user: any;
+  data: any;
+  dataInputs: Record<string, any>;
+}
+
+const REQUIRED_DATA_KEYS: string[] = [];
+const DATA_INPUTS: Record<string, any> = {
+  "HAPPY_PATH_USER_ROLE": "admin"
+};
+
+function missingKeys(keys: string[], data: Record<string, any>) {
+  return (keys || []).filter(k => data?.[k] === undefined || data?.[k] === null || data?.[k] === '');
+}
+
+test.describe.configure({ mode: 'parallel' });
+
+test.describe('confluence_manual', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'ConfluencePage', description: 'manual' });
+      
+      test.info().annotations.push({ type: 'Owner', description: 'Eyal Sooliman' });
+  });
+
+  test('Verify Assign Access Group to user', { tag: ['@beta'] }, async ({ page }) => {
+    const scenario: TestScenario = {
+      name: 'Verify Assign Access Group to user',
+      user: UserProvider.getUserByRole('admin'),
+      data: {
+  "Epic": "Verify_Assign_Access_Group_to",
+  "Scenario": "1. Open https://qa-beta.veevacrossix.com/Manage/AccessGroups/4\r\n2. Click on random \"More Details\" (data-hook=\"navigate-to-access-group-details\")\r\n3. Click on \"Assigned Users\" button\r\n4. click on \"Manage Users\" link (a href)\r\n5. Verify that a new tab was opened that contains \"Manage/Users/4\" in it's link\r\n6. in the new opened tab click on random \"More Details\" (data-hook=\"navigate-to-user-details\")\r\n7. in the new opened tab Click on edit button (data-hook=\"edit-button\")\r\n8. in the new opened tab Click on \"Access\" button (data-hook=\"user-details-panes-sidebar-item\")\r\n9. in the new opened tab choose random empty checkbox input (type=\"checkbox\") and click on it.\r\n10. in the new opened tab click on \"Save\" (data-hook=\"Save-button\")\r\n11. verify that the API: \"https://qa-beta.veevacrossix.com/api/v1/businessGroupAccess/user/campaign/tree?userId={user id}\" got 200\r\n12. Verify that the new added check box name is exists in the response after saving.\r\n13. Roll back the change by unchecking the checkbox from step 9.",
+  "Subject": "Verify Assign Access Group to user",
+  "Expected": "",
+  "Details": "SUBJECT: Verify Assign Access Group to user\r\nUser: admin\r\n\r\nSteps:\r\n1. Open https://qa-beta.veevacrossix.com/Manage/AccessGroups/4\r\n2. Click on random \"More Details\" (data-hook=\"navigate-to-access-group-details\")\r\n3. Click on \"Assigned Users\" button\r\n4. click on \"Manage Users\" link (a href)\r\n5. Verify that a new tab was opened that contains \"Manage/Users/4\" in it's link\r\n6. in the new opened tab click on random \"More Details\" (data-hook=\"navigate-to-user-details\")\r\n7. in the new opened tab Click on edit button (data-hook=\"edit-button\")\r\n8. in the new opened tab Click on \"Access\" button (data-hook=\"user-details-panes-sidebar-item\")\r\n9. in the new opened tab choose random empty checkbox input (type=\"checkbox\") and click on it.\r\n10. in the new opened tab click on \"Save\" (data-hook=\"Save-button\")\r\n11. verify that the API: \"https://qa-beta.veevacrossix.com/api/v1/businessGroupAccess/user/campaign/tree?userId={user id}\" got 200\r\n12. Verify that the new added check box name is exists in the response after saving.\r\n13. Roll back the change by unchecking the checkbox from step 9.\r\n\r\n",
+  "Additional": ""
+},
+      dataInputs: DATA_INPUTS
+    };
+
+    const missing = missingKeys(REQUIRED_DATA_KEYS, scenario.dataInputs);
+    test.skip(missing.length > 0, 'Missing required data inputs: ' + missing.join(', '));
+
+    const loginPage = new LoginPage(page);
+    await loginPage.resetSession?.();
+    await loginPage.navigateToLoginPage?.();
+    await loginPage.login(scenario.user.username, scenario.user.password);
+    await loginPage.expectLoginSuccess?.();
+
+    // AI_IMPLEMENTATION_START
+    // AI_IMPLEMENTATION_END
+  });
+
+});
+
+```
+
+IMPLEMENTATION REQUIREMENTS:
+🎯 EVERY scenario step MUST become a Playwright action
+🎯 EVERY major action MUST have: await console.log('<description>')
+🎯 ALL code MUST be between // AI_IMPLEMENTATION_START and // AI_IMPLEMENTATION_END
+
+EXAMPLE FORMAT:
+// AI_IMPLEMENTATION_START
+await console.log('Navigating to Metric page');
+await page.goto(process.env.APP_URL + scenario.data.Scenario.split('
+')[0].replace('1. Open ', ''));
+
+await console.log('Clicking Edit button');
+await page.getByRole('button', { name: 'Edit' }).click();
+
+await console.log('Deleting linked metric');
+const trashIcon = page.locator('[data-hook="search-bar-linked-metrics-0"] .trash-icon');
+await expect(trashIcon).toBeVisible();
+await trashIcon.click();
+// AI_IMPLEMENTATION_END
+
+⚠️  REMINDER: The automation script ONLY extracts code between the markers. Nothing else matters.

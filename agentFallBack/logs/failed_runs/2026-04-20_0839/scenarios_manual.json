@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-04-20T05:03:02.336Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "Verify Crossix admin can create a brand with a name that exists for a different ...",
+        "Subject": "Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client",
+        "Expected": "",
+        "Details": "SUBJECT: Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client\r\nUser: Crossix admin\r\n\r\nSteps that exists:\r\n1. Open https://qa-beta.veevacrossix.com\r\n2. Click on the setting gear and select Applications\r\n3. Open left side menu and Select Brands\r\n4. Click on the plus button  (img[alt='Add Item']) - a modal will open: document.querySelector(\".Dialog_wizardDialogTitle__BZoTG\"). Verify title: \"Add Application\r\n\" (.Dialog_wizardDialogTitle__BZoTG)\r\n5. Select an active advertiser-type client from the \"Select Client\" dropdown (span[id='clientName-accessibility-id'] span[class='k-input-value-text'])\r\n6. Enter a brand name that already exists for a different, advertiser-type client (span[id='brandName-accessibility-id'] span[class='k-input-value-text'])\r\n7. Click on \"Create\" button.\r\n8. Roll back and delete the created brand from DB.\r\n\r\n\r\nExpected Result:\r\n-Brand is added to the database under the selected client\r\n-Brand is visible in the UI upon creation for both the new record and the already existing record, each with distinct client\r\n\r\nAdditional data:\r\nconfluence page id: 5570297857 - Scenario #3\r\nthe name of the test file should start with \"t3_\"\n\nADDITIONAL DATA:\n",
+        "Additional": ""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "loginUrl": "https://qa-beta.veevacrossix.com/login",
+  "capturedAt": "2026-02-04T14:52:16.462Z",
+  "tools": [
+    "browser_close",
+    "browser_resize",
+    "browser_console_messages",
+    "browser_handle_dialog",
+    "browser_evaluate",
+    "browser_file_upload",
+    "browser_fill_form",
+    "browser_install",
+    "browser_press_key",
+    "browser_type",
+    "browser_navigate",
+    "browser_navigate_back",
+    "browser_network_requests",
+    "browser_run_code",
+    "browser_take_screenshot",
+    "browser_snapshot",
+    "browser_click",
+    "browser_drag",
+    "browser_hover",
+    "browser_select_option",
+    "browser_tabs",
+    "browser_wait_for"
+  ],
+  "snapshotTool": "browser_snapshot",
+  "snapshotRaw": {
+    "content": [
+      {
+        "type": "text",
+        "text": "### Page\n- Page URL: https://qa-beta.veevacrossix.com/login\n- Page Title: Veeva Crossix\n### Snapshot\n```yaml\n- img [ref=e5]\n```"
+      }
+    ]
+  }
+}

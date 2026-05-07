@@ -1,0 +1,28 @@
+{
+  "pageId": "manual",
+  "pageTitle": "confluence_manual",
+  "totalRows": 1,
+  "includedRows": 1,
+  "decisions": [
+    {
+      "index": 1,
+      "include": true,
+      "reason": "ok",
+      "testName": "Verify Assign Access Group to user",
+      "tags": [
+        "manual"
+      ],
+      "rowPreview": {
+        "Epic": "Verify_Assign_Access_Group_to",
+        "Scenario": "1. Open https://qa-beta.veevacrossix.com/Manage/AccessGroups/4 2. Click on random \"More Details\" (data-hook=\"navigate-to-access-group-details\") 3. Click on \"Assigned Users\" button ",
+        "Subject": "Verify Assign Access Group to user",
+        "Expected": "",
+        "Details": "SUBJECT: Verify Assign Access Group to user User: admin Steps: 1. Open https://qa-beta.veevacrossix.com/Manage/AccessGroups/4 2. Click on random \"More Details\" (data-hook=\"navigate",
+        "Additional": ""
+      }
+    }
+  ],
+  "notes": {
+    "isRawFallback": false
+  }
+}

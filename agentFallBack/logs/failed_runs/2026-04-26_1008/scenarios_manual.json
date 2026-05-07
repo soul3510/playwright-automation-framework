@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-04-26T07:04:36.489Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "Verify Crossix admin cannot create client (advertiser) with an existing, active ...",
+        "Subject": "Verify Crossix admin cannot create client (advertiser) with an existing, active client's Client Name",
+        "Expected": "",
+        "Details": "SUBJECT: Verify Crossix admin cannot create client (advertiser) with an existing, active client's Client Name\r\nUsers: Crossix admin\r\n\r\nSteps that exists:\r\n1. Click on the settings gear\r\n2. Choose \"Applications\"\r\n3. Open left side menu and Select \"Clients\" from the view dropdown\r\n4. Click on the plus button to add a new client\r\n5. Input a new Client Name that matches an existing, active Client Name (publisher type)\r\n6. Click Add\r\n\r\nExpected Result:\r\nClient Name input box should turn red, with red error message below it: \"Client already exists\"\r\nNo change is made in the database\r\nNo change in the UI\r\nVerify this is rejected via swagger as well\r\n\r\nAdditional data:\r\nTest file name will begin with \"t3_\".\r\nTest should be placed inside tests/a3-settings/instance-creation/application-management/client/DNT-1112\r\nGet inspiration from the tests inside tests/a3-settings/instance-creation/application-management/client/DNT-1112\r\n\r\n\n\nADDITIONAL DATA:\n",
+        "Additional": ""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

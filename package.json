@@ -4,13 +4,13 @@
   "description": "Playwright + TypeScript GitHub repo FE tests against a simple public demo site BE/API tests against a public test API HTML report",
   "main": "index.js",
   "scripts": {
-  "test": "playwright test",
-  "test:ui": "playwright test tests/ui",
-  "test:api": "playwright test tests/api",
-  "test:headed": "playwright test --headed",
-  "test:debug": "playwright test --debug",
-  "report": "playwright show-report"
-},
+    "test": "playwright test",
+    "test:ui": "playwright test tests/ui",
+    "test:api": "playwright test tests/api",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/soul3510/playwright-automation-framework.git"

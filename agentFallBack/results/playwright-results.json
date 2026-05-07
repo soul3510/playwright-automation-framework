@@ -1,0 +1,328 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\Public\\playwright-e2e-automation\\playwright.config.ts",
+    "rootDir": "C:/Users/Public/playwright-e2e-automation/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\Public\\playwright-e2e-automation\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "C:\\Users\\Public\\playwright-e2e-automation\\reports\\report-2026-02-16T14-23-14-667Z\\html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Public\\playwright-e2e-automation\\agent\\results\\playwright-results.json"
+        }
+      ],
+      [
+        "C:\\Users\\Public\\playwright-e2e-automation\\reporters\\GoogleChatReporter.ts",
+        {
+          "outputFolder": "C:\\Users\\Public\\playwright-e2e-automation\\reports\\report-2026-02-16T14-23-14-667Z\\google-chat"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/Public/playwright-e2e-automation/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/Public/playwright-e2e-automation/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts",
+          "**/*.test.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 11,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+      "file": "a7-configure/measurement-groups/manage-measurement-groups/add-new-measurement-groups/dsp - DN-3136/add-new-custom-programmatic-publisher.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Manage Measurement Groups - Add Programmatic Publisher [API]",
+          "file": "a7-configure/measurement-groups/manage-measurement-groups/add-new-measurement-groups/dsp - DN-3136/add-new-custom-programmatic-publisher.test.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Should allow adding a new 'Programmatic' measurement group via API",
+              "ok": false,
+              "tags": [
+                "beta",
+                "gamma"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "Severity",
+                      "description": "CRITICAL",
+                      "location": {
+                        "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                        "line": 91,
+                        "column": 7
+                      }
+                    },
+                    {
+                      "type": "Owner",
+                      "description": "Meitar Fuchs",
+                      "location": {
+                        "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                        "line": 91,
+                        "column": 7
+                      }
+                    },
+                    {
+                      "type": "Story",
+                      "description": "Manage Measurement Groups",
+                      "location": {
+                        "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                        "line": 91,
+                        "column": 7
+                      }
+                    },
+                    {
+                      "type": "Description",
+                      "description": "Verify that a new Programmatic publisher can be added to a measurement group via the V2 API.",
+                      "location": {
+                        "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                        "line": 91,
+                        "column": 7
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 343,
+                      "error": {
+                        "message": "Error: API FAILURE: POST /api/v2/media/groups?view=Publisher&globalId=CX515122&clientName=Novo Nordisk\nExpected Status: 200\nActual Status:   500\nResponse Body:   {\"status\":\"INTERNAL_SERVER_ERROR\",\"timestamp\":\"02-16-2026 14:23:30.788\",\"message\":\"Internal Server Error.\"}\nRequest Payload: {\n  \"mode\": \"Programmatic\",\n  \"providerId\": 306,\n  \"standardData\": [\n    105\n  ],\n  \"customData\": [\n    \"Custom name automation test\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m",
+                        "stack": "Error: API FAILURE: POST /api/v2/media/groups?view=Publisher&globalId=CX515122&clientName=Novo Nordisk\nExpected Status: 200\nActual Status:   500\nResponse Body:   {\"status\":\"INTERNAL_SERVER_ERROR\",\"timestamp\":\"02-16-2026 14:23:30.788\",\"message\":\"Internal Server Error.\"}\nRequest Payload: {\n  \"mode\": \"Programmatic\",\n  \"providerId\": 306,\n  \"standardData\": [\n    105\n  ],\n  \"customData\": [\n    \"Custom name automation test\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n    at callPostWithRequestFixture (C:\\Users\\Public\\playwright-e2e-automation\\utils\\api\\apiHelper.ts:184:41)\n    at C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts:113:22",
+                        "location": {
+                          "file": "C:\\Users\\Public\\playwright-e2e-automation\\utils\\api\\apiHelper.ts",
+                          "column": 41,
+                          "line": 184
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39m..\\utils\\api\\apiHelper.ts:184\n\n\u001b[0m \u001b[90m 182 |\u001b[39m   \u001b[36mif\u001b[39m (response\u001b[33m.\u001b[39mstatus() \u001b[33m!==\u001b[39m expectedCode) {\n \u001b[90m 183 |\u001b[39m     \u001b[36mconst\u001b[39m errorMsg \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m formatErrorMessage(\u001b[32m'POST'\u001b[39m\u001b[33m,\u001b[39m apiUrl\u001b[33m,\u001b[39m expectedCode\u001b[33m,\u001b[39m response\u001b[33m.\u001b[39mstatus()\u001b[33m,\u001b[39m response\u001b[33m,\u001b[39m payload)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 184 |\u001b[39m     expect(response\u001b[33m.\u001b[39mstatus()\u001b[33m,\u001b[39m errorMsg)\u001b[33m.\u001b[39mtoBe(expectedCode)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 185 |\u001b[39m   }\n \u001b[90m 186 |\u001b[39m\n \u001b[90m 187 |\u001b[39m   expect(response\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(expectedCode)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Public\\playwright-e2e-automation\\utils\\api\\apiHelper.ts",
+                            "column": 41,
+                            "line": 184
+                          },
+                          "message": "Error: API FAILURE: POST /api/v2/media/groups?view=Publisher&globalId=CX515122&clientName=Novo Nordisk\nExpected Status: 200\nActual Status:   500\nResponse Body:   {\"status\":\"INTERNAL_SERVER_ERROR\",\"timestamp\":\"02-16-2026 14:23:30.788\",\"message\":\"Internal Server Error.\"}\nRequest Payload: {\n  \"mode\": \"Programmatic\",\n  \"providerId\": 306,\n  \"standardData\": [\n    105\n  ],\n  \"customData\": [\n    \"Custom name automation test\"\n  ]\n}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m500\u001b[39m\n\n\u001b[90m   at \u001b[39m..\\utils\\api\\apiHelper.ts:184\n\n\u001b[0m \u001b[90m 182 |\u001b[39m   \u001b[36mif\u001b[39m (response\u001b[33m.\u001b[39mstatus() \u001b[33m!==\u001b[39m expectedCode) {\n \u001b[90m 183 |\u001b[39m     \u001b[36mconst\u001b[39m errorMsg \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m formatErrorMessage(\u001b[32m'POST'\u001b[39m\u001b[33m,\u001b[39m apiUrl\u001b[33m,\u001b[39m expectedCode\u001b[33m,\u001b[39m response\u001b[33m.\u001b[39mstatus()\u001b[33m,\u001b[39m response\u001b[33m,\u001b[39m payload)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 184 |\u001b[39m     expect(response\u001b[33m.\u001b[39mstatus()\u001b[33m,\u001b[39m errorMsg)\u001b[33m.\u001b[39mtoBe(expectedCode)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 185 |\u001b[39m   }\n \u001b[90m 186 |\u001b[39m\n \u001b[90m 187 |\u001b[39m   expect(response\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(expectedCode)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at callPostWithRequestFixture (C:\\Users\\Public\\playwright-e2e-automation\\utils\\api\\apiHelper.ts:184:41)\u001b[22m\n\u001b[2m    at C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts:113:22\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Public\\playwright-e2e-automation\\utils\\db\\dbUtil.ts",
+                            "column": 13,
+                            "line": 20
+                          },
+                          "message": "Error: SQL Parameter Error: The value for parameter \"@InventoryID\" is undefined. Ensure the variable passed to the query is correctly initialized.\n\n\u001b[90m   at \u001b[39m..\\utils\\db\\dbUtil.ts:20\n\n\u001b[0m \u001b[90m 18 |\u001b[39m     \u001b[90m// Check if value is strictly undefined (null is allowed for DB NULLs)\u001b[39m\n \u001b[90m 19 |\u001b[39m     \u001b[36mif\u001b[39m (p\u001b[33m.\u001b[39mvalue \u001b[33m===\u001b[39m undefined) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m       \u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\n \u001b[90m    |\u001b[39m             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m         \u001b[32m`SQL Parameter Error: The value for parameter \"@${p.name}\" is undefined. `\u001b[39m \u001b[33m+\u001b[39m\n \u001b[90m 22 |\u001b[39m         \u001b[32m`Ensure the variable passed to the query is correctly initialized.`\u001b[39m\n \u001b[90m 23 |\u001b[39m       )\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at applyParams (C:\\Users\\Public\\playwright-e2e-automation\\utils\\db\\dbUtil.ts:20:13)\u001b[22m\n\u001b[2m    at C:\\Users\\Public\\playwright-e2e-automation\\utils\\db\\dbUtil.ts:70:5\u001b[22m\n\u001b[2m    at executeWithRetry (C:\\Users\\Public\\playwright-e2e-automation\\utils\\db\\dbUtil.ts:42:14)\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "Executing query (env: default): SELECT ProgramID, IsDspEnabled FROM dbo.Program WHERE GlobalID = @GlobalID\n"
+                        },
+                        {
+                          "text": "With params: [\n  {\n    \"name\": \"GlobalID\",\n    \"value\": \"CX515122\"\n  }\n]\n"
+                        },
+                        {
+                          "text": "[mssql] Configuring DB for env: 'beta'\n"
+                        },
+                        {
+                          "text": "[mssql] Host: difa-qa-sql.crossix-devops.com, Port: 1433, Database: Crossix_Scoreboard_beta\n"
+                        },
+                        {
+                          "text": "[mssql] User resolved from DB_USER: 'admin'\n"
+                        },
+                        {
+                          "text": "[mssql] Password resolved from DB_PASSWORD: ****** (set)\n"
+                        },
+                        {
+                          "text": "[mssql] Encryption: false, TrustServerCertificate: false\n"
+                        },
+                        {
+                          "text": "Query result: [\n  {\n    \"ProgramID\": 4940,\n    \"IsDspEnabled\": true\n  }\n]\n"
+                        },
+                        {
+                          "text": "Program CX515122 has IsDspEnabled=false. Updating to true for the test...\n"
+                        },
+                        {
+                          "text": "Authenticated PATCH Request URL: /api/v1/program/4940\n"
+                        },
+                        {
+                          "text": "Program CX515122 updated successfully.\n"
+                        },
+                        {
+                          "text": "Executing query (env: default): SELECT PublisherID FROM dbo.Publisher WHERE PublisherID = @PublisherID\n"
+                        },
+                        {
+                          "text": "With params: [\n  {\n    \"name\": \"PublisherID\",\n    \"value\": 105\n  }\n]\n"
+                        },
+                        {
+                          "text": "Query result: [\n  {\n    \"PublisherID\": 105\n  }\n]\n"
+                        },
+                        {
+                          "text": "Executing query (env: default): SELECT PublisherID FROM dbo.Publisher WHERE PublisherID = @PublisherID\n"
+                        },
+                        {
+                          "text": "With params: [\n  {\n    \"name\": \"PublisherID\",\n    \"value\": 306\n  }\n]\n"
+                        },
+                        {
+                          "text": "Query result: [\n  {\n    \"PublisherID\": 306\n  }\n]\n"
+                        },
+                        {
+                          "text": "Executing query (env: default): SELECT PublisherID, DisplayName FROM dbo.Publisher WHERE DisplayName = @DisplayName AND isCustomInventory = 1\n"
+                        },
+                        {
+                          "text": "With params: [\n  {\n    \"name\": \"DisplayName\",\n    \"value\": \"Custom name automation test\"\n  }\n]\n"
+                        },
+                        {
+                          "text": "Query result: []\n"
+                        },
+                        {
+                          "text": "Finish verify DataBase\n"
+                        },
+                        {
+                          "text": "Authenticated POST Request URL: /api/v2/media/groups?view=Publisher&globalId=CX515122&clientName=Novo Nordisk\n"
+                        },
+                        {
+                          "text": "dn_auth cookie is present in storage state.\n"
+                        },
+                        {
+                          "text": "Executing query (env: default): DELETE FROM dn.PublisherProgram WHERE ProgramID = @ProgramID AND InventoryID = @InventoryID AND ProviderID = @ProviderID\n"
+                        },
+                        {
+                          "text": "With params: [\n  {\n    \"name\": \"ProgramID\",\n    \"value\": 4940\n  },\n  {\n    \"name\": \"InventoryID\",\n    \"value\": 105\n  },\n  {\n    \"name\": \"ProviderID\",\n    \"value\": 306\n  }\n]\n"
+                        },
+                        {
+                          "text": "Query result: \u001b[90mundefined\u001b[39m\n"
+                        },
+                        {
+                          "text": "Cleanup complete for standard inventory InventoryID: 105, ProviderID: 306 within ProgramID: 4940\n"
+                        },
+                        {
+                          "text": "Executing query (env: default): DELETE FROM dn.PublisherProgram WHERE ProgramID = @ProgramID AND InventoryID = @InventoryID AND ProviderID = @ProviderID\n"
+                        },
+                        {
+                          "text": "With params: [\n  {\n    \"name\": \"ProgramID\",\n    \"value\": 4940\n  },\n  {\n    \"name\": \"InventoryID\"\n  },\n  {\n    \"name\": \"ProviderID\",\n    \"value\": 306\n  }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-02-16T14:23:27.273Z",
+                      "annotations": [
+                        {
+                          "type": "Severity",
+                          "description": "CRITICAL",
+                          "location": {
+                            "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                            "line": 91,
+                            "column": 7
+                          }
+                        },
+                        {
+                          "type": "Owner",
+                          "description": "Meitar Fuchs",
+                          "location": {
+                            "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                            "line": 91,
+                            "column": 7
+                          }
+                        },
+                        {
+                          "type": "Story",
+                          "description": "Manage Measurement Groups",
+                          "location": {
+                            "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                            "line": 91,
+                            "column": 7
+                          }
+                        },
+                        {
+                          "type": "Description",
+                          "description": "Verify that a new Programmatic publisher can be added to a measurement group via the V2 API.",
+                          "location": {
+                            "file": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\a7-configure\\measurement-groups\\manage-measurement-groups\\add-new-measurement-groups\\dsp - DN-3136\\add-new-custom-programmatic-publisher.test.ts",
+                            "line": 91,
+                            "column": 7
+                          }
+                        }
+                      ],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Public\\playwright-e2e-automation\\utils\\api\\apiHelper.ts",
+                        "column": 41,
+                        "line": 184
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8c1ab1660c0f75269a16-dd4533d3a19cda58c08d",
+              "file": "a7-configure/measurement-groups/manage-measurement-groups/add-new-measurement-groups/dsp - DN-3136/add-new-custom-programmatic-publisher.test.ts",
+              "line": 91,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-16T14:23:15.139Z",
+    "duration": 15965.820999999998,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

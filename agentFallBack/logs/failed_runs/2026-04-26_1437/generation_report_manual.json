@@ -1,0 +1,28 @@
+{
+  "pageId": "manual",
+  "pageTitle": "confluence_manual",
+  "totalRows": 1,
+  "includedRows": 1,
+  "decisions": [
+    {
+      "index": 1,
+      "include": true,
+      "reason": "ok",
+      "testName": "Verify Crossix admin can edit client name and URL for clients (publisher)",
+      "tags": [
+        "manual"
+      ],
+      "rowPreview": {
+        "Epic": "",
+        "Scenario": "Verify Crossix admin can edit client name and URL for clients (publisher)",
+        "Subject": "Verify Crossix admin can edit client name and URL for clients (publisher)",
+        "Expected": "",
+        "Details": "SUBJECT: Verify Crossix admin can edit client name and URL for clients (publisher) Users: Crossix admin Steps that exists: 1. Click on the settings gear 2. Choose \"Applications\" 3.",
+        "Additional": ""
+      }
+    }
+  ],
+  "notes": {
+    "isRawFallback": false
+  }
+}

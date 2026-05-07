@@ -1,0 +1,61 @@
+{
+  "loginUrl": "https://qa-beta.veevacrossix.com/login",
+  "capturedAt": "2026-02-04T14:34:15.578Z",
+  "toolsAvailable": [
+    "browser_click",
+    "browser_close",
+    "browser_console_messages",
+    "browser_drag",
+    "browser_evaluate",
+    "browser_file_upload",
+    "browser_fill_form",
+    "browser_handle_dialog",
+    "browser_hover",
+    "browser_install",
+    "browser_navigate",
+    "browser_navigate_back",
+    "browser_network_requests",
+    "browser_press_key",
+    "browser_resize",
+    "browser_run_code",
+    "browser_select_option",
+    "browser_snapshot",
+    "browser_tabs",
+    "browser_take_screenshot",
+    "browser_type",
+    "browser_wait_for"
+  ],
+  "snapshotToolUsed": "browser_snapshot",
+  "snapshot": {
+    "content": [
+      {
+        "type": "text",
+        "text": "### Page\n- Page URL: https://qa-beta.veevacrossix.com/login\n- Page Title: Veeva Crossix\n### Snapshot\n```yaml\n- img [ref=e5]\n```"
+      }
+    ]
+  },
+  "targets": [
+    {
+      "key": "forgotPassword",
+      "hints": [
+        "forgot password",
+        "reset password"
+      ]
+    },
+    {
+      "key": "rememberMe",
+      "hints": [
+        "remember me"
+      ]
+    },
+    {
+      "key": "togglePassword",
+      "hints": [
+        "show password",
+        "hide password",
+        "password"
+      ]
+    }
+  ],
+  "next": "Run 31_resolve_login_locators.mjs to convert snapshot/targets into stable locators."
+}

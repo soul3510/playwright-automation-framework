@@ -1,0 +1,71 @@
+{
+  "Client Filter": [
+    "TopRightMenu",
+    "MainContent"
+  ],
+  "Report Access": [
+    "DataStreamJobsPage",
+    "ReportPage"
+  ],
+  "Admin API": [
+    "UserProvider"
+  ],
+  "Access Group": [
+    "AccessGroupDetailsPage"
+  ],
+  "Settings Gear": [
+    "TopRightMenu"
+  ],
+  "Menu Settings": [
+    "TopRightMenu"
+  ],
+  "Applications Menu": [
+    "TopRightMenu"
+  ],
+  "Settings": [
+    "TopRightMenu"
+  ],
+  "gear icon": [
+    "TopRightMenu"
+  ],
+  "Applications": [
+    "TopRightMenu",
+    "Applications"
+  ],
+  "left side menu": [
+    "LeftSideMenu"
+  ],
+  "left menu": [
+    "LeftSideMenu"
+  ],
+  "Brands": [
+    "LeftSideMenu",
+    "Applications"
+  ],
+  "Client": [
+    "InstanceCreationPageGeneral",
+    "Client"
+  ],
+  "Create": [
+    "Applications",
+    "Add_Manage-Measurement-Groups_Wizard"
+  ],
+  "wizard": [
+    "Add_Manage-Measurement-Groups_Wizard",
+    "Add_Programmatic_Partner_Wizard"
+  ],
+  "modal": [
+    "Applications",
+    "Add_Manage-Measurement-Groups_Wizard"
+  ],
+  "dropdown": [
+    "TopRightMenu",
+    "LeftSideMenu"
+  ],
+  "plus button": [
+    "Applications"
+  ],
+  "add button": [
+    "Applications"
+  ]
+}

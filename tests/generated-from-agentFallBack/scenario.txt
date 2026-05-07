@@ -1,0 +1,12 @@
+Subject: Test sign in button
+User: no user
+Steps:
+1. Navigate to page: https://unbounce.com/landing-page-examples/best-landing-page-examples/
+2. Click on "Login in" button
+3. Verify log in was opened in a new tab
+4. On the new tab verify link contains: "/sign_in"
+5. Verify Sign In button appears. 
+
+Expected:
+Link in new tab contains "/sign_in"
+Sign in button exists

@@ -1,0 +1,39 @@
+{
+  "loginUrl": "https://qa-beta.veevacrossix.com/login",
+  "capturedAt": "2026-02-04T14:30:14.039Z",
+  "snapshot": {
+    "content": [
+      {
+        "type": "text",
+        "text": "### Page\n- Page URL: https://qa-beta.veevacrossix.com/login\n- Page Title: Veeva Crossix\n### Snapshot\n```yaml\n- generic [ref=e3]:\n  - generic [ref=e4]:\n    - img [ref=e6]\n    - generic [ref=e12]:\n      - text: Use of Veeva Crossix deliverables subject to contractual restrictions and usage guidelines as set forth at\n      - link \"https://www.veeva.com/crossix-data-usage-policy\" [ref=e13] [cursor=pointer]:\n        - /url: https://www.veeva.com/crossix-data-usage-policy\n      - text: . © Copyright 2014 - 2025 Veeva Systems\n  - generic [ref=e14]:\n    - generic [ref=e15]:\n      - img [ref=e16]\n      - generic [ref=e21]: Welcome\n      - generic [ref=e22]: Log in to your account\n      - generic [ref=e23]: digital.crossix.com is now veevacrossix.com\n    - generic [ref=e24]:\n      - generic [ref=e25]:\n        - generic [ref=e26]: Email Address\n        - textbox \"Email Address\" [ref=e27]:\n          - /placeholder: Email\n      - generic [ref=e28]:\n        - generic [ref=e29]: Password\n        - generic [ref=e30]:\n          - textbox \"Password\" [ref=e31]\n          - button \"Show password\" [ref=e32] [cursor=pointer]:\n            - img [ref=e34]\n      - generic [ref=e36]:\n        - generic [ref=e37]:\n          - checkbox [ref=e40] [cursor=pointer]\n          - generic [ref=e41]: Remember me\n        - button \"Forgot your password?\" [ref=e42] [cursor=pointer]\n      - button \"Login\" [ref=e43] [cursor=pointer]\n```"
+      }
+    ]
+  },
+  "targets": [
+    {
+      "key": "forgotPassword",
+      "hints": [
+        "/forgot password/i",
+        "/reset password/i"
+      ]
+    },
+    {
+      "key": "rememberMe",
+      "hints": [
+        "/remember me/i"
+      ]
+    },
+    {
+      "key": "togglePassword",
+      "hints": [
+        "/show password/i",
+        "/hide password/i",
+        "/password/i"
+      ]
+    }
+  ],
+  "notes": [
+    "Next: resolve each target into a stable locator preference: data-testid > role/name > label > text.",
+    "Then write those locators into LoginPage methods or a locator map consumed by generator."
+  ]
+}

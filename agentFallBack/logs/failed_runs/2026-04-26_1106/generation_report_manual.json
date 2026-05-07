@@ -1,0 +1,28 @@
+{
+  "pageId": "manual",
+  "pageTitle": "confluence_manual",
+  "totalRows": 1,
+  "includedRows": 1,
+  "decisions": [
+    {
+      "index": 1,
+      "include": true,
+      "reason": "ok",
+      "testName": "Verify Crossix admin cannot create client (advertiser) with an existing, active client's Client Name",
+      "tags": [
+        "manual"
+      ],
+      "rowPreview": {
+        "Epic": "",
+        "Scenario": "Verify Crossix admin cannot create client (advertiser) with an existing, active ...",
+        "Subject": "Verify Crossix admin cannot create client (advertiser) with an existing, active client's Client Name",
+        "Expected": "",
+        "Details": "SUBJECT: Verify Crossix admin cannot create client (advertiser) with an existing, active client's Client Name Users: Crossix admin Steps that exists: 1. Click on the settings gear ",
+        "Additional": ""
+      }
+    }
+  ],
+  "notes": {
+    "isRawFallback": false
+  }
+}

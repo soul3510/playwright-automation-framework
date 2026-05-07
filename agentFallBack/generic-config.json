@@ -1,0 +1,45 @@
+{
+  "genericMode": true,
+  "fallbackToRawLocators": true,
+  "autoGeneratePageObjects": false,
+  "universalSelectors": {
+    "login": {
+      "username": ["input[type='text']", "input[name='username']", "input[placeholder*='username']", "#username"],
+      "password": ["input[type='password']", "input[name='password']", "input[placeholder*='password']", "#password"],
+      "submit": ["button[type='submit']", "input[type='submit']", "button:has-text('Login')", ".login-button"]
+    },
+    "navigation": {
+      "menu": ["nav", ".nav", "[role='navigation']", ".menu"],
+      "links": ["a[href]", "button:has-text('')", ".link"],
+      "dropdown": ["select", ".dropdown", "[role='combobox']"]
+    },
+    "common": {
+      "button": ["button", "input[type='button']", ".btn", "[role='button']"],
+      "input": ["input", "textarea", "[contenteditable='true']"],
+      "text": ["p", "span", "div", "h1, h2, h3, h4, h5, h6"],
+      "form": ["form", ".form", "[role='form']"]
+    }
+  },
+  "genericUserRoles": [
+    "admin", "user", "guest", "standard", "premium", "basic"
+  ],
+  "testPatterns": {
+    "login": {
+      "steps": ["navigate", "fill credentials", "submit", "verify"],
+      "verification": ["url change", "welcome message", "dashboard visible"]
+    },
+    "navigation": {
+      "steps": ["click element", "wait", "verify destination"],
+      "verification": ["url", "title", "element visible"]
+    },
+    "form": {
+      "steps": ["fill fields", "submit", "verify"],
+      "verification": ["success message", "data saved", "redirect"]
+    }
+  },
+  "flexibleStructure": {
+    "allowInlineLocators": true,
+    "requirePageObjects": false,
+    "autoCreateHelpers": true
+  }
+}

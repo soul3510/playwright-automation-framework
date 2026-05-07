@@ -1,0 +1,1319 @@
+
+🚨 CRITICAL: MARKERS ARE YOUR ONLY COMMUNICATION CHANNEL
+🚨 The automation script CANNOT read your explanations - it ONLY reads code between markers.
+
+TASK: Complete Playwright test implementation between // AI_IMPLEMENTATION_START and // AI_IMPLEMENTATION_END markers.
+
+MARKER COMMUNICATION RULES:
+❌ DO NOT write explanations outside the markers
+❌ DO NOT move, rename, or delete the markers  
+✅ ALL Playwright logic MUST be strictly between the markers
+✅ The script extracts ONLY the code between these markers
+
+FRAMEWORK REQUIREMENTS:
+
+MANDATORY WORKFLOW - FOLLOW THESE STEPS IN ORDER:
+
+STEP 1 - ANALYZE THE SCENARIO:
+   - Read the test scenario carefully
+   - Identify every UI action needed (click, select, navigate, fill, etc.)
+
+STEP 2 - SEARCH PAGE OBJECT MAP (MANDATORY):
+   - For EACH action, scan the PAGE OBJECT MAP below for matching methods
+   - Look for method names that describe the action: selectSettings(), openMenu(), clickAddButton(), etc.
+   - Check method parameters to ensure they match your needs
+   - IF a matching method exists → GO TO STEP 3
+   - IF no matching method exists → GO TO STEP 4
+
+STEP 3 - USE EXISTING PAGE OBJECT METHOD (Priority 1):
+   - Instantiate: const poName = new PageObjectClass(page);
+   - Call the method: await poName.existingMethod(params);
+   - Add STEP log: console.log('STEP: <description>');
+   - YOU MUST USE THIS - NO RAW LOCATORS ALLOWED WHEN PO METHOD EXISTS
+
+STEP 4 - CHECK FOR EXTENSION OPPORTUNITY (Priority 2):
+   - Does a relevant Page Object exist but lack the specific method?
+   - Add the new method to the existing Page Object class
+   - Follow existing patterns (async, STEP logs, return types)
+   - Return updated code in /* FILE: path/to/file.ts */ block
+   - Then use your new method per STEP 3
+
+STEP 5 - CREATE NEW PAGE OBJECT (Priority 3):
+   - Only if NO relevant Page Object exists at all
+   - Follow repository patterns (class structure, async methods, STEP logs)
+   - Return new code in /* FILE: path/to/file.ts */ block
+
+STEP 6 - INLINE RAW LOCATORS (Last Resort - Forbidden unless truly unique):
+   - ONLY if the action is completely unique with no PO coverage
+   - Example: One-off interactions that don't fit any pattern
+
+🚫 ABSOLUTELY FORBIDDEN:
+   - Writing 'page.locator(...)' or 'page.getBy...' when a PO method exists for that action
+   - Creating new PO methods without first checking if they already exist
+   - Skipping the PAGE OBJECT MAP search step
+
+✅ EXAMPLES OF CORRECT USAGE:
+   - WRONG:  await page.locator('.icon-settings').click();
+   - RIGHT:  await topRightMenu.selectSettings('Applications');
+
+   - WRONG:  await page.locator('[data-hook="left-menu"]').click();
+   - RIGHT:  await leftSideMenu.openMenu();
+
+   - WRONG:  await page.locator('text=Brands').click();
+   - RIGHT:  await leftSideMenu.selectViewOption('Brands');
+
+CONFLUENCE:
+- PageId: manual
+- Title: confluence_manual
+- JiraKey: N/A
+
+REFERENCE STYLE:
+// tests/a2-login/login/successfulLogin.test.ts
+
+import { test } from 'page-objects/myFixtures';
+import { User, UserProvider } from '../../utils/UserProvider';
+import { testParallel } from '../../env.config';
+import { allureLogger } from '../../utils/allureLogger';
+
+interface LoginScenario {
+    user: User | undefined;
+}
+
+const loginScenarios: LoginScenario[] = [
+  {
+    user: UserProvider.getUserByRole('admin'),
+  },
+  {
+    user: UserProvider.getUserByRole('standard'),
+  },
+  {
+    user: UserProvider.getUserByRole('configurationUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('crossixUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('internalCrossixAnalyst'),
+  },
+  {
+    user: UserProvider.getUserByRole('publisher'),
+  },
+  {
+    user: UserProvider.getUserByRole('organizationAdminWithNetInPlatform'),
+  },
+  {
+    user: UserProvider.getUserByRole('organizationAdminWithAllAdditionalPrivileges'),
+  },
+  {
+    user: UserProvider.getUserByRole('publisherStandardUserGilaed'),
+  },
+  {
+    user: UserProvider.getUserByRole('publisherAdmin'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamAdmin'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamAdmin2'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('dataStreamUser2'),
+  },
+  {
+    user: UserProvider.getUserByRole('difaOnlyExpiredProgramLessThan1YearUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('difaOnlyHcpAccessUser'),
+  },
+  {
+    user: UserProvider.getUserByRole('configurationUserNoAdditionalPermissions'),
+  }
+];
+
+test.describe('Login/Logout Tests', () => {
+  // Force parallel execution for this suite
+  test.describe.configure({ mode: 'parallel' });
+
+  test.beforeEach(async ({ loginPage }) => {
+    // Ensure a clean session before each test to prevent state leakage in parallel runs
+    await loginPage.resetSession();
+    await loginPage.navigateToLoginPage();
+  });
+
+  loginScenarios.forEach((scenario, index) => {
+
+    const username = scenario.user?.username ?? 'UNKNOWN_USER';
+    const role = scenario.user?.role ?? 'UNKNOWN_ROLE';
+    const password = scenario.user?.password ?? 'UNKNOWN_ROLE';
+
+    test(`Should allow an ${role} user to log in successfully - ${index}`, {
+      tag: ['@beta'],
+      annotation: [
+        {
+          type: 'issue',
+          description: 'https://crossixsolutions.atlassian.net/browse/DIFA-11000'
+        },
+        {
+          type: 'tms',
+          description: 'https://crossixsolutions.atlassian.net/wiki/pages/resumedraft.action?draftId=3394797722'
+        },
+      ],
+    }, async ({ loginPage }) => { // IMPORTANT: Changed 'page' to 'loginPage' here
+
+      await loginPage.login(username, password);
+      await loginPage.expectLoginSuccess();
+
+      await allureLogger.step(`Login test for ${username} completed.`);
+    });
+  });
+});
+
+PAGE OBJECT MAP:
+CLASS: Applications
+IMPORT: import { Applications } from '../../page-objects/applications/Applications';
+USE FOR: General purpose Page Object
+METHODS:
+  - navigateToApplications(baseUrl: string)
+  - filterByLinked()
+  - importLinkedApplications(filePath: string)
+  - verifyUploadSuccessAndClose()
+  - searchForRecord(searchText: string)
+  - verifySearchResults(expectedId: string)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/avatar/Avatar';
+USE FOR: Page Object class for the Data Stream Delivery Destinations More Details page.
+  Replaces org.pageObjects.UI.dataStreamDeliveryDestinationsViewer.DataStreamDeliveryDestinationsMoreDetailsPageObjects.
+METHODS:
+  - selectAvatarOption(option: "My Profile" | "Logout")
+    // Page Object class for the Data Stream Delivery Destinations More Details page. Replaces org.pageObjects.UI.dataStreamDel...
+KEY LOCATORS:
+  - reportTitle: page.locator('div[data-hook=\'metric-types-header\'] h2'...)
+  - avatarImage: page.locator('div[data-hook="avatar"]'...)
+  - myProfileButton: page.locator('div[class="NavBar_list__GIvqB"] >> button:has-tex...)
+  - logoutButton: page.locator('div[class="NavBar_list__GIvqB"] >> button:has-tex...)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/configure/DataStreamDeliveryDestinationsMoreDetails';
+USE FOR: Page Object class for the Data Stream Delivery Destinations More Details page.
+  Replaces org.pageObjects.UI.dataStreamDeliveryDestinationsViewer.DataStreamDeliveryDestinationsMoreDetailsPageObjects.
+METHODS:
+  - getReportTitle(): Promise<string>
+    // Page Object class for the Data Stream Delivery Destinations More Details page. Replaces org.pageObjects.UI.dataStreamDel...
+  - getDestinationNameFromTitle(): Promise<string>
+    // Extracts the destination name from the report title. Replaces getDestinationNameFromTitle().
+  - waitForDestinationDetailsPageToLoad(): Promise<void>
+    // Waits for the destination details page to be fully loaded after creation. Replaces waitForDestinationDetailsPageToLoad()...
+  - getDestinationIdFromUrl(): Promise<string>
+    // Extracts the Destination ID from the current URL. Replaces getDestinationIdFromUrl().
+  - clickEditIcon(): Promise<void>
+    // Clicks the edit icon to enter edit mode and waits for edit mode to be active. Replaces clickEditIcon().
+  - clickSaveButton(): Promise<void>
+    // Clicks the save button and waits for the page to return to view mode. Replaces clickSaveButton().
+  - clickCancelButton(): Promise<void>
+    // Clicks the cancel button and waits for the page to return to view mode. Replaces clickCancelButton().
+  - setDestinationName(newName: string): Promise<void>
+    // Enters new text into the Destination Name input field. Replaces setDestinationName(String newName).
+  - clickStayOnPageOption(): Promise<void>
+    // Clicks the option to stay on the page when unsaved changes warning appears. Replaces clickStayOnPageOption().
+  - clickTestConnectionButton(): Promise<void>
+    // Clicks the Test Connection button. Replaces clickTestConnectionButton().
+  - getAvailableJobNames(): Promise<string[]>
+    // Retrieves the names of all currently visible jobs in the "Available Jobs" list. Replaces getAvailableJobNames().
+  - getSelectedJobNames(): Promise<string[]>
+    // Retrieves the names of all currently visible jobs in the "Selected Jobs" list. Replaces getSelectedJobNames().
+  - getConnectionStatus(): Promise<string>
+    // Gets the current connection status displayed on the page. Replaces getConnectionStatus().
+  - selectAvailableJobByName(jobName: string): Promise<void>
+    // Finds and clicks on a specific job in the "Available Jobs" list by its name. Replaces selectAvailableJobByName(String jo...
+  - clickMoveToSelectedArrow(): Promise<void>
+    // Clicks the arrow button to move a selected job from the "Available" list to the "Selected" list. Replaces clickMoveToSel...
+  - clickMoveToAvailableArrow(): Promise<void>
+    // Clicks the arrow button to move a selected job from the "Selected" list to the "Available" list. Replaces clickMoveToAva...
+  - clearS3UriPath(): Promise<void>
+    // Clears the 'S3 URI Path' input field in edit mode. Replaces clearS3UriPath().
+  - searchForJob(searchTerm: string): Promise<void>
+    // Enters a search term into the Job Management search input. Replaces searchForJob(String searchTerm).
+  - clearJobSearch(): Promise<void>
+    // Clears the Job Management search input. Replaces clearJobSearch().
+  - isViewModeActive(): Promise<boolean>
+  - isSaveButtonDisplayed(): Promise<boolean>
+  - isCancelButtonDisplayed(): Promise<boolean>
+  - isDestinationNameInputEnabled(): Promise<boolean>
+  - isDestinationTypeDisplayed(): Promise<boolean>
+  - isCreatedDateDisplayed(): Promise<boolean>
+  - isLastModifiedDateDisplayed(): Promise<boolean>
+  - isJobManagementSectionDisplayed(): Promise<boolean>
+  - isKendoListBoxDisplayed(): Promise<boolean>
+  - isAlternativeJobManagementUIPresent(): Promise<boolean>
+  - isNoJobsMessageVisible(listType: 'available' | 'selected'): Promise<boolean>
+  - isDestinationNameFieldHighlightedAsError(): Promise<boolean>
+  - isRequiredFieldErrorMessageDisplayed(): Promise<boolean>
+  - isInvalidCharacterErrorMessageDisplayed(): Promise<boolean>
+  - isUnsavedChangesWarningDisplayed(): Promise<boolean>
+  - isValidationMessageDisplayed(expectedMessage: string): Promise<boolean>
+KEY LOCATORS:
+  - reportTitle: page.locator('div[data-hook=\'metric-types-header\'] h2'...)
+  - editIcon: page.locator('div[class*=\'MetricConfigurationPage_headerContro...)
+  - saveButton: page.locator('button[data-hook=\'Save-button\']'...)
+  - cancelButton: page.locator('button[data-hook=\'Cancel-button\']'...)
+  - destinationNameInput: page.locator('#destination-name-input'...)
+  - destinationTypeDisplay: page.locator('//div[text(...)
+  - createdDateDisplay: page.locator('//div[text(...)
+  - lastModifiedDateDisplay: page.locator('//div[text(...)
+  - jobManagementSectionHeader: page.getByRole('button', { name: 'JOB MANAGEMENT', exact: true }...)
+  - jobManagementSearchInput: page.locator('[data-hook="search-in-table-input-field"]'...)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/configure/DataStreamDeliveryDestinationsViewer';
+USE FOR: Page Object class for the Data Stream Delivery Destinations Viewer Page.
+  Replaces org.pageObjects.UI.dataStreamDeliveryDestinationsViewer.DataStreamDeliveryDestinationsViewerPageObjects.
+METHODS:
+  - getReportTitle(): Promise<string>
+    // Page Object class for the Data Stream Delivery Destinations Viewer Page. Replaces org.pageObjects.UI.dataStreamDeliveryD...
+  - getFirstDestinationName(): Promise<string>
+    // Gets the name of the first destination from the table. Replaces getFirstDestinationName(). @returns The name of the firs...
+  - getNameOfFirstDestinationOfType(destinationType: string): Promise<string>
+    // Gets the name of the first destination that matches the given type. Replaces getNameOfFirstDestinationOfType(String dest...
+  - clickFirstMoreDetailsButton(): Promise<void>
+    // Clicks the 'More Details' button for the first destination in the table. Replaces clickFirstMoreDetailsButton().
+  - clickMoreDetailsForFirstDestinationOfType(destinationType: string): Promise<void>
+    // Clicks the 'More Details' button for the first destination that matches the given type. Replaces clickMoreDetailsForFirs...
+  - isAddDestinationButtonVisible(): Promise<boolean>
+    // Checks if the 'Add Delivery Destination' button is visible on the page. Replaces isAddDestinationButtonVisible(). @retur...
+  - clickAddDestinationButton(): Promise<void>
+    // Clicks the 'Add Delivery Destination' button to open the wizard. Replaces clickAddDestinationButton().
+  - getCurrentBusinessGroupName(): Promise<string>
+    // Gets the current Business Group name by parsing it from the main report title. Assumes the title format is "[Business Gr...
+  - selectBusinessGroup(groupName: string): Promise<void>
+    // Opens the side navigation, and switches the view to a specific Business Group. Replaces selectBusinessGroup(String group...
+KEY LOCATORS:
+  - reportTitle: page.locator('h2.dn-page-header-title'...)
+  - firstDestinationNameCell: page.locator('tbody[role="rowgroup"] > tr:nth-child(1...)
+  - firstMoreDetailsButton: page.locator('tbody[role=\'rowgroup\'] > tr:nth-child(1...)
+  - destinationRows: page.locator('tbody[role="rowgroup"] > tr'...)
+  - addDestinationButton: page.locator('button[data-hook="manage-groups-add-group-button"...)
+  - navigationMenuToggleButton: page.locator('button[aria-label="Toggle navigation menu"]'...)
+  - businessGroupDropdownButton: page.locator('button[data-hook="search-bar-business-group"]'...)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/configure/DeliveryDestinationsWizardPage';
+USE FOR: Page Object class for the Data Stream Delivery Destinations Wizard page.
+  Replaces org.pageObjects.UI.dataStreamDeliveryDestinationsViewer.DeliveryDestinationsWizardPageObjects.
+METHODS:
+  - getBusinessGroupFromWizard(): Promise<string>
+    // Page Object class for the Data Stream Delivery Destinations Wizard page. Replaces org.pageObjects.UI.dataStreamDeliveryD...
+  - getPreservedDestinationName(): Promise<string | null>
+    // Gets the destination name from the review screen. Replaces getReviewDestinationName(). /
+  getReviewDestinationName(): ...
+  - enterDestinationName(name: string): Promise<void>
+    // Enters a destination name in the input field. Replaces enterDestinationName(String name).
+  - selectDestinationType(type: string): Promise<void>
+    // Selects a destination type from the radio button options. Replaces selectDestinationType(String type).
+  - selectS3AccessOption(optionText: string): Promise<void>
+    // Selects an AWS S3 access option. Replaces selectS3AccessOption(String optionText).
+  - clearDestinationName(): Promise<void>
+    // Clears the destination name input field. Replaces clearDestinationName().
+  - clickNextButton(): Promise<void>
+    // Clicks the Next button to proceed to the next step. Replaces clickNextButton().
+  - clickAddButton(): Promise<void>
+    // Clicks the Add button to create the destination. Replaces clickAddButton().
+  - clickCancelButton(): Promise<void>
+    // Clicks the Cancel button to exit the wizard. Replaces clickCancelButton().
+  - clickBackButton(): Promise<void>
+    // Clicks the Back button to return to the previous screen. Replaces clickBackButton().
+  - isWizardModalVisible(): Promise<boolean>
+    // Checks if the wizard modal is visible on the page. Replaces isWizardModalVisible().
+  - isWizardModalClosed(): Promise<boolean>
+    // Checks if the wizard modal is closed (not visible on the page). Replaces isWizardModalClosed().
+  - areS3AccessOptionsVisible(): Promise<boolean>
+    // Checks if AWS S3 access options are visible. Replaces areS3AccessOptionsVisible().
+  - isAccessOptionDisplayedInReview(): Promise<boolean>
+    // Checks if the access option section is displayed in the review screen. Replaces isAccessOptionDisplayedInReview().
+  - isReviewScreenDisplayed(): Promise<boolean>
+    // Checks if the review screen is displayed. Replaces isReviewScreenDisplayed().
+  - getResourceBasedTooltipText(): Promise<string | null>
+    // Retrieves tooltip text by hovering over a specific tooltip icon. Replaces getTooltipText(WebElement tooltipIcon). /
+  p...
+  - getCrossAccountTooltipText(): Promise<string | null>
+    // Hovers over the tooltip icon for Cross-account IAM roles option and retrieves the text. Replaces getCrossAccountTooltipT...
+  - areS3TooltipIconsVisible(): Promise<boolean>
+    // Checks if tooltip icons are visible for both S3 access options. Replaces areS3TooltipIconsVisible().
+  - isDestinationNameFieldHighlightedAsError(): Promise<boolean>
+    // Checks if the destination name input field is highlighted as an error. Replaces isDestinationNameFieldHighlightedAsError...
+  - isUniqueNameErrorDisplayed(): Promise<boolean>
+    // Checks if a unique name error is displayed. Replaces isUniqueNameErrorDisplayed().
+  - isRequiredFieldErrorDisplayed(): Promise<boolean>
+    // Checks if a required field error is displayed. Replaces isRequiredFieldErrorDisplayed().
+  - isInvalidCharsErrorDisplayed(): Promise<boolean>
+    // Checks if an invalid characters error is displayed. Replaces isInvalidCharsErrorDisplayed().
+  - isCharLimitEnforced(longName: string): Promise<boolean>
+    // Checks if character limit validation is enforced for a long input. Replaces isCharLimitEnforced(String longName).
+  - isValidationErrorDisplayed(errorTextContains: string): Promise<boolean>
+KEY LOCATORS:
+  - wizardContainer: page.locator('div[class*=\'WizardRevised_wrapper__\']'...)
+  - wizardTitle: page.getByRole('heading', { name: 'Add Delivery Destination', exa...)
+  - businessGroupReadOnlyField: page.locator('//div[text(...)
+  - destinationNameInput: page.locator('#destination-name-input'...)
+  - nextButton: page.locator('button[data-hook=\'wizard-control-next\']'...)
+  - addButton: page.locator('button[data-hook=\'wizard-control-confirm\']'...)
+  - backButton: page.locator('button[data-hook=\'wizard-control-back\']'...)
+  - cancelButton: page.locator('button[data-hook=\'wizard-control-cancel\']'...)
+  - reviewDestinationName: page.locator('//div[text(...)
+  - reviewDestinationType: page.locator('//div[text(...)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/configure/measurement-groups/Manage-Measurement-Groups';
+USE FOR: Page Object class for the Measurement Groups configuration page.
+  Replaces org.pageObjects.UI.configure.measurementGroups.MeasurementGroupsPageObjects.
+METHODS:
+  - getTitle(): Promise<string>
+    // Page Object class for the Measurement Groups configuration page. Replaces org.pageObjects.UI.configure.measurementGroups...
+  - verifyMeasurementGroupsExcludedIconExists(): Promise<boolean>
+    // Verifies the Measurement Groups Excluded minus icon exists (indicating Excluded Media status). Replaces verifyMeasuremen...
+  - clickOnDownloadsMenu(): Promise<void>
+    // Clicks on the 'Export & Download' menu (3-dots icon). Replaces clickOnDownloadsMenu(). Note: The menu is hidden by defau...
+  - clickToDownloadByName(downloadName: string): Promise<void>
+    // Clicks a download option by its visible text from the export menu. Replaces clickToDownloadByName(). @param downloadName...
+  - addMeasurementGroup(groupType: 'Direct' | 'Programmatic' | 'none' = 'none'): Promise<boolean>
+    // Clicks the Add button and optionally selects a measurement group type @param groupType The type of measurement group to ...
+  - inactivateMeasurementGroupByName(groupName: string): Promise<void>
+    // Selects a measurement group by name, marks it as inactive, and verifies its removal from the list. @param groupName The ...
+  - inactivateAllMeasurementGroups(): Promise<void>
+    // Inactivates all measurement groups currently visible in the table.
+KEY LOCATORS:
+  - titleLocator: page.locator('div[data-hook=\'table-header\'] span'...)
+  - excludedTitleLocator: page.locator('div[data-hook=\'table-header\'] div'...)
+  - MeasurementGroupsExcludedIcon: page.locator('img[alt="Minus icon"]'...)
+  - exportMenu3Dots: page.locator('div[data-hook="ellipsis-menu"]'...)
+  - addButton: page.locator('button[data-hook="add-entity-button"]'...)
+
+---
+
+CLASS: Add_Programmatic_Partner_Wizard
+IMPORT: import { Add_Programmatic_Partner_Wizard } from '../../page-objects/configure/wizards/Add_Programmatic_Partner_Wizard';
+USE FOR: Page Object for the Add Programmatic Publishers Wizard
+METHODS:
+  - fillContactEmails(emails: string[]): Promise<void>
+    // Page Object for the Add Programmatic Publishers Wizard /
+export class Add_Programmatic_Partner_Wizard {
+  private read...
+  - fillPartnerCampaignId(id: string): Promise<void>
+    // Fills Partner Campaign ID in Step 3. Checks if the input is enabled before filling. @param id The campaign ID string.
+  - clickNextButton(): Promise<void>
+    // Clicks the 'Next' button to advance the stepper.
+  - clickReviewButton(): Promise<void>
+    // Get the Review button locator @returns The locator for the Review button /
+  getReviewButton() {
+    return this.nextO...
+  - verifyReviewSelections(partner: string, inventoryPartners: string[]): Promise<void>
+    // Verify the review page shows the correct selections @param partner Selected programmatic partner @param inventoryPartner...
+  - clickAddButton(): Promise<void>
+    // Click the Add button to complete the wizard
+  - verifyWizardElements(): Promise<void>
+    // Verify all wizard elements are visible
+  - verifyWizardAdTypeElements(): Promise<void>
+    // Verify all wizard elements are visible
+  - verifyWizardGeneralElements(): Promise<void>
+    // Verify all wizard elements are visible
+  - selectRandomProgrammaticPartner(): Promise<string>
+    // Select a random programmatic partner from the dropdown @returns The text of the selected partner
+  - selectRandomInventoryPartners(count: number = 2): Promise<string[]>
+    // Select random inventory partners @param count Number of partners to select (default: 2) @returns Array of selected partn...
+  - verifyGeneralReviewSelections(adTypes: string[]): Promise<void>
+    // Verify the review page shows the correct Ad Type selections @param adTypes Array of selected Ad Types to verify
+  - clickAddButtonGeneral(): Promise<void>
+  - verifyWizardClosed(): Promise<void>
+    // Verify the wizard is closed
+  - clickBackButton(): Promise<void>
+    // Click the Back button to return to the previous step
+  - clickCancelButton(): Promise<void>
+    // Click the Cancel button to close the wizard
+  - selectRandomAdTypeOptions(numToSelect: number = 2): Promise<string[]>
+    // Selects a random number of Ad Type options from the dropdown. @param numToSelect The number of ad types to select. Defau...
+  - enterRandomCustomAudience(count: number = 1): Promise<string[]>
+    // Enters a specified number of random custom audience names into the input field. The names are entered as a comma-separat...
+  - enterCustomAudience(audienceString: string): Promise<string[]>
+    // Enters a provided custom audience string into the input field. The names are expected to be a comma-separated string. @p...
+  - enterRandomCustomTactic(selectionType: 'standard' | 'custom', count: number = 1): Promise<string[]>
+    // Handles adding standard or custom tactics. If 'standard', selects a random number of tactics from the list. If 'custom',...
+
+---
+
+CLASS: LeftSideMenu
+IMPORT: import { LeftSideMenu } from '../../page-objects/leftSideMenu/LeftSideMenu';
+USE FOR: Open left side menu (Original)
+METHODS:
+  - openLeftSideMenu()
+    // Open left side menu (Original)
+  - selectBrand(brand: string)
+    // Selects an option from the Brand dropdown. (Original) @param brand The name of the brand to choose.
+  - selectCampaign(campaign: string)
+    // Selects an option from the Campaign dropdown. @param campaign The name of the campaign to choose. @returns The current c...
+  - selectReport(report: string)
+    // Selects an option from the Report dropdown. If the dropdown is disabled (e.g., only one report available), it logs a mes...
+  - selectMetric(metric: string)
+    // Selects an option from the Metric dropdown. If the dropdown is disabled, it logs a message and skips the selection. @par...
+  - selectDataType(dataType: string)
+    // Selects an option from the Data Type dropdown. @param dataType The name of the data type to choose.
+  - selectPrimaryDimension(primaryDimension: string)
+    // Selects an option from the Primary Dimension dropdown. (Original) @param primaryDimension The name of the primaryDimensi...
+  - selectStatus(status: string)
+    // Selects an option from the Status dropdown. @param status The name of the status to choose (e.g., 'Assigned', 'Unassigne...
+  - selectViewOption(option: 'Applications' | 'Brands' | 'Clients'): Promise<void>
+    // Selects an option from the "View" dropdown and verifies the table title. @param option The option to select. Can be 'App...
+  - selectFilterOptionsReports(dropdown: string, options: string[] = [], randomCount?: number)
+    // Helper method to open a dropdown, search for and select multiple options. (Original)
+  - selectFilterOptionsMMG(dropdown: string, options: string[]): Promise<void>
+    // Helper method to open a dropdown, search for and select multiple options within the Measurement Groups Filters section. ...
+  - applyFilters()
+    // Applies the current filters by clicking the "Apply Filters" button. (Original)
+  - selectLinkedApplications()
+    // Selects Linked Applications at Applications sidebar
+  - selectAllApplications()
+    // Selects Linked Applications at Applications sidebar
+  - openMenu(): Promise<void>
+    // Opens the left side menu if it is currently closed. Replaces openMenu().
+  - clickOnOrangeArrow(menuItem: string): Promise<void>
+    // Clicks the orange arrow to expand/collapse a top-level menu item like Brand/Campaign/Report. Replaces clickOnOrangeArrow...
+  - clickOnGaryArrowDropDown(menuItem: string): Promise<boolean>
+    // Gets the year from a campaign name string (e.g., "Campaign Name 2024" -> "2024"). Replaces getYearFromCampaignName(Strin...
+  - returnAllOptionsFromDropDown(menuItem: string): Promise<string[]>
+    // Retrieves all visible text options from a specified single-select dropdown. Replaces returnAllOptionsFromDropDown(String...
+  - searchValue(dropDownName: string, value: string): Promise<void>
+    // Helper to get the data-hook attribute for the menu's dropdown button. Replaces private getDataHookForMenu(String menuIte...
+  - hooverOverMenuItemToolTip(menuItem: string): Promise<string>
+    // Locates the info icon for the specified menu item, hovers over it, and retrieves the tooltip text. Replaces hooverOverMe...
+  - clickOnApply(): Promise<void>
+    // Clicks the Apply Filters button. Replaces clickOnApply().
+  - clickOnClearFiltersButton(): Promise<void>
+    // Clicks the Clear Filters button. Replaces clickOnClearFiltersButton().
+  - clickOnLeftSideMenuIcon(iconAlt: string): Promise<void>
+    // Clicks on a main left side menu icon to expand its section.  @param {string} iconAlt - The alt text of the icon (e.g., '...
+  - selectValueInDropdown(menuItem: string, valueToChoose: string): Promise<void>
+    // Selects a value from a single-select dropdown (non-checkbox list). Replaces core logic of chooseFromDropDown and parts o...
+  - selectCampaignByYear(campaignName: string, year: string): Promise<void>
+  - toggleCheckboxOption(boxLabel: string, optionName: string): Promise<void>
+    // Selects/toggles a checkbox value in a multi-select menu (e.g., Population, Placement Group). Replaces the logic of choos...
+  - getMenuFieldValue(fieldName: string): Promise<string>
+    // Retrieves the text value of a field in the left sidebar menu. Replaces getMenuFieldDataViews and getMenuFieldData. @para...
+KEY LOCATORS:
+  - menuSettings: page.locator('xpath=//img[@alt=\'menu settings\']'...)
+  - userIcon: page.locator('xpath=//div[contains(@class,\'NavBar_userIcon__\'...)
+  - yearDropdown: page.locator('button[aria-label="select"]'...)
+  - toggleButton: page.locator('button[aria-label="Toggle navigation menu"]'...)
+  - statusDropdown: page.locator('button[data-hook="search-bar-status"]'...)
+  - brandDropdown: page.locator('div[aria-label="Brand"]'...)
+  - campaignDropdown: page.locator('div[aria-label="Campaign"]'...)
+  - reportDropdown: page.locator('button[data-hook="search-bar-report-type"]'...)
+  - metricDropdown: page.locator('button[data-hook="search-bar-metrics"]'...)
+  - dataTypeDropdown: page.locator('button[data-hook="search-bar-time-period"]'...)
+
+---
+
+CLASS: TopRightMenu
+IMPORT: import { TopRightMenu } from '../../page-objects/mainPage/TopRightMenu';
+USE FOR: Navigates to the login page and logs in.
+      @param client The name of the client to choose.
+METHODS:
+  - selectClient(client: string)
+    // Navigates to the login page and logs in. @param client The name of the client to choose.
+  - selectSettings(setting: string)
+  - openClientDropdown(): Promise<boolean>
+  - searchInClientDropdown(searchString: string)
+  - enableInternalMode()
+    // Gets the advertiser button by name @param advertiserName The name of the advertiser /
+  getClientNavigationItem(clientN...
+  - clickDataStreamButton()
+    // Clicks on the Data Stream button in the top navigation menu.
+KEY LOCATORS:
+  - clientDropdown: page.locator('xpath=//button[@aria-label=\'toggle button\']'...)
+  - menuSettings: page.getByRole('button', { name: 'menu settings' }...)
+  - userIcon: page.locator('xpath=//div[contains(@class,\'NavBar_userIcon__\'...)
+  - yearDropdown: page.locator('button[aria-label="select"]'...)
+  - brandDropdown: page.locator('div[aria-label="Brand"]'...)
+  - campaignDropdown: page.locator('div[aria-label="Campaign"]'...)
+  - reportDropdown: page.locator('div[aria-label="Report"]'...)
+  - metricDropdown: page.locator('div[aria-label="Metric"]'...)
+  - reportTitle: page.locator('.MuiTypography-root'...)
+  - graphContainer: page.locator('.MuiBox-root'...)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/reports/charts/LatestCumulativeDataChart';
+USE FOR: Page Object class for the Latest Cumulative Data Chart component.
+  Replaces org.pageObjects.UI.reports.charts.LatestCumulativeDataChartPageObjects.
+METHODS:
+  - getChartTitleText(): Promise<string>
+    // Page Object class for the Latest Cumulative Data Chart component. Replaces org.pageObjects.UI.reports.charts.LatestCumul...
+  - getChartSubTitleText(): Promise<string>
+    // Gets the chart subtitle text. Replaces getChartSubTitle().
+  - getAllChartTitles(): Promise<string[]>
+    // Gets a list of all H2 titles in the chart card area. Replaces getTitle().
+  - getStatisticalSignificance(): Promise<number>
+    // Gets the current Statistical Significance value (as a number). Replaces getStatisticalSignificance().
+  - getYAxisValues(): Promise<string[]>
+    // Retrieves the values from the Y-axis. Replaces getYAxisValues().
+  - getNumberOfStatisticalSignificanceCircles(): Promise<number>
+    // Gets the number of Statistical Significance circles visible. Replaces getNumberOfStatisticalSignificanceCircles().
+  - changeDataType(dataType: string, isModal: boolean): Promise<void>
+    // Changes the data type via the dropdown (Modal or Normal View). Replaces changeDataType(String dataType, boolean isModal)...
+  - clickOnExpandView(): Promise<void>
+    // Clicks the Expand View button. Replaces clickOnExpandableButton().
+  - clickOnCloseModal(): Promise<void>
+    // Clicks the modal close button. Replaces clickOnCloseModal().
+  - clickOnDownloadPng(): Promise<void>
+    // Clicks the download PNG button within the modal menu. Replaces clickOnDownloadPng().
+  - getLegendsData(nameOrColor: 'name' | 'color'): Promise<string[]>
+    // Retrieves the names and colors of enabled legends. Replaces getLegendsNameAndColors(String nameOrColor). @param nameOrCo...
+  - getBarToolTip(barIndex: number, lineNumber: number): Promise<string>
+    // Retrieves the text from a specific line of the bar's tooltip. Replaces getBarToolTip(int barIndex, int lineNumber). @par...
+KEY LOCATORS:
+  - chartTitle: page.locator('(//div[contains(@class,\'ReportCard_cardTitle__\'...)
+  - titles: page.locator('div[class*=\'ChartCard_titles__\'] h2'...)
+  - chartSubTitle: page.locator('(//span[@class=\'report-card-subtitle-for-screen ...)
+  - monthAndYear: page.locator('(//div[contains(@class,\'dn-page-header\'...)
+  - allTm: page.locator('div[data-hook*=\'targeting-multiple-values-chart-...)
+  - allTargetingMulipleValues: page.locator('div[data-hook*=\'targeting-multiple-values-chart-...)
+  - StatisticalSignificance: page.locator('div[class*=\'StatisticalSignificance_wrapper\']'...)
+  - StatisticalSignificanceCircles: page.locator('div[data-hook="statistical-significance-values-ch...)
+  - allBars: page.locator('div[class*="LatestCumulativeDataChart_chartWrappe...)
+  - allYAxisValues: page.locator('div[class*="chart-card-wrapper-latest-cumulative"...)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/reports/charts/TrendOverTimeChart';
+USE FOR: Page Object class for the Trend Over Time Chart component.
+  Replaces org.pageObjects.UI.reports.charts.TrendOverTimeChartPageObjects.
+METHODS:
+  - getChartMainTitle(chartIndex: number, isModal: boolean): Promise<string>
+    // Page Object class for the Trend Over Time Chart component. Replaces org.pageObjects.UI.reports.charts.TrendOverTimeChart...
+  - getChartSubTitleText(): Promise<string>
+    // Gets the current chart subtitle text. Replaces getChartSubTitle().
+  - isBenchmarksExists(): Promise<boolean>
+    // Checks if the "Industry Benchmark" chart exists (used for index adjustment). Replaces isBenchmarksExists().
+  - getNumberOfBars(report: string): Promise<number>
+    // Gets the number of bars/data series on the chart. Replaces getNumberOfBars(String report).
+  - getAxisValues(report: string, xOrY: 'x' | 'y'): Promise<string[]>
+    // Retrieves values from the X or Y axis. Replaces getAxisValues(String report, String xOrY).
+  - getEnabledLegends(): Promise<Locator>
+    // Retrieves the names of all enabled legends. Replaces getEnabledLegends().
+  - getEnabledLegendsHcpProfile(): Promise<Locator>
+    // Retrieves the names of enabled legends for HCP Profile (specific locator). Replaces getEnabledLegends_hcp_profile().
+  - getDisabledLegends(): Promise<Locator>
+    // Retrieves the names of all disabled legends. Replaces getDisabledLegends().
+  - getLegendsNameAndColors(nameOrColor: 'name' | 'color'): Promise<string[]>
+    // Gets the names or colors of enabled legends. Replaces getLegendsNameAndColors(String nameOrColor).
+  - hoverOverDot(dotIndex: number): Promise<void>
+    // Hovers over a chart dot/data point. Replaces hooverOverDot(int dotIndex).
+  - getDotToolTip(dotIndex: number, lineNumber: number): Promise<string>
+    // Gets the text from the tooltip at a specific line number after hovering. Replaces getDotToolTip(int dotIndex, int lineNu...
+  - getChartTitleText(): Promise<string>
+    // Gets the main chart title text. Alias for getChartTitle, added to resolve the error in the test file.
+KEY LOCATORS:
+  - chartTitle: page.locator('(//div[contains(@class,\'ReportCard_cardTitleWrap...)
+  - modalChartTitle: page.locator(
+      '//div[contains(@data-hook,\'modal-wrapper...)
+  - chartSubTitle: page.locator('div[class*=\'ReportCard_cardSubTitle__\'] span'...)
+  - latestCumulativeDataTitle: page.getByRole('heading', { name: 'Latest Cumulative Data', exact...)
+  - dataTypeDropDown: page.locator('(//span[@class=\'k-input-inner\']//span...)
+  - dataTypeDropDown_hcp_profile: page.locator('(//span[@class=\'k-input-inner\']//span...)
+  - modalDataTypeDropDown: page.locator('div.modal div[role=\'presentation\'] span[class*=...)
+  - dropDownOptions: page.locator('li[role=\'option\']'...)
+  - expandViewButton: page.locator('(//img[@data-hook=\'insights-card-expand-view-ico...)
+  - burger3DotMenu: page.locator('(//div[@data-hook=\'export-and-download-menu\']...)
+
+---
+
+CLASS: Applications
+IMPORT: import { Applications } from '../../page-objects/settings/applications/application/Applications';
+USE FOR: Gets the current application ID from the URL
+    @returns The application ID as a string, or null if not found
+METHODS:
+  - createClientByApi(request: APIRequestContext,
+    clientDetails: {
+      clientName: string;
+      url: string;
+      businessType: 'Advertiser' | 'Publisher';
+    }): Promise<number>
+  - getApplicationsCountFromDb(year: number): Promise<number>
+  - verifyPageLoaded(role: string)
+  - verifyMainTitle(title: string)
+  - clickAddClientButton()
+  - deleteRecentlyAddedApplication()
+  - openAddApplicationModal()
+  - verifyAddClientModal()
+  - ClickOnAddButtonInTheModal()
+  - search(searchText: string)
+  - createClient(clientDetails: ClientDetails): Promise<void>
+  - clickEditClient(clientName: string)
+  - clickEditApplication()
+  - clickSaveApplication()
+  - clickCreateApplication()
+  - updateClient(clientDetails: UpdateClientDetails): Promise<void>
+  - fillClientName(clientName: string)
+  - fillApplicationName(applicationName: string)
+  - fillGlobalId(globalId: string)
+  - clickViewAllApplicationsLink(): Promise<void>
+  - fillDataStreamName(dataStreamName: string)
+  - fillDateInput(type: 'startDate' | 'endDate', value: string)
+  - fillModalDateInput(type: 'startDate' | 'endDate', value: string)
+  - getStartDateValue(): Promise<string | null>
+  - getErrorMessage(): Promise<string | null>
+  - getEditErrorMessage(): Promise<string | null>
+  - clickInactivateClient(clientName: string): Promise<void>
+  - confirmInactivation(): Promise<void>
+  - clickActivateClient(clientName: string): Promise<void>
+  - confirmActivation(): Promise<void>
+  - toggleInactiveClients(showInactive: boolean): Promise<void>
+  - getCurrentApplicationId(): Promise<string | null>
+    // Gets the current application ID from the URL @returns The application ID as a string, or null if not found
+  - getApplicationDetail(fieldName: string): Promise<string | null>
+    // Gets a specific field value from the application details panel @param fieldName The name of the field to extract (e.g., ...
+  - clickEditIcon(): Promise<void>
+    // Clicks the edit icon in the application details page.
+  - isDetailFieldVisible(fieldName: string): Promise<boolean>
+    // Checks if a specific detail field is visible in edit mode. @param fieldName The name of the field to check. @returns A b...
+  - editApplicationDetail(fieldName: string, value: string): Promise<void>
+    // Edits a specific field in the application details edit mode. @param fieldName The name of the field to edit. @param valu...
+  - saveChanges(): Promise<void>
+    // Clicks the save button and verifies that the save was successful.
+KEY LOCATORS:
+  - heading: page.getByRole('heading', { name: 'Applications' }...)
+  - addButton: page.locator('xpath=//button[@data-hook="add-entity-button"]'...)
+  - editButton: page.locator('xpath=//button[@data-hook="edit-button"]'...)
+  - saveButton: page.locator('xpath=//button[@data-hook="Save-button"]'...)
+  - searchBox: page.getByRole('textbox', { name: 'Search' }...)
+  - tableGrid: page.getByRole('grid', { name: 'Table' }...)
+  - inactiveClientToggle: page.locator('input[name="show-inactive-clients"]'...)
+
+---
+
+CLASS: Client
+IMPORT: import { Client } from '../../page-objects/settings/applications/client/client';
+USE FOR: General purpose Page Object
+METHODS:
+  - createClientByApi(clientDetails: {
+      clientName: string;
+      url: string;
+      businessType: 'Advertiser' | 'Publisher';
+    }): Promise<number>
+  - getClientCountFromDb(): Promise<number>
+  - clickAddClientButton()
+  - verifyAddClientModal()
+  - ClickOnAddButtonInTheModal()
+  - search(searchText: string)
+  - createClient(clientDetails: ClientDetails): Promise<void>
+  - clickEditClient(clientName: string)
+  - updateClient(clientDetails: UpdateClientDetails): Promise<void>
+  - fillClientName(clientName: string)
+  - getErrorMessage(): Promise<string | null>
+  - clickInactivateClient(clientName: string): Promise<void>
+  - confirmInactivation(): Promise<void>
+  - clickActivateClient(clientName: string): Promise<void>
+  - confirmActivation(): Promise<void>
+  - toggleInactiveClients(showInactive: boolean): Promise<void>
+KEY LOCATORS:
+  - heading: page.getByRole('heading', { name: 'Applications' }...)
+  - addButton: page.locator('xpath=//button[@data-hook="add-entity-button"]'...)
+  - searchBox: page.getByRole('textbox', { name: 'Search' }...)
+  - tableGrid: page.getByRole('grid', { name: 'Table' }...)
+  - inactiveClientToggle: page.locator('input[name="show-inactive-clients"]'...)
+
+---
+
+CLASS: InstanceCreationPageGeneral
+IMPORT: import { InstanceCreationPageGeneral } from '../../page-objects/settings/applications/InstanceCreationPageGeneral';
+USE FOR: Searches for a specific business group.
+      @param searchText The text to enter into the search box.
+METHODS:
+  - verifyMainTitle(title: string)
+  - clickAddButton()
+  - clickOpenImportMenuButton()
+  - clickImportApplicationsAllButton()
+  - clickImportApplicationsLinkedButton()
+  - verifyTableTitle(title: string)
+  - search(searchText: string)
+    // Searches for a specific business group. @param searchText The text to enter into the search box.
+  - verifyTableHeaders()
+    // Verifies the text of the table's column headers.
+  - searchRandomValueFromColumn(columnNames: string[]): Promise<string>
+    // @Description Gets a random value from a randomly selected column (from the input array) and performs a search using that...
+  - verifyPageLoaded(role: string)
+KEY LOCATORS:
+  - heading: page.getByRole('heading', { name: 'Applications' }...)
+  - addButton: page.locator('xpath=//button[@data-hook="add-entity-button"]'...)
+  - importMenu: page.locator('xpath=//button[@data-hook="dropdown-menu"]'...)
+  - importApplicationsMenuButton: page.locator('xpath=//button[@data-hook="import-applications-bu...)
+  - importLinkedApplicationsMenuButton: page.locator('xpath=//button[@data-hook="import-linked-applicat...)
+  - searchBox: page.getByRole('textbox', { name: 'Search' }...)
+  - tableGrid: page.getByRole('grid', { name: 'Table' }...)
+  - paginationContainer: page.getByRole('application', { name: /Page \d+ of \d+/ }...)
+
+---
+
+CLASS: for
+IMPORT: import { for } from '../../page-objects/tables/TableViewPage';
+USE FOR: Page Object class for the generic Data TableTableView component (often Kendo Grid).
+  Replaces org.pageObjects.UI.tableView.TableViewPageObjects.
+METHODS:
+  - getTitleDemographics(): Promise<string>
+    // Page Object class for the generic Data Table/TableView component (often Kendo Grid). Replaces org.pageObjects.UI.tableVi...
+  - getTitle(): Promise<string>
+    // Gets the title of the table view (handles various report types). Replaces getTitle().
+  - getMainTitle(): Promise<string>
+    // Gets the main page title. Replaces getMainTitle().
+  - getAllValuesUnderColumn(columnName: string): Promise<string[]>
+    // Retrieves all text values under a specific column name. Replaces getAllValuesUnderColumn(String columnName). @param colu...
+  - getValuesByColumnIndex(columnIndex: number): Promise<string[]>
+    // Retrieves all text values under a specific column index (1-based). @param columnIndex The 1-based index of the column. @...
+  - getTotalItemCount(): Promise<number>
+    // Gets the current total item count from the pagination info text. Replaces getTotalItemCount().
+  - clickToSortColumnName(columnName: string): Promise<void>
+    // Clicks to sort a column by name. Replaces clickToSortColumnName(String columnName).
+  - clickOnPaginationArrows(rightOrLeft: 'right' | 'left'): Promise<void>
+    // Clicks on the pagination arrow (right or left). Replaces clickOnPaginationArrows(String rightOrLeft).
+  - toggleView(view: string): Promise<void>
+    // Toggles the table view (e.g., Chart View to Table View). Replaces toggle(String view, boolean refresh).
+  - verifyMeasurementGroupsExcludedIconExists(): Promise<boolean>
+    // Verifies the Measurement Groups Excluded minus icon exists. Replaces verifyMeasurementGroupsExcludedIconExists().
+  - isValueInColumn(columnName: string, value: string): Promise<boolean>
+    // Counts the total number of rows in a virtualized table by scrolling. Replaces countVirtualizedTableRows(). @returns The ...
+  - waitForTableToLoad(timeout = this.getEnvironmentTimeout()
+    // Gets environment-aware timeout value based on the current environment. QA-Beta is slower and needs longer timeouts. @ret...
+  - countVirtualizedTableRows(): Promise<number>
+  - clickFirstMoreDetailsButton(): Promise<void>
+    // Clicks the 'More Details' button for the first destination in the table. Replaces clickFirstMoreDetailsButton().
+  - searchInTable(searchTerm: string, retries = 2): Promise<void>
+    // Enters a search term into the table's search input field with retry logic. @param searchTerm The text to enter into the ...
+  - verifyDataNotAvailable(): Promise<boolean>
+    // Verifies if the "Data Not Available" message is visible. @returns A promise that resolves to true if the message is visi...
+  - downloadDataStream(rowIndex: number): Promise<void>
+    // Clicks the 'Download Data Stream' button for a specific row. @param rowIndex The 0-based index of the row.
+KEY LOCATORS:
+  - mainHeader: page.locator('h2.dn-page-header-title'...)
+  - tableViewHeader: page.locator('div[data-hook="table-header"] span'...)
+  - allTableViewHeadersOnlyForDemographics: page.locator('div[class*=\'DemographicReport_tableHeader__\'] d...)
+  - tableMetricTitle: page.locator('div[data-hook="header-subtitle"]'...)
+  - tableColumnNames: page.locator('th[role=\'columnheader\'] span.k-column-title'...)
+  - MeasurementGroupsExcludedIcon: page.locator('img[alt="Minus icon"]'...)
+  - tableContainer: page.locator('tbody'...)
+  - innerTableContainer: page.locator('div.k-grid-content.k-virtual-content'...)
+  - searchInput: page.locator('input[data-hook="search-in-table-input-field"]'...)
+  - dataNotAvailableMessage: page.locator('//div[text(...)
+
+ELEMENT MAPPER:
+
+
+REPO KNOWLEDGE:
+{
+  "generatedAt": "2026-04-15T08:01:33.509Z",
+  "repoRoot": "C:/Users/Public/playwright-e2e-automation",
+  "users": {
+    "source": "utils/testUsers/testUsers_beta.json",
+    "roles": [
+      "admin",
+      "configurationUser",
+      "configurationUserNoAdditionalPermissions",
+      "crossixUser",
+      "dataStreamAdmin",
+      "dataStreamAdmin2",
+      "dataStreamUser",
+      "dataStreamUser2",
+      "difaOnlyExpiredProgramLessThan1YearUser",
+      "difaOnlyHcpAccessUser",
+      "external_analyst_client_manager",
+      "external_standard",
+      "internalCrossixAnalyst",
+      "invalid",
+      "organizationAdminWithAllAdditionalPrivileges",
+      "organizationAdminWithNetInPlatform",
+      "organization_admin_external",
+      "organization_admin_external2",
+      "publisher",
+      "publisher3",
+      "publisherAdmin",
+      "publisherMultiClient",
+      "publisherStandardUserGilaed",
+      "publisher_Johnson",
+      "publisher_admin2",
+      "publisher_only_reports",
+      "publisher_user",
+      "standard",
+      "standard2",
+      "standard_no_additional_permissions_publisher"
+    ],
+    "invalidUserRole": "invalid",
+    "fields": [
+      "_comment",
+      "_commentL:",
+      "email",
+      "errorMessage",
+      "firstName",
+      "lastName",
+      "password",
+      "role",
+      "username"
+    ],
+    "sample": {
+      "role": "admin",
+      "username": "eyal.sooliman@veeva.com",
+      "password": "_password_",
+      "email": "eyal.sooliman@veeva.com",
+      "firstName": "Eyal",
+      "lastName": "Sooliman"
+    },
+    "rolesObservedInTests": [
+      "admin",
+      "configurationUser",
+      "configurationUserNoAdditionalPermissions",
+      "crossixUser",
+      "dataStreamAdmin",
+      "dataStreamAdmin2",
+      "dataStreamUser",
+      "dataStreamUser2",
+      "difaOnlyExpiredProgramLessThan1YearUser",
+      "difaOnlyHcpAccessUser",
+      "external_standard",
+      "internalCrossixAnalyst",
+      "invalid",
+      "organizationAdminWithAllAdditionalPrivileges",
+      "organizationAdminWithNetInPlatform",
+      "organization_admin_external2",
+      "publisher",
+      "publisherAdmin",
+      "publisherStandardUserGilaed",
+      "publisher_admin2",
+      "publisher_user",
+      "standard",
+      "standard2"
+    ],
+    "rolesUnion": [
+      "admin",
+      "configurationUser",
+      "configurationUserNoAdditionalPermissions",
+      "crossixUser",
+      "dataStreamAdmin",
+      "dataStreamAdmin2",
+      "dataStreamUser",
+      "dataStreamUser2",
+      "difaOnlyExpiredProgramLessThan1YearUser",
+      "difaOnlyHcpAccessUser",
+      "external_analyst_client_manager",
+      "external_standard",
+      "internalCrossixAnalyst",
+      "invalid",
+      "organizationAdminWithAllAdditionalPrivileges",
+      "organizationAdminWithNetInPlatform",
+      "organization_admin_external",
+      "organization_admin_external2",
+      "publisher",
+      "publisher3",
+      "publisherAdmin",
+      "publisherMultiClient",
+      "publisherStandardUserGilaed",
+      "publisher_Johnson",
+      "publisher_admin2",
+      "publisher_only_reports",
+      "publisher_user",
+      "standard",
+      "standard2",
+      "standard_no_additional_permissions_publisher"
+    ]
+  },
+  "login": {
+    "pageObject": "LoginPage",
+    "path": "page-objects/login/LoginPage.ts",
+    "methods": [
+      "clickOnForgotPassword",
+      "expectLoginFailureWhenParamsEmpty",
+      "expectLoginSuccess",
+      "login",
+      "navigateToLoginPage",
+      "resetSession",
+      "verifyLoginPageUElements"
+    ],
+    "preferredPattern": [
+      "resetSession",
+      "navigateToLoginPage",
+      "login",
+      "expectLoginSuccess"
+    ],
+    "evidenceFiles": [
+      "tests/a1-api/programAccessList/5723258881/DN-1291_objective_3462103169.test.ts",
+      "tests/a1-api/programAccessList/5723258881/programAccessList-5723258881-enhanced.test.ts",
+      "tests/a10-audit-on-gamma/auth-logout-admin.test.ts",
+      "tests/a2-login/login-concurrency.test.ts",
+      "tests/a3-settings/accessGroup/export_access_groups_data.test.ts",
+      "tests/a3-settings/accessGroup/verify_assigned_users.test.ts",
+      "tests/a3-settings/businessGroup/businessGroupAccess.test.ts",
+      "tests/a3-settings/businessGroup/publisher-business-group-creation-client-dropdown-validation.test.ts",
+      "tests/a3-settings/businessGroup/verify_business_group_rows_and_metadata.test.ts",
+      "tests/a3-settings/standardMeasurementGroups/DN-2485_table-of-contents_4379312193.test.ts",
+      "tests/a3-settings/users/A418_Verify_New_User_Created_With_The_Correct_User_Roles_And_Permissions.test.ts",
+      "tests/a4-reports/pubView-high-priority-5959090340/publisherCampaignVisibility.test.ts",
+      "tests/a4-reports/pubView-high-priority-5959090340/publisherClientVisibility.test.ts",
+      "tests/a4-reports/pubView-high-priority-5959090340/userAvailableReportValidation.test.ts",
+      "tests/a4-reports/PubView-Medium-Priority-5958107229/DNT-1119.test.ts",
+      "tests/a4-reports/PubView-Medium-Priority-5958107229/verifyClientDropdownPublisherOnly.test.ts",
+      "tests/a7-configure/measurement-groups/media-assignment/DNT-1052/media-assignment-standard-user-no-upload.test.ts",
+      "tests/a7-configure/metrics/linked-metrics/deleting_linked_metric.test.ts",
+      "tests/a7-configure/metrics/linked-metrics/verify_linked_metrics_api_and.test.ts",
+      "tests/a7-configure/metrics/linked-metrics/verify_linked_metrics_import_with.test.ts"
+    ]
+  },
+  "conventions": {
+    "testFrameworkImport": "page-objects/myFixtures",
+    "tagsObservedTop": [
+      "@access-control",
+      "@audit",
+      "@beta",
+      "@data-validation",
+      "@download",
+      "@edge-cases",
+      "@edit-restrictions",
+      "@gamma",
+      "@input-limits",
+      "@input-validation",
+      "@negative",
+      "@page-validation",
+      "@permissions",
+      "@phase2Group-${data.phase2Group}",
+      "@prod",
+      "@required-fields",
+      "@routing",
+      "@smoke",
+      "@stage",
+      "@table-validation",
+      "@uniqueness",
+      "@validation"
+    ],
+    "sampleFiles": {
+      "usesPlaywrightTest": [
+        "tests/a1-api/programAccessList/5723258881/DN-1291_objective_3462103169.test.ts",
+        "tests/a1-api/programAccessList/programAccessListHelper.ts",
+        "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-field/duplicated-field-metrics.test.ts",
+        "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-fields-case-changed/duplicate-fields-case-changed.test.ts",
+        "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-metric-in-file/duplicate-metric-in-file.test.ts",
+        "tests/a1-api/upload-metrics/negative/invalid-report-types/Nonexistant-Report-Type-ID/nonexistant-report-type-id.test.ts",
+        "tests/a1-api/upload-metrics/negative/invalid-report-types/report-type-doesnt-match-metrict-template/report-type-doesnt-match-metrict-template.test.ts",
+        "tests/a1-api/upload-metrics/negative/invalid-report-types/wrong-report-type-id/wrong-report-type-id.test.ts",
+        "tests/a1-api/upload-metrics/negative/limits/description-character-limit/description-character-limit.test.ts",
+        "tests/a1-api/upload-metrics/negative/limits/grater-then-25k-field-limit/greater-then-25k-field-limit.test.ts"
+      ],
+      "usesMyFixtures": [
+        "tests/a0-general-tests/connection.sanity.test.ts",
+        "tests/a1-api/benchmark/negative/duplicate-benchmarks/duplicate-benchmarks.test.ts",
+        "tests/a1-api/benchmark/negative/existing-benchmark-conflict/existing-benchmark-conflict.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-benchmark-version/invalid-benchmark-version.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-file-format/invalid-file-format.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-population-category/invalid-population-category.test.ts",
+        "tests/a1-api/benchmark/negative/invalid-range/invalid-range.test.ts",
+        "tests/a1-api/benchmark/negative/missing-condition-size/missing-condition-size.test.ts",
+        "tests/a1-api/benchmark/negative/missing-required-fields/benchmark-upload-missing-fields.test.ts",
+        "tests/a1-api/benchmark/negative/row-limit-exceeded/row-limit-exceeded.test.ts"
+      ]
+    }
+  },
+  "generatedInsights": {
+    "commonSelectors": [],
+    "commonLocators": [
+      {
+        "selector": "table tbody tr",
+        "count": 1
+      },
+      {
+        "selector": "text=Assigned Users, text=Eligible Users",
+        "count": 1
+      }
+    ]
+  },
+  "pageObjectUsage": {
+    "Applications": {
+      "count": 36
+    },
+    "Avatar": {
+      "count": 1
+    },
+    "DataStreamDeliveryDestinationsMoreDetails": {
+      "count": 2
+    },
+    "DataStreamDeliveryDestinationsViewer": {
+      "count": 2
+    },
+    "DeliveryDestinationsWizardPage": {
+      "count": 1
+    },
+    "mediaAssignment": {
+      "count": 1
+    },
+    "MetricManagement": {
+      "count": 4
+    },
+    "MetricManagementPage": {
+      "count": 1
+    },
+    "Add_Programmatic_Partner_Wizard": {
+      "count": 1
+    },
+    "index": {
+      "count": 40
+    },
+    "PortfolioPage": {
+      "count": 1
+    },
+    "LeftSideMenu": {
+      "count": 143
+    },
+    "ForgotPasswordModal": {
+      "count": 1
+    },
+    "LoginPage": {
+      "count": 120
+    },
+    "PasswordResetHelper": {
+      "count": 1
+    },
+    "UnableToLoginModal": {
+      "count": 2
+    },
+    "DashboardPage": {
+      "count": 1
+    },
+    "MainContent": {
+      "count": 8
+    },
+    "TopLeftMenu": {
+      "count": 126
+    },
+    "TopRightMenu": {
+      "count": 197
+    },
+    "myFixtures": {
+      "count": 227
+    },
+    "LatestCumulativeDataChart": {
+      "count": 2
+    },
+    "TrendOverTimeChart": {
+      "count": 1
+    },
+    "ExportMenu": {
+      "count": 2
+    },
+    "glossary": {
+      "count": 3
+    },
+    "reportPage": {
+      "count": 8
+    },
+    "AccessGroupDetailsPage": {
+      "count": 0
+    },
+    "applicationsTables": {
+      "count": 19
+    },
+    "client": {
+      "count": 200
+    },
+    "instanceCreationLeftSideMenu": {
+      "count": 12
+    },
+    "InstanceCreationPageGeneral": {
+      "count": 32
+    },
+    "BusinessGroup": {
+      "count": 60
+    },
+    "BusinessGroupDetailsPage": {
+      "count": 8
+    },
+    "BusinessGroupWizardStep1": {
+      "count": 20
+    },
+    "BusinessGroupWizardStep2": {
+      "count": 3
+    },
+    "BusinessGroupWizardStep3": {
+      "count": 1
+    },
+    "AddNewUserWizard": {
+      "count": 1
+    },
+    "StandardMeasurementGroups": {
+      "count": 2
+    },
+    "UserViewer": {
+      "count": 1
+    },
+    "TableViewPage": {
+      "count": 83
+    },
+    "UiUtils": {
+      "count": 1
+    }
+  }
+}
+
+DATA INPUTS:
+- DATA_INPUTS are loaded from agent/test_data_manual.json
+- Use scenario.dataInputs.<KEY>
+
+CURRENT CODE SKELETON:
+```typescript
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ */
+
+import { test, expect } from 'page-objects/myFixtures';
+import { LoginPage } from '../../page-objects/login/LoginPage';
+import { UserProvider } from '../../utils/UserProvider';
+
+interface TestScenario {
+  name: string;
+  user: any;
+  data: any;
+  dataInputs: Record<string, any>;
+}
+
+const REQUIRED_DATA_KEYS: string[] = [];
+const DATA_INPUTS: Record<string, any> = {
+  "HAPPY_PATH_USER_ROLE": "Crossix admin"
+};
+
+function missingKeys(keys: string[], data: Record<string, any>) {
+  return (keys || []).filter(k => data?.[k] === undefined || data?.[k] === null || data?.[k] === '');
+}
+
+test.describe.configure({ mode: 'parallel' });
+
+test.describe('confluence_manual', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'ConfluencePage', description: '5570297857' });
+      
+      test.info().annotations.push({ type: 'Owner', description: 'Eyal Sooliman' });
+  });
+
+  test('Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client', { tag: ['@beta'] }, async ({ page }) => {
+    const scenario: TestScenario = {
+      name: 'Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client',
+      user: UserProvider.getUserByRole('Crossix admin'),
+      data: {
+  "Epic": null,
+  "Scenario": "Verify Crossix admin can create a brand with a name that exists for a different ...",
+  "Subject": "Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client",
+  "Expected": "",
+  "Details": "SUBJECT: Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client\r\nUser: Crossix admin\r\n\r\nSteps that exists:\r\n1. Open https://qa-beta.veevacrossix.com\r\n2. Click on the setting gear and select Applications\r\n3. Open left side menu and Select Brands\r\n4. Click on the plus button  (img[alt='Add Item']) - a modal will open: document.querySelector(\".Dialog_wizardDialogTitle__BZoTG\"). Verify title: \"Add Application\r\n\" (.Dialog_wizardDialogTitle__BZoTG)\r\n5. Select an active advertiser-type client from the \"Select Client\" dropdown (span[id='clientName-accessibility-id'] span[class='k-input-value-text'])\r\n6. Enter a brand name that already exists for a different, advertiser-type client (span[id='brandName-accessibility-id'] span[class='k-input-value-text'])\r\n7. Click on \"Create\" button.\r\n8. Roll back and delete the created brand from DB.\r\n\r\n\r\nExpected Result:\r\n-Brand is added to the database under the selected client\r\n-Brand is visible in the UI upon creation for both the new record and the already existing record, each with distinct client\r\n\r\nAdditional data:\r\nconfluence page id: 5570297857 - Scenario #3\r\nthe name of the test file should start with \"t3_\"\n\nADDITIONAL DATA:\n",
+  "Additional": ""
+},
+      dataInputs: DATA_INPUTS
+    };
+
+    const missing = missingKeys(REQUIRED_DATA_KEYS, scenario.dataInputs);
+    test.skip(missing.length > 0, 'Missing required data inputs: ' + missing.join(', '));
+
+    const loginPage = new LoginPage(page);
+    await loginPage.resetSession?.();
+    await loginPage.navigateToLoginPage?.();
+    await loginPage.login(scenario.user.username, scenario.user.password);
+    await loginPage.expectLoginSuccess?.();
+
+    // AI_IMPLEMENTATION_START
+    // RULE 1: Use Page Object methods from PAGE OBJECT MAP. NO raw page.locator() calls if PO method exists!
+    // Example: const leftSideMenu = new LeftSideMenu(page); await leftSideMenu.openMenu();
+    // RULE 2: Use utils/ folder for S3, DB, CSV, API operations FIRST. Check utils/ for existing helpers before writing new code!
+    // Example: import { query } from '../../../utils/db/dbUtil'; import { getS3FileContentAsString } from '../../../utils/s3/s3Helper';
+    // RULE 3: USE DB QUERIES for data-driven testing and cleanup:
+    //   - PRE-TEST: Query DB to get existing data (IDs, names) instead of hardcoding
+    //   - VERIFICATION: Query DB to verify UI operations (count rows, check status)
+    //   - CLEANUP/ROLLBACK: After create/update operations, delete from DB to restore state
+    // Example: const { query } = await import('../../../utils/db/dbUtil');
+    //          const result = await query('SELECT Id FROM Brand WHERE Name = @name', [{name:'name', type:sql.NVarChar, value:'TestBrand'}]);
+    //          await query('DELETE FROM Brand WHERE Id = @id', [{name:'id', type:sql.Int, value:result.recordset[0].Id}]);
+    // AI_IMPLEMENTATION_END
+  });
+
+});
+
+```
+
+IMPLEMENTATION REQUIREMENTS:
+🎯 EVERY scenario step MUST become a Playwright action
+🎯 EVERY major action MUST have: await console.log('<description>')
+🎯 ALL code MUST be between // AI_IMPLEMENTATION_START and // AI_IMPLEMENTATION_END
+
+EXAMPLE FORMAT (Page Object Style - PREFERRED):
+// AI_IMPLEMENTATION_START
+// Import and instantiate Page Objects from PAGE OBJECT MAP
+import { LeftSideMenu } from '../../page-objects/leftSideMenu/LeftSideMenu';
+import { Applications } from '../../page-objects/settings/applications/application/Applications';
+
+const leftSideMenu = new LeftSideMenu(page);
+const applications = new Applications(page);
+
+await console.log('STEP: Opening left side menu');
+await leftSideMenu.openMenu();
+
+await console.log('STEP: Selecting Brands view from dropdown');
+await leftSideMenu.selectViewOption('Brands');
+
+await console.log('STEP: Verifying table loaded');
+await applications.waitForTableLoad();
+// AI_IMPLEMENTATION_END
+
+⚠️  NEVER USE raw locators like 'page.locator(".left-menu-toggle")' when a Page Object method exists!
+⚠️  The PAGE OBJECT MAP above shows all available methods - USE THEM.
+
+DATABASE OPERATIONS (Use utils/db/dbUtil):
+When the scenario involves data verification, creation, or cleanup:
+
+1. PRE-TEST DATA QUERY:
+   - Query DB to get existing IDs/names instead of hardcoding
+   - Example: Get a valid ClientId to use in brand creation
+
+2. DATA VERIFICATION:
+   - Query DB to verify UI operations succeeded
+   - Example: Count rows in table, check record status
+
+3. CLEANUP / ROLLBACK (MANDATORY):
+   - ALWAYS add DB cleanup when test creates data (brands, clients, users, etc.)
+   - After creating records via UI, delete from DB to restore state
+   - Use try/finally to ensure cleanup runs even if test fails
+   - This is NON-NEGOTIABLE - every create operation must have matching cleanup
+   
+DB IMPORT PATTERN:
+
+const { query } = await import('../../../utils/db/dbUtil');
+const sql = await import('mssql');
+
+// Query existing data
+const result = await query('SELECT Id, Name FROM Client WHERE IsActive = 1');
+const clientId = result.recordset[0]?.Id;
+
+// Cleanup after test
+await query('DELETE FROM Brand WHERE Name = @name', [
+  { name: 'name', type: sql.NVarChar, value: brandName }
+]);
+
+
+⚠️  REMINDER: The automation script ONLY extracts code between the markers. Nothing else matters.

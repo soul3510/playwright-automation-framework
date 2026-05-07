@@ -31,6 +31,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    headless: false, // Run tests in headed mode (visible browser)
   },
 
   /* Configure projects for major browsers */

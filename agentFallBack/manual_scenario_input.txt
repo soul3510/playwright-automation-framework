@@ -1,0 +1,31 @@
+User Story
+As a Crossix Admin, Crossix Manager, or Client Admin,
+
+I need to be able to edit users assigned to an access group directly from the access group detail page, 
+
+So that I can quickly manage multiple users for one group at a time. 
+
+Requirement
+Given when a Crossix Admin, Crossix Manager, Client Admin user is editing an Access Group, return all users that are eligible to be assigned to the group
+
+ A user is eligible to be assigned to the Access Group if:
+
+Their email in dbo.User includes one of the email domain(s) for the Business Group of the open Access Group
+
+um.BusinessGroup.emailWhitelist may include multiple email domains (ex: @pfizer.com, @pfizerco.com), in which case a user email needs to match just one
+
+The user’s highest role is a core External role and Client Admin can assign (this eliminates the admin roles which can’t be assigned to an Access Group)
+
+Given when the user is a Client Admin, they must be assigned to the BusinessGroupID with the email domain of each user returned
+
+The FE will need to distinguish which users are already assigned to the group from the list of eligible users
+
+Assigned users will be returned for the view only page: DN-2909: Return all users assigned to access group
+Released
+
+The response should include at least the following fields
+
+Email, First + Last Name - to show in detail pages
+
+Anything needed to save updates to a group DN-2918: Assign users to an access group
+Released

@@ -1,0 +1,63 @@
+{
+  "4373610556": {
+    "pageId": "4373610556",
+    "timestamp": "2026-02-08T13:44:58.833Z",
+    "generation": {
+      "testCount": 8,
+      "codeQuality": 100,
+      "patterns": {
+        "selectors": [
+          "page.waitForLoadState('networkidle')",
+          "page.goto('/login')",
+          "page.locator('select[data-testid=\"client-dropdown\"]')",
+          "page.locator('.target-element, [data-testid*=\"element\"]')",
+          "page.locator('.target-element, [data-testid*=\"th\"]')",
+          "page.locator('.target-element, [data-testid*=\"ex\"]')",
+          "page.locator('.target-element, [data-testid*=\"table\"]')",
+          "page.locator('.target-element, [data-testid*=\"word\"]')",
+          "page.locator('.target-element, [data-testid*=\"l\"]')",
+          "page.locator('.target-element, [data-testid*=\"user\"]')",
+          "page.locator('.target-element, [data-testid*=\"this\"]')",
+          "page.locator('.target-element, [data-testid*=\"that\"]')",
+          "page.locator('.target-element, [data-testid*=\"publ\"]')",
+          "page.locator('.target-element, [data-testid*=\"dropdown\"]')",
+          "page.locator('.target-element, [data-testid*=\"search\"]')",
+          "page.locator('.target-element, [data-testid*=\"excel\"]')",
+          "page.locator('.target-element, [data-testid*=\"state\"]')",
+          "page.locator('.target-element, [data-testid*=\"d\"]')",
+          "page.locator('.target-element, [data-testid*=\"__d\"]')",
+          "page.locator('button, a[role=\"button\"]')",
+          "page.locator('button[type=\"submit\"], [data-testid*=\"submit\"]')"
+        ],
+        "assertions": [],
+        "waits": [
+          "waitForLoadState('networkidle')"
+        ],
+        "pageObjects": [
+          "waitForLoadState",
+          "goto",
+          "locator"
+        ]
+      }
+    },
+    "validation": {
+      "syntaxValid": false,
+      "structureValid": true,
+      "issues": [],
+      "fixes": []
+    },
+    "execution": {
+      "success": false,
+      "failures": [],
+      "coverage": 0
+    },
+    "insights": [
+      {
+        "type": "missing_assertions",
+        "severity": "high",
+        "message": "No assertions found in generated code",
+        "recommendation": "Ensure proper assertions are generated"
+      }
+    ]
+  }
+}

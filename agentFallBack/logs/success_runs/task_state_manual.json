@@ -1,0 +1,177 @@
+{
+  "currentAgent": "qaEngineer",
+  "status": "COMPLETED",
+  "librarian": {
+    "availablePageObjects": [
+      "page-objects/index.ts",
+      "page-objects/myFixtures.ts",
+      "page-objects/UiUtils.ts",
+      "page-objects\\applications/Applications.ts",
+      "page-objects\\avatar/Avatar.ts",
+      "page-objects\\configure/DataStreamDeliveryDestinationsMoreDetails.ts",
+      "page-objects\\configure/DataStreamDeliveryDestinationsViewer.ts",
+      "page-objects\\configure/DataStreamJobsPage.ts",
+      "page-objects\\configure/DeliveryDestinationsWizardPage.ts",
+      "page-objects\\configure/MetricManagement.ts",
+      "page-objects\\configure/MetricManagementPage.ts",
+      "page-objects\\leftSideMenu/LeftSideMenu.ts",
+      "page-objects\\login/ForgotPasswordModal.ts",
+      "page-objects\\login/LoginPage.ts",
+      "page-objects\\login/PasswordResetHelper.ts",
+      "page-objects\\login/UnableToLoginModal.ts",
+      "page-objects\\mainPage/DashboardPage.ts",
+      "page-objects\\mainPage/MainContent.ts",
+      "page-objects\\mainPage/TopLeftMenu.ts",
+      "page-objects\\mainPage/TopRightMenu.ts",
+      "page-objects\\reports/glossary.ts",
+      "page-objects\\reports/reportPage.ts",
+      "page-objects\\tables/TableViewPage.ts",
+      "page-objects\\configure\\measurement-groups/Manage-Measurement-Groups.ts",
+      "page-objects\\configure\\media-assignment/mediaAssignment.ts",
+      "page-objects\\configure\\wizards/Add_Manage-Measurement-Groups_Wizard.ts",
+      "page-objects\\configure\\wizards/Add_Programmatic_Partner_Wizard.ts",
+      "page-objects\\insights\\portfolio/PortfolioPage.ts",
+      "page-objects\\manage\\applications/Applications.ts",
+      "page-objects\\reports\\charts/LatestCumulativeDataChart.ts",
+      "page-objects\\reports\\charts/TrendOverTimeChart.ts",
+      "page-objects\\reports\\CSV-png-export/ExportMenu.ts",
+      "page-objects\\settings\\applications/applicationsTables.ts",
+      "page-objects\\settings\\applications/instanceCreationLeftSideMenu.ts",
+      "page-objects\\settings\\applications/InstanceCreationPageGeneral.ts",
+      "page-objects\\settings\\businessGroup/BusinessGroup.ts",
+      "page-objects\\settings\\businessGroup/BusinessGroupDetailsPage.ts",
+      "page-objects\\settings\\businessGroup/BusinessGroupWizardStep1.ts",
+      "page-objects\\settings\\businessGroup/BusinessGroupWizardStep2.ts",
+      "page-objects\\settings\\businessGroup/BusinessGroupWizardStep3.ts",
+      "page-objects\\settings\\standardMeasurementGroups/StandardMeasurementGroups.ts",
+      "page-objects\\settings\\applications\\application/Applications.ts",
+      "page-objects\\settings\\applications\\client/client.ts",
+      "page-objects\\settings\\applications\\create-client/InstanceCreationPage-client.ts",
+      "page-objects\\settings\\standardMeasurementGroups\\addNewUserWizard/AddNewUserWizard.ts",
+      "page-objects\\settings\\standardMeasurementGroups\\userViewer/UserViewer.ts"
+    ],
+    "userRoles": [
+      "admin",
+      "configurationUser",
+      "configurationUserNoAdditionalPermissions",
+      "crossixUser",
+      "dataStreamAdmin",
+      "dataStreamAdmin2",
+      "dataStreamUser",
+      "dataStreamUser2",
+      "difaOnlyExpiredProgramLessThan1YearUser",
+      "difaOnlyHcpAccessUser",
+      "external_analyst_client_manager",
+      "external_standard",
+      "internalCrossixAnalyst",
+      "invalid",
+      "organizationAdminWithAllAdditionalPrivileges",
+      "organizationAdminWithNetInPlatform",
+      "organization_admin_external",
+      "organization_admin_external2",
+      "publisher",
+      "publisher3",
+      "publisherAdmin",
+      "publisherMultiClient",
+      "publisherStandardUserGilaed",
+      "publisher_Johnson",
+      "publisher_admin2",
+      "publisher_only_reports",
+      "publisher_user",
+      "standard",
+      "standard2",
+      "standard_no_additional_permissions_publisher"
+    ],
+    "conventions": {
+      "testFrameworkImport": "page-objects/myFixtures",
+      "tagsObservedTop": [
+        "@access-control",
+        "@audit",
+        "@beta",
+        "@data-validation",
+        "@download",
+        "@edge-cases",
+        "@edit-restrictions",
+        "@gamma",
+        "@input-limits",
+        "@input-validation",
+        "@negative",
+        "@page-validation",
+        "@permissions",
+        "@phase2Group-${data.phase2Group}",
+        "@prod",
+        "@required-fields",
+        "@routing",
+        "@smoke",
+        "@stage",
+        "@table-validation",
+        "@uniqueness",
+        "@validation"
+      ],
+      "sampleFiles": {
+        "usesPlaywrightTest": [
+          "tests/a1-api/programAccessList/5723258881/DN-1291_objective_3462103169.test.ts",
+          "tests/a1-api/programAccessList/programAccessListHelper.ts",
+          "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-field/duplicated-field-metrics.test.ts",
+          "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-fields-case-changed/duplicate-fields-case-changed.test.ts",
+          "tests/a1-api/upload-metrics/negative/Duplicate/duplicate-metric-in-file/duplicate-metric-in-file.test.ts",
+          "tests/a1-api/upload-metrics/negative/invalid-report-types/Nonexistant-Report-Type-ID/nonexistant-report-type-id.test.ts",
+          "tests/a1-api/upload-metrics/negative/invalid-report-types/report-type-doesnt-match-metrict-template/report-type-doesnt-match-metrict-template.test.ts",
+          "tests/a1-api/upload-metrics/negative/invalid-report-types/wrong-report-type-id/wrong-report-type-id.test.ts",
+          "tests/a1-api/upload-metrics/negative/limits/description-character-limit/description-character-limit.test.ts",
+          "tests/a1-api/upload-metrics/negative/limits/grater-then-25k-field-limit/greater-then-25k-field-limit.test.ts"
+        ],
+        "usesMyFixtures": [
+          "tests/a0-general-tests/connection.sanity.test.ts",
+          "tests/a1-api/benchmark/negative/duplicate-benchmarks/duplicate-benchmarks.test.ts",
+          "tests/a1-api/benchmark/negative/existing-benchmark-conflict/existing-benchmark-conflict.test.ts",
+          "tests/a1-api/benchmark/negative/invalid-benchmark-version/invalid-benchmark-version.test.ts",
+          "tests/a1-api/benchmark/negative/invalid-file-format/invalid-file-format.test.ts",
+          "tests/a1-api/benchmark/negative/invalid-population-category/invalid-population-category.test.ts",
+          "tests/a1-api/benchmark/negative/invalid-range/invalid-range.test.ts",
+          "tests/a1-api/benchmark/negative/missing-condition-size/missing-condition-size.test.ts",
+          "tests/a1-api/benchmark/negative/missing-required-fields/benchmark-upload-missing-fields.test.ts",
+          "tests/a1-api/benchmark/negative/row-limit-exceeded/row-limit-exceeded.test.ts"
+        ]
+      }
+    },
+    "completed": true
+  },
+  "businessAnalyst": {
+    "scenarios": [
+      "User Story\r\nAs a Crossix Admin, Crossix Manager, or Client Admin,\r\n\r\nI need to be able to edit users assigned to an access group directly from the access group detail page, \r\n\r\nSo that I can quickly manage multiple users for one group at a time. \r\n\r\nRequirement\r\nGiven when a Crossix Admin, Crossix Manager, Client Admin user is editing an Access Group, return all users that are eligible to be assigned to the group\r\n\r\n A user is eligible to be assigned to the Access Group if:\r\n\r\nTheir email in dbo.User includes one of the email domain(s) for the Business Group of the open Access Group\r\n\r\num.BusinessGroup.emailWhitelist may include multiple email domains (ex: @pfizer.com, @pfizerco.com), in which case a user email needs to match just one\r\n\r\nThe user’s highest role is a core External role and Client Admin can assign (this eliminates the admin roles which can’t be assigned to an Access Group)\r\n\r\nGiven when the user is a Client Admin, they must be assigned to the BusinessGroupID with the email domain of each user returned\r\n\r\nThe FE will need to distinguish which users are already assigned to the group from the list of eligible users\r\n\r\nAssigned users will be returned for the view only page: DN-2909: Return all users assigned to access group\r\nReleased\r\n\r\nThe response should include at least the following fields\r\n\r\nEmail, First + Last Name - to show in detail pages\r\n\r\nAnything needed to save updates to a group DN-2918: Assign users to an access group\r\nReleased"
+    ],
+    "source": "manual",
+    "completed": true
+  },
+  "architect": {
+    "plan": {
+      "FILE: page-objects/settings/accessGroup/AccessGroupDetailsPage.ts": {
+        "missing": true,
+        "description": "Page object for Access Group Details Page, containing methods to edit assigned users, verify eligible users, and manage access group details.",
+        "methods": [
+          "clickEditUsers()",
+          "getEligibleUsers()",
+          "getAssignedUsers()",
+          "assignUser(email)"
+        ]
+      }
+    },
+    "missingPageObjects": [
+      "page-objects/settings/accessGroup/AccessGroupDetailsPage.ts"
+    ],
+    "completed": true
+  },
+  "sdet": {
+    "testFilePath": "tests/generated-from-agentFallBack/DN-2909_manual_scenario.test.ts",
+    "generatedCode": null,
+    "completed": true
+  },
+  "qaEngineer": {
+    "lastRunStatus": "PASSED",
+    "healingAttempts": 1,
+    "completed": true
+  },
+  "logs": [],
+  "startedAt": "2025-01-15T07:08:00.000Z"
+}

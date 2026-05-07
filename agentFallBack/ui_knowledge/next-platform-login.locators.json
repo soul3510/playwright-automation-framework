@@ -1,0 +1,38 @@
+{
+  "loginUrl": "https://qa-beta.veevacrossix.com/login",
+  "resolvedAt": "2026-02-04T15:40:03.588Z",
+  "mcp": {
+    "navigateTool": "browser_navigate",
+    "evaluateTool": "browser_evaluate"
+  },
+  "matches": {
+    "targets": {
+      "forgot": null,
+      "remember": null,
+      "toggle": null
+    },
+    "debug": {
+      "linksButtonsTop": [],
+      "checkboxesTop": [],
+      "passwordNearby": [],
+      "passwordPresent": false
+    }
+  },
+  "locators": {
+    "forgotPassword": {
+      "status": "not_found",
+      "primary": null,
+      "fallback": null
+    },
+    "rememberMe": {
+      "status": "not_found",
+      "primary": null,
+      "fallback": null
+    },
+    "togglePassword": {
+      "status": "not_found",
+      "primary": null,
+      "fallback": null
+    }
+  }
+}

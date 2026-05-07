@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-04-26T10:27:41.945Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "Verify Crossix admin can edit client name and URL for clients (publisher)",
+        "Subject": "Verify Crossix admin can edit client name and URL for clients (publisher)",
+        "Expected": "",
+        "Details": "SUBJECT: Verify Crossix admin can edit client name and URL for clients (publisher)\r\nUsers: Crossix admin\r\n\r\nSteps that exists:\r\n1. Click on the settings gear\r\n2. Choose \"Applications\"\r\n3. Open left side menu and Select \"Clients\" from the view dropdown\r\n4. Click on Actions > Edit for one of the publisher rows\r\n5. Change the client name to be another unique client name and change the UR\r\n\r\nExpected Result:\r\n-Client object is maintained in the database with the same data, aside from successful naming change\r\n-New client name is visible in the UI upon creation\r\n-Old client name is no longer visible in the UI\r\n-URL has changed\r\n\r\nAdditional data:\r\nTest file name will begin with \"t6_\".\r\nGet inspiration from the tests inside tests/a3-settings/instance-creation/application-management/client/DNT-1112\r\n\r\n\n\nADDITIONAL DATA:\n",
+        "Additional": ""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

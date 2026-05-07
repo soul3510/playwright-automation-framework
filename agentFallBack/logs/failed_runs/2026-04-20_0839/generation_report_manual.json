@@ -1,0 +1,28 @@
+{
+  "pageId": "manual",
+  "pageTitle": "confluence_manual",
+  "totalRows": 1,
+  "includedRows": 1,
+  "decisions": [
+    {
+      "index": 1,
+      "include": true,
+      "reason": "ok",
+      "testName": "Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client",
+      "tags": [
+        "manual"
+      ],
+      "rowPreview": {
+        "Epic": "",
+        "Scenario": "Verify Crossix admin can create a brand with a name that exists for a different ...",
+        "Subject": "Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client",
+        "Expected": "",
+        "Details": "SUBJECT: Verify Crossix admin can create a brand with a name that exists for a different client for an active, advertiser-type client User: Crossix admin Steps that exists: 1. Open",
+        "Additional": ""
+      }
+    }
+  ],
+  "notes": {
+    "isRawFallback": false
+  }
+}

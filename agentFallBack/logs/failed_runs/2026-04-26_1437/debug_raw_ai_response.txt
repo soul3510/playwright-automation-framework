@@ -1,0 +1,95 @@
+// AI_IMPLEMENTATION_START
+import { TopRightMenu } from '../../page-objects/mainPage/TopRightMenu';
+import { LeftSideMenu } from '../../page-objects/leftSideMenu/LeftSideMenu';
+import { InstanceCreationPageGeneral } from '../../page-objects/settings/applications/InstanceCreationPageGeneral';
+
+const { query } = await import('../../utils/db/dbUtil');
+const sql = await import('mssql');
+
+await console.log('STEP: Query DB to find an existing brand and a different advertiser client');
+const brandQuery = `
+  SELECT TOP 1 b.Name as BrandName, c1.Id as ClientId1, c1.Name as ClientName1
+  FROM dbo.Brand b
+  JOIN dbo.Client c1 ON b.ClientId = c1.Id
+  WHERE c1.IsActive = 1 AND c1.Type = 'Advertiser'
+`;
+const brandResult = await query(brandQuery);
+if (!brandResult.recordset || brandResult.recordset.length === 0) {
+  throw new Error('Could not find an existing brand linked to an active advertiser client.');
+}
+const existingBrandName = brandResult.recordset[0].BrandName;
+const firstClientId = brandResult.recordset[0].ClientId1;
+
+const otherClientQuery = `
+  SELECT TOP 1 c2.Id as ClientId2, c2.Name as ClientName2
+  FROM dbo.Client c2
+  WHERE c2.IsActive = 1 AND c2.Type = 'Advertiser' AND c2.Id != @firstClientId
+`;
+const otherClientResult = await query(otherClientQuery, [
+  { name: 'firstClientId', type: sql.Int, value: firstClientId }
+]);
+if (!otherClientResult.recordset || otherClientResult.recordset.length === 0) {
+  throw new Error('Could not find a different active advertiser client.');
+}
+const targetClientName = otherClientResult.recordset[0].ClientName2;
+
+const topRightMenu = new TopRightMenu(page);
+const leftSideMenu = new LeftSideMenu(page);
+const instanceCreationPage = new InstanceCreationPageGeneral(page);
+
+try {
+  await console.log('STEP: Click on the setting gear and select Applications');
+  await topRightMenu.selectSettings('Applications');
+
+  await console.log('STEP: Open left side menu and Select Brands');
+  await leftSideMenu.openMenu();
+  await leftSideMenu.selectViewOption('Brands');
+
+  await console.log('STEP: Click on the plus button to open Add modal');
+  await instanceCreationPage.clickAddButton();
+
+  await console.log('STEP: Verify modal title');
+  const modalTitle = page.locator('.Dialog_wizardDialogTitle__BZoTG').first();
+  await expect(modalTitle).toBeVisible({ timeout: 10000 });
+  await expect(modalTitle).toContainText('Add Application');
+
+  await console.log(`STEP: Select active advertiser-type client: ${targetClientName}`);
+  await page.locator('#clientName-accessibility-id').click();
+  await page.keyboard.type(targetClientName, { delay: 50 });
+  await page.waitForTimeout(500);
+  await page.keyboard.press('Enter');
+
+  await console.log(`STEP: Enter brand name that exists for a different client: ${existingBrandName}`);
+  await page.locator('#brandName-accessibility-id').click();
+  await page.keyboard.type(existingBrandName, { delay: 50 });
+  await page.waitForTimeout(500);
+  await page.keyboard.press('Enter');
+
+  await console.log('STEP: Click on "Create" button');
+  const createButton = page.locator('button:has-text("Create"), button[title="Create"], button.k-button-solid-primary').filter({ visible: true }).first();
+  await expect(createButton).toBeVisible({ timeout: 5000 });
+  await createButton.click();
+
+  await console.log('STEP: Verify brand is added and visible in UI under the new client');
+  await expect(modalTitle).toBeHidden({ timeout: 15000 });
+  
+  await instanceCreationPage.search(existingBrandName);
+  await page.waitForTimeout(2000); // Give grid time to update
+  
+  const targetRow = page.locator('tr').filter({ hasText: existingBrandName }).filter({ hasText: targetClientName }).first();
+  await expect(targetRow).toBeVisible({ timeout: 15000 });
+
+} finally {
+  await console.log('STEP: CLEANUP - Delete the created brand from DB');
+  const deleteQuery = `
+    DELETE b 
+    FROM dbo.Brand b
+    JOIN dbo.Client c ON b.ClientId = c.Id
+    WHERE b.Name = @brandName AND c.Name = @clientName
+  `;
+  await query(deleteQuery, [
+    { name: 'brandName', type: sql.NVarChar, value: existingBrandName },
+    { name: 'clientName', type: sql.NVarChar, value: targetClientName }
+  ]);
+}
+// AI_IMPLEMENTATION_END
