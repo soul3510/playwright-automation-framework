@@ -28,6 +28,46 @@ const repoKnowledge = fs.existsSync(repoKnowledgePath)
     ? JSON.parse(fs.readFileSync(repoKnowledgePath, "utf8"))
     : {};
 
+function logHealingProgress(message, attempt = null) {
+    const prefix = attempt ? `[Healing ${attempt}/${MAX_RETRIES}]` : "[Healing]";
+    console.log(`\n${prefix} ${message}`);
+}
+
+function applyDeterministicHealing(testFile, errorLog, attempt) {
+    let code = fs.readFileSync(testFile, "utf8");
+    const originalCode = code;
+    const errorOutput = errorLog.toLowerCase();
+    const changes = [];
+
+    if (/test timeout.*waitforloadstate|networkidle|basepage\.ts:8/i.test(errorLog)) {
+        code = code.replace(
+            /await\s+landingPage\.navigateTo\(([^;]+)\);/g,
+            [
+                "await page.goto($1, { waitUntil: 'domcontentloaded', timeout: 60000 });",
+                "    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });"
+            ].join("\n    ")
+        );
+        changes.push("Replaced LandingPage.navigateTo networkidle wait with domcontentloaded navigation.");
+    }
+
+    if (errorOutput.includes("test timeout") && !/test\.setTimeout\(/.test(code)) {
+        code = code.replace(
+            /(test\([^,]+,\s*\{[^}]+\},\s*async\s*\(\{\s*page\s*\}\)\s*=>\s*\{)/,
+            "$1\n    test.setTimeout(120000);"
+        );
+        changes.push("Raised this generated test timeout to 120 seconds.");
+    }
+
+    if (code !== originalCode) {
+        fs.writeFileSync(testFile, code, "utf8");
+        console.log(`✅ Deterministic healing applied on attempt ${attempt}:`);
+        changes.forEach(change => console.log(`   - ${change}`));
+        return true;
+    }
+
+    return false;
+}
+
 /**
  * MCP-based Healer that uses Playwright to dynamically discover and heal selectors
  */
@@ -425,7 +465,13 @@ async function runTest(testFile) {
 }
 
 async function heal(testFile, errorLog, attempt) {
-    console.log(`\n🩹 Attempting Self-Healing (Attempt ${attempt}/${MAX_RETRIES})...`);
+    logHealingProgress("Healing failed test...", attempt);
+
+    if (applyDeterministicHealing(testFile, errorLog, attempt)) {
+        logHealingProgress("Local deterministic fix applied. Re-running test next.", attempt);
+        return true;
+    }
+
     const currentCode = fs.readFileSync(testFile, "utf8");
     
     // MCP Healing: Check if we can discover elements from the error
@@ -433,7 +479,7 @@ async function heal(testFile, errorLog, attempt) {
     const isSelectorError = errorLog.includes('locator') || errorLog.includes('selector') || errorLog.includes('not found');
     
     if (isSelectorError) {
-        console.log("🔧 MCP Healing: Detected selector-related error, preparing element discovery...");
+        logHealingProgress("Selector-related error detected. Preparing healing prompt.", attempt);
         mcpHealingSection = `
 MCP HEALING INSTRUCTIONS:
 This appears to be a selector-related failure. The test is trying to interact with an element that cannot be found.
@@ -594,24 +640,42 @@ CRITICAL RULES TO MAINTAIN:
 5. IF you fixed a locator or identified a flaky element, output a brief JSON block at the very end wrapped in \`\`\`json\`\`\` containing \`{ "lessonsLearned": [{ "locator": "...", "fix": "...", "reason": "..." }] }\`.
 `;
 
-    return new Promise((resolve, reject) => {
-        const child = spawn("gemini", [], { 
-            shell: true,
-            env: { ...process.env, GOOGLE_CLOUD_PROJECT: "codeassist-preview" }
-        });
+    logHealingProgress("Calling Gemini for a code fix...", attempt);
+
+    return new Promise((resolve) => {
+        let child;
+        try {
+            child = spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
+                shell: true,
+                env: { ...process.env, GOOGLE_CLOUD_PROJECT: "codeassist-preview" }
+            });
+        } catch (error) {
+            console.error(`❌ Could not start Gemini healer: ${error.message}`);
+            resolve(false);
+            return;
+        }
         
         let fullOutput = "";
+        let fullError = "";
         child.stdin.write(prompt);
         child.stdin.end();
 
         child.stdout.on("data", (data) => { fullOutput += data.toString(); });
+        child.stderr.on("data", (data) => { fullError += data.toString(); });
         child.on("close", (code) => {
+            if (code !== 0) {
+                console.error(`❌ Gemini healer exited with code ${code}.`);
+                if (fullError.trim()) console.error(fullError.trim());
+                resolve(false);
+                return;
+            }
+
             let extractedCode = "";
             const match = fullOutput.match(/```(?:typescript|ts|js)?([\s\S]*?)```/);
             if (match) {
                 extractedCode = match[1].trim();
                 fs.writeFileSync(testFile, extractedCode, "utf8");
-                console.log(`✅ Fixed code written to ${path.basename(testFile)}`);
+                logHealingProgress(`Gemini fix written to ${path.basename(testFile)}. Re-running test next.`, attempt);
             } else {
                 console.error("❌ AI did not return valid code for healing.");
                 resolve(false);
@@ -670,7 +734,7 @@ async function main() {
     
     if (!fs.existsSync(outDir)) {
         console.error(`❌ Output directory not found: ${outDir}`);
-        return;
+        process.exit(1);
     }
 
     // NEW: Use Metadata Link
@@ -690,17 +754,20 @@ async function main() {
         actualTargetFile = files.find(f => f.includes(effectivePageId) && f.endsWith(".test.ts"));
         if (!actualTargetFile) {
             console.error(`❌ Could not find generated test file for page ${effectivePageId} in ${outDir}`);
-            return;
+            process.exit(1);
         }
         targetFilePath = path.join(outDir, actualTargetFile);
     }
 
     if (!fs.existsSync(targetFilePath)) {
         console.error(`❌ Target test file does not exist at path: ${targetFilePath}`);
-        return;
+        process.exit(1);
     }
 
     for (let i = 1; i <= MAX_RETRIES; i++) {
+        if (i > 1) {
+            logHealingProgress("Running healed test again...", i);
+        }
         const result = await runTest(targetFilePath);
         
         if (result.success) {
@@ -739,7 +806,9 @@ async function main() {
         
         if (i < MAX_RETRIES) {
             const healed = await heal(targetFilePath, result.output, i);
-            if (!healed) break;
+            if (!healed) {
+                console.warn(`⚠️ Healing attempt ${i} did not produce a code change. Retrying until ${MAX_RETRIES} attempts are exhausted.`);
+            }
         } else {
             console.log("\n❌ Max retries reached. Test still failing.");
             console.log("\n🕵️ Performing Final Diagnostic Run to categorize the failure...");
@@ -782,13 +851,21 @@ INSTRUCTIONS:
 }
 `;
             
-            const diagChild = spawn("gemini", [], { shell: true, env: { ...process.env, GOOGLE_CLOUD_PROJECT: "codeassist-preview" } });
+            const diagChild = spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
+                shell: true,
+                env: { ...process.env, GOOGLE_CLOUD_PROJECT: "codeassist-preview" }
+            });
             let diagOutput = "";
+            let diagError = "";
             diagChild.stdin.write(diagnosticPrompt);
             diagChild.stdin.end();
             diagChild.stdout.on("data", (data) => { diagOutput += data.toString(); });
+            diagChild.stderr.on("data", (data) => { diagError += data.toString(); });
             await new Promise((resolve) => {
-                diagChild.on("close", () => {
+                diagChild.on("close", (code) => {
+                    if (code !== 0 && diagError.trim()) {
+                        console.warn(`⚠️ Final diagnostic Gemini call failed: ${diagError.trim()}`);
+                    }
                     const jsonMatch = diagOutput.match(/```json\s*([\s\S]*?)\s*```/);
                     if (jsonMatch) {
                         try {
@@ -834,6 +911,9 @@ INSTRUCTIONS:
             process.exit(1); // Explicit failure exit code
         }
     }
+
+    console.error(`❌ Healer exited retry loop without passing ${actualTargetFile}.`);
+    process.exit(1);
 }
 
 main().catch(err => {

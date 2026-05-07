@@ -1,8 +1,33 @@
 #!/usr/bin/env node
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function loadDotEnv(filePath) {
+    if (!fs.existsSync(filePath)) return;
+
+    const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+
+        const separator = trimmed.indexOf('=');
+        if (separator === -1) continue;
+
+        const key = trimmed.slice(0, separator).trim();
+        let value = trimmed.slice(separator + 1).trim();
+        value = value.replace(/^["']|["']$/g, '');
+
+        if (key && process.env[key] === undefined) {
+            process.env[key] = value;
+        }
+    }
+}
 
 async function main() {
+    loadDotEnv(path.join(__dirname, '.env'));
+
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
     const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
     
