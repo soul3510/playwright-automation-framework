@@ -1,12 +1,14 @@
-Subject: Test sign in button
+Subject: Test search functionality and results
 User: no user
 Steps:
-1. Navigate to page: https://unbounce.com/landing-page-examples/best-landing-page-examples/
-2. Click on "Login in" button
-3. Verify log in was opened in a new tab
-4. On the new tab verify link contains: "/sign_in"
-5. Verify Sign In button appears. 
-
+1. Navigate to page: https://www.wikipedia.org/
+2. Enter "Playwright automation" in the search box
+3. Click on the search button or press Enter
+4. Verify search results are displayed
+5. Click on the first search result
+6. Verify the article page loads with correct title
+ 
 Expected:
-Link in new tab contains "/sign_in"
-Sign in button exists
+Search results contain relevant articles
+First result leads to a valid article page
+Article title contains "Playwright" or "automation"

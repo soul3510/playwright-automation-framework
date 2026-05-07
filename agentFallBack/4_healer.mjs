@@ -1,5 +1,5 @@
 // agent/4_healer.mjs
-// Agent: Healer / Tester
+// Agent: Healer / Tester with MCP integration
 import fs from "node:fs";
 import path from "node:path";
 import {spawn} from "node:child_process";
@@ -27,6 +27,286 @@ const repoKnowledgePath = path.join(agentDir, `repo_knowledge.json`);
 const repoKnowledge = fs.existsSync(repoKnowledgePath)
     ? JSON.parse(fs.readFileSync(repoKnowledgePath, "utf8"))
     : {};
+
+/**
+ * MCP-based Healer that uses Playwright to dynamically discover and heal selectors
+ */
+class MCPHealer {
+    constructor(page) {
+        this.page = page;
+        this.healingLog = [];
+    }
+
+    async log(message) {
+        const timestamp = new Date().toISOString();
+        const logEntry = `[${timestamp}] 🔧 MCP HEALER: ${message}`;
+        console.log(logEntry);
+        this.healingLog.push(logEntry);
+    }
+
+    /**
+     * Discover all clickable elements on the page
+     */
+    async discoverClickableElements() {
+        await this.log('🔍 Starting element discovery...');
+        
+        const discoveryScript = `
+            () => {
+                const elements = [];
+                
+                try {
+                    // Find all buttons
+                    document.querySelectorAll('button').forEach((el, index) => {
+                        elements.push({
+                            type: 'button',
+                            text: el.textContent?.trim() || '',
+                            id: el.id || '',
+                            class: el.className || '',
+                            selector: \`button:nth-child(\${index + 1})\`,
+                            xpath: \`//button[\${index + 1}]\`,
+                            visible: el.offsetParent !== null
+                        });
+                    });
+                    
+                    // Find all links
+                    document.querySelectorAll('a').forEach((el, index) => {
+                        elements.push({
+                            type: 'link',
+                            text: el.textContent?.trim() || '',
+                            href: el.href || '',
+                            id: el.id || '',
+                            class: el.className || '',
+                            selector: \`a:nth-child(\${index + 1})\`,
+                            xpath: \`//a[\${index + 1}]\`,
+                            visible: el.offsetParent !== null
+                        });
+                    });
+                    
+                    // Find all input elements
+                    document.querySelectorAll('input').forEach((el, index) => {
+                        elements.push({
+                            type: 'input',
+                            type: el.type || '',
+                            placeholder: el.placeholder || '',
+                            id: el.id || '',
+                            class: el.className || '',
+                            selector: \`input:nth-child(\${index + 1})\`,
+                            xpath: \`//input[\${index + 1}]\`,
+                            visible: el.offsetParent !== null
+                        });
+                    });
+                } catch (error) {
+                    console.log('Element discovery error:', error.message);
+                }
+                
+                return elements.filter(el => el.visible && el.text);
+            }
+        `;
+        
+        try {
+            const elements = await this.page.evaluate(discoveryScript);
+            await this.log(`📊 Discovered ${elements.length} interactive elements`);
+            return elements;
+        } catch (error) {
+            await this.log(`❌ Element discovery failed: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
+     * Find the best matching element for a given action
+     */
+    async findBestElement(action, elements) {
+        await this.log(`🎯 Finding best element for action: "${action}"`);
+        
+        const actionLower = action.toLowerCase();
+        let bestMatch = null;
+        let bestScore = 0;
+        
+        for (const element of elements) {
+            let score = 0;
+            
+            // Score based on text content matching
+            if (element.text) {
+                const textLower = element.text.toLowerCase();
+                
+                if (actionLower.includes('login') && textLower.includes('login')) {
+                    score += 10;
+                }
+                if (actionLower.includes('sign') && textLower.includes('sign')) {
+                    score += 10;
+                }
+                if (actionLower.includes('in') && textLower.includes('in')) {
+                    score += 5;
+                }
+                if (actionLower.includes('try') && textLower.includes('try')) {
+                    score += 10;
+                }
+                if (actionLower.includes('free') && textLower.includes('free')) {
+                    score += 10;
+                }
+                if (actionLower.includes('submit') && textLower.includes('submit')) {
+                    score += 10;
+                }
+            }
+            
+            // Score based on element type
+            if (actionLower.includes('click') || actionLower.includes('button')) {
+                if (element.type === 'button') score += 5;
+                if (element.type === 'link') score += 3;
+            }
+            
+            // Score based on common patterns
+            if (element.id && element.id.toLowerCase().includes('login')) score += 8;
+            if (element.class && element.class.toLowerCase().includes('login')) score += 8;
+            if (element.id && element.id.toLowerCase().includes('sign')) score += 8;
+            if (element.class && element.class.toLowerCase().includes('sign')) score += 8;
+            
+            await this.log(`   📝 Element: ${element.text} | Score: ${score}`);
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestMatch = element;
+            }
+        }
+        
+        if (bestMatch) {
+            await this.log(`✅ Best match found: "${bestMatch.text}" (score: ${bestScore})`);
+            return bestMatch;
+        } else {
+            await this.log(`⚠️ No suitable element found for action: "${action}"`);
+            return null;
+        }
+    }
+
+    /**
+     * Analyze page structure and provide recommendations
+     */
+    async analyzePageStructure() {
+        await this.log('🏗️ Analyzing page structure...');
+        
+        const analysisScript = `
+            () => {
+                const structure = {
+                    title: document.title || '',
+                    url: window.location.href || '',
+                    buttons: [],
+                    links: [],
+                    forms: [],
+                    inputs: []
+                };
+                
+                // Analyze buttons
+                document.querySelectorAll('button').forEach((el, index) => {
+                    structure.buttons.push({
+                        index,
+                        text: el.textContent?.trim(),
+                        id: el.id,
+                        class: el.className,
+                        disabled: el.disabled,
+                        visible: el.offsetParent !== null
+                    });
+                });
+                
+                // Analyze links
+                document.querySelectorAll('a').forEach((el, index) => {
+                    structure.links.push({
+                        index,
+                        text: el.textContent?.trim(),
+                        href: el.href,
+                        id: el.id,
+                        class: el.className,
+                        visible: el.offsetParent !== null
+                    });
+                });
+                
+                // Analyze forms
+                document.querySelectorAll('form').forEach((el, index) => {
+                    structure.forms.push({
+                        index,
+                        id: el.id,
+                        class: el.className,
+                        action: el.action,
+                        method: el.method,
+                        visible: el.offsetParent !== null
+                    });
+                });
+                
+                // Analyze inputs
+                document.querySelectorAll('input').forEach((el, index) => {
+                    structure.inputs.push({
+                        index,
+                        type: el.type,
+                        id: el.id,
+                        class: el.className,
+                        placeholder: el.placeholder,
+                        name: el.name,
+                        visible: el.offsetParent !== null
+                    });
+                });
+                
+                return structure;
+            }
+        `;
+        
+        try {
+            const structure = await this.page.evaluate(analysisScript);
+            await this.log(`📊 Page analysis complete:`);
+            await this.log(`   📄 Title: ${structure.title}`);
+            await this.log(`   🔗 URL: ${structure.url}`);
+            await this.log(`   🔘 Buttons: ${structure.buttons.length}`);
+            await this.log(`   🔗 Links: ${structure.links.length}`);
+            await this.log(`   📝 Forms: ${structure.forms.length}`);
+            await this.log(`   ⌨️ Inputs: ${structure.inputs.length}`);
+            
+            return structure;
+        } catch (error) {
+            await this.log(`❌ Page analysis failed: ${error.message}`);
+            return null;
+        }
+    }
+
+    /**
+     * Generate healing suggestions based on discovered elements
+     */
+    async generateHealingSuggestions(failingLocator, elements) {
+        await this.log(`💡 Generating healing suggestions for: "${failingLocator}"`);
+        
+        const suggestions = [];
+        
+        // Find elements that might match the failing action
+        for (const element of elements.slice(0, 10)) { // Top 10 elements
+            if (element.text && element.text.length > 0) {
+                suggestions.push({
+                    originalLocator: failingLocator,
+                    suggestedLocator: `text=${element.text}`,
+                    elementType: element.type,
+                    confidence: element.text.toLowerCase().includes('login') ? 'high' : 'medium',
+                    reason: `Found ${element.type} with text: "${element.text}"`
+                });
+            }
+            
+            if (element.id) {
+                suggestions.push({
+                    originalLocator: failingLocator,
+                    suggestedLocator: `#${element.id}`,
+                    elementType: element.type,
+                    confidence: 'high',
+                    reason: `Found ${element.type} with ID: "${element.id}"`
+                });
+            }
+        }
+        
+        return suggestions;
+    }
+
+    /**
+     * Get healing log
+     */
+    getHealingLog() {
+        return this.healingLog.join('\n');
+    }
+}
 
 // Metadata Directory for ElementDiscovery
 const metadataDir = path.join(repoRoot, "tests/PlaywrightHelpFullScripts/ElementDiscovery/metadata");
@@ -147,6 +427,54 @@ async function heal(testFile, errorLog, attempt) {
     console.log(`\n🩹 Attempting Self-Healing (Attempt ${attempt}/${MAX_RETRIES})...`);
     const currentCode = fs.readFileSync(testFile, "utf8");
     
+    // MCP Healing: Check if we can discover elements from the error
+    let mcpHealingSection = "";
+    const isSelectorError = errorLog.includes('locator') || errorLog.includes('selector') || errorLog.includes('not found');
+    
+    if (isSelectorError) {
+        console.log("🔧 MCP Healing: Detected selector-related error, preparing element discovery...");
+        mcpHealingSection = `
+MCP HEALING INSTRUCTIONS:
+This appears to be a selector-related failure. The test is trying to interact with an element that cannot be found.
+Use the following MCP healing approach:
+
+1. ELEMENT DISCOVERY: Inject this code into the test to discover available elements:
+\`\`\`javascript
+// Add this at the beginning of your test for element discovery
+const mcpHealer = new MCPHealer(page);
+await mcpHealer.analyzePageStructure();
+const elements = await mcpHealer.discoverClickableElements();
+console.log('MCP Discovered Elements:', JSON.stringify(elements, null, 2));
+\`\`\`
+
+2. SMART SELECTOR REPLACEMENT: Replace failing locators with discovered elements:
+- Use text-based selectors: \`page.locator('text=Button Text')\`
+- Use ID-based selectors: \`page.locator('#element-id')\`
+- Use class-based selectors: \`page.locator('.class-name')\`
+
+3. HEALING PATTERN: Instead of hardcoded selectors, use dynamic discovery:
+\`\`\`javascript
+// Example: Replace failing click with MCP healing
+const action = "click login button";
+const bestElement = await mcpHealer.findBestElement(action, elements);
+if (bestElement) {
+    await page.locator(\`text=\${bestElement.text}\`).click();
+} else {
+    // Fallback strategies
+    await page.locator('button').first().click();
+}
+\`\`\`
+
+4. WAIT STRATEGIES: Add proper waits before interactions:
+\`\`\`javascript
+await page.waitForLoadState('domcontentloaded');
+await page.locator('selector').waitFor({ state: 'visible', timeout: 10000 });
+\`\`\`
+
+Focus on making the selectors robust and dynamic based on actual page content.
+`;
+    }
+    
     // 1. Load Extra UI Metadata (Success Snapshot)
     const uiMetadata = loadUiMetadata(effectivePageId);
     let metadataSection = "";
@@ -239,6 +567,8 @@ REPO KNOWLEDGE (SELECTORS & CONVENTIONS):
 \${goldenPatternsSection}
 
 \${DIAGNOSTIC_HELPER}
+
+\${mcpHealingSection}
 
 INSTRUCTIONS:
 1. ${specificInstructions}

@@ -1,5 +1,5 @@
 {
-  "currentAgent": "testGenerator",
+  "currentAgent": "healer",
   "testGenerator": {
     "testFilePath": "C:\\My_VSC_Projects\\playwright-automation-framework\\tests\\generated-from-agentFallBack\\user_login_functionality.test.ts",
     "testFileName": "user_login_functionality.test.ts",
@@ -13,7 +13,7 @@
     "completed": true,
     "generatedAt": "2026-05-07T07:01:11.095Z"
   },
-  "status": "GENERATED",
+  "status": "FAILED",
   "logs": [
     {
       "agent": "testGenerator",
@@ -119,6 +119,11 @@
       "agent": "testGenerator",
       "timestamp": "2026-05-07T07:01:11.095Z",
       "message": "Generated test skeleton: user_login_functionality.test.ts with 1 scenarios"
+    },
+    {
+      "agent": "healer",
+      "timestamp": "2026-05-07T10:03:45.832Z",
+      "message": "Test FAILED after 15 healing attempts: Test_sign_in_button.test.ts"
     }
   ],
   "refactorer": {
@@ -143,71 +148,14 @@
     "completedAt": "2026-04-26T12:00:32.709Z"
   },
   "healer": {
-    "targetFilePath": "C:\\Users\\Public\\playwright-e2e-automation\\tests\\generated-from-agentFallBack\\DNT-1112_verify_crossix_admin_can_edit_client_name_and_url_for_clients_publisher.test.ts",
-    "targetFileName": "DNT-1112_verify_crossix_admin_can_edit_client_name_and_url_for_clients_publisher.test.ts",
+    "targetFilePath": "C:\\My_VSC_Projects\\playwright-automation-framework\\tests\\generated-from-agentFallBack\\Test_sign_in_button.test.ts",
+    "targetFileName": "Test_sign_in_button.test.ts",
     "pageId": "manual",
     "lastRunStatus": "FAILED",
     "healingAttempts": 15,
     "maxRetries": 15,
     "completed": false,
-    "failedAt": "2026-04-26T11:37:14.415Z",
-    "lessonsLearned": [
-      {
-        "locator": "AccessGroupDetailsPage / UserDetailsPage imports",
-        "fix": "Removed imports to broken Page Objects and implemented robust inline generic locators.",
-        "reason": "The file 'AccessGroupDetailsPage.ts' contained markdown backticks causing a catastrophic syntax error upon import. Removing the import bypassed the parsing error, allowing the test file to run. The test steps were also hallucinated and have been corrected to match the actual manual scenario description."
-      },
-      {
-        "locator": "page.getByRole('button').filter({ hasText: 'Settings' }).first()",
-        "fix": "Added await page.waitForLoadState('networkidle'); before action and broadened the fallback locators for Settings to handle possible anchor links.",
-        "reason": "The test failed due to a TimeoutError while attempting to interact with the Settings element immediately after the login successfully returned, causing a race condition before the Home page fully loaded."
-      },
-      {
-        "locator": "page.getByRole('link', { name: /Clients/i }).first()",
-        "fix": "Replaced with getByText('Clients', { exact: true }), introduced a waitFor({ state: 'visible', timeout: 15000 }), and improved logic to try locating the menu toggle or view dropdown.",
-        "reason": "The 'Clients' item was likely not functioning as a hyperlink, or it wasn't visible on screen due to an unexpanded view dropdown, causing a 60-second test timeout."
-      },
-      {
-        "locator": "page.getByText('Clients', { exact: true }).first()",
-        "fix": "Replaced hardcoded `.first()` logic with a dynamic loop `clientsTextLocator.nth(i).isVisible()` and wait strategy.",
-        "reason": "The test timed out waiting for the '.first()' matched 'Clients' element to become visible. Because there were 22 hidden elements matching this text in the DOM, `.first()` locked onto a hidden instance and ignored the truly visible one that was activated by opening the sidebar view dropdown. Looping over results bypasses this Strict Mode/Visibility mismatch."
-      },
-      {
-        "locator": "await page.waitForLoadState('networkidle')",
-        "fix": "Added `await page.waitForResponse(response => response.url().includes('/api/') && response.status() === 200).catch(() => {});`",
-        "reason": "To ensure stability when interacting with heavily populated dropdowns and sidebars, waiting explicitly for API requests to fulfill before assuming the view and sidebar data has populated stabilizes elements."
-      },
-      {
-        "locator": "page.locator('[aria-label=\"Actions\"], .actions-menu, text=\"...\", button[title=\"Actions\"]')",
-        "fix": "activeRow.locator('[aria-label=\"Actions\"], .actions-menu, button[title=\"Actions\"]').or(activeRow.getByText('...', { exact: true }))",
-        "reason": "Playwright cannot parse 'text=\"...\"' inside a comma-separated CSS selector string because it assumes the entire string is a CSS selector when it starts with one (causing 'Unexpected token \"=\"' error). Using `.or()` safely combines different locator strategies."
-      },
-      {
-        "locator": "await page.getByRole('menuitem', { name: /Inactivate/i }).first().click();",
-        "fix": "Injected `await inactivateBtn.waitFor({ state: 'visible', timeout: 15000 });` before clicking.",
-        "reason": "The actions menu takes a moment to render the 'Inactivate' menu item. Without a visibility wait, Playwright timeouts trying to find the element in the DOM."
-      },
-      {
-        "locator": "const viewDropdown = page.locator('text=\"View\"...');",
-        "fix": "Expanded locator to `page.locator('...').filter({ hasText: /^Applications$|^View$/i }).first();`",
-        "reason": "The view dropdown label displays the active view ('Applications') rather than 'View', causing the menu open step to fail, which cascaded to missing the 'Clients' tab entirely."
-      },
-      {
-        "locator": "page.locator('text=/Active|True|\\bYes\\b/i, [data-icon=\"check\"], .fa-check, ...')",
-        "fix": "Used `.or()` chaining: `page.getByText(/.../i).or(page.locator('[data-icon=\"check\"], ...'))`",
-        "reason": "Playwright's `locator()` function does not support mixing regex-based `text=/.../` pseudo-selectors with CSS comma-separated selectors in the same string. It treats the text after the regex flags as part of the RegExp, causing a SyntaxError. Using `.or()` safely combines multiple different engine locators."
-      },
-      {
-        "locator": "inactivateBtn",
-        "fix": "Improved pre-navigation logic to the 'Clients' page utilizing broader MUI selectors and an explicit URL fallback to prevent the cascading failure that ultimately caused the Inactivate button timeout.",
-        "reason": "The Inactivate button timeout was a downstream effect of failing to navigate to the 'Clients' tab. Strengthening the navigation guarantees the target page loads so the actions menu and button can be found."
-      },
-      {
-        "locator": "actionsMenuLocators",
-        "fix": "Added standard Material-UI (MUI) selectors like '[data-testid=\"MoreVertIcon\"]' and 'button[aria-label=\"more\"]'. Added a `waitForResponse` to let table data populate.",
-        "reason": "Table action icons often use standardized MUI icons/aria-labels which were not captured in the original selectors."
-      }
-    ]
+    "failedAt": "2026-05-07T10:03:45.832Z"
   },
   "bugReport": {
     "detectedBugs": [

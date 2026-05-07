@@ -81,10 +81,17 @@ function extractSteps(scenario) {
     const stepsMatch = scenario.match(/Steps:\s*\n((?:\d+\..+?(?:\n|$))+)/i);
     if (!stepsMatch) return [];
     
-    return stepsMatch[1]
+    const steps = stepsMatch[1]
         .split(/\n(?=\d+\.)/)
         .map(step => step.replace(/^\d+\.\s*/, "").trim())
         .filter(step => step.length > 0);
+    
+    console.log(`🔍 DEBUG: Extracted ${steps.length} steps from scenario`);
+    steps.forEach((step, index) => {
+        console.log(`   Step ${index + 1}: ${step}`);
+    });
+    
+    return steps;
 }
 
 function extractExpected(scenario) {
