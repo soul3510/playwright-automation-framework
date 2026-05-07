@@ -1,2 +1,2 @@
 @echo off
-node "%~dp0gemini-cli-mock.js" %*
+node "%~dp0gemini-cli.js" %*

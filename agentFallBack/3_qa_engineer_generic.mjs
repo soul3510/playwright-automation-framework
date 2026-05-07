@@ -83,13 +83,27 @@ if (!isGenericMode()) {
 
 async function callGemini(prompt) {
     return new Promise((resolve, reject) => {
-        const child = spawn("gemini", [], { 
-            shell: true,
-            env: {
-                ...process.env,
-                GOOGLE_CLOUD_PROJECT: "codeassist-preview"
-            }
-        });
+        const hasApiKey = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY);
+        if (!hasApiKey) {
+            console.log("ℹ️ No Gemini API key found. Skipping AI enhancement and keeping generated code.");
+            resolve("");
+            return;
+        }
+
+        let child;
+        try {
+            child = spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
+                shell: true,
+                env: {
+                    ...process.env,
+                    GOOGLE_CLOUD_PROJECT: "codeassist-preview"
+                }
+            });
+        } catch (err) {
+            console.warn(`⚠️ Gemini enhancement unavailable: ${err.message}`);
+            resolve("");
+            return;
+        }
         
         let fullOutput = "";
         child.stdin.write(prompt);
@@ -104,7 +118,10 @@ async function callGemini(prompt) {
             resolve(fullOutput);
         });
 
-        child.on("error", (err) => reject(err));
+        child.on("error", (err) => {
+            console.warn(`⚠️ Gemini enhancement unavailable: ${err.message}`);
+            resolve("");
+        });
     });
 }
 
@@ -181,6 +198,33 @@ function validatePageObjectUsage(code, poMap) {
     }
     
     return { violations, hasViolations: violations.length > 0 };
+}
+
+function normalizeForComparison(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function extractPrimaryTestIdentity(code, fallbackFileName = "") {
+    const describeMatch = code.match(/test\.describe\(\s*['"`]([^'"`]+)['"`]/);
+    const testMatch = code.match(/\btest\(\s*['"`]([^'"`]+)['"`]/);
+    const annotationMatch = code.match(/type:\s*['"`]Description['"`]\s*,\s*description:\s*['"`]([^'"`]+)['"`]/);
+    return [
+        describeMatch?.[1],
+        testMatch?.[1],
+        annotationMatch?.[1],
+        fallbackFileName.replace(/\.test\.ts$/i, "")
+    ].filter(Boolean);
+}
+
+function isLikelyStaleAiRewrite(originalCode, enhancedCode, targetFileName) {
+    const originalIds = extractPrimaryTestIdentity(originalCode, targetFileName)
+        .map(normalizeForComparison)
+        .filter(Boolean);
+    const enhancedNormalized = normalizeForComparison(enhancedCode);
+    const hasOriginalIdentity = originalIds.some(id => id.length >= 8 && enhancedNormalized.includes(id));
+    const hasKnownMockScenario = /Test_sign_in_button|unbounce\.com|best-landing-page-examples|sign_in/i.test(enhancedCode);
+
+    return !hasOriginalIdentity || (hasKnownMockScenario && !/Test_sign_in_button/i.test(originalCode));
 }
 
 // Generic clarification manager
@@ -265,6 +309,7 @@ async function main() {
     }
 
     let code = fs.readFileSync(targetFile, "utf8");
+    const originalCode = code;
     console.log(`📄 Loaded test file: ${targetFile}`);
     console.log(`📏 File size: ${code.length} characters`);
 
@@ -346,8 +391,12 @@ ${JSON.stringify(genericConfig.genericUserRoles || [], null, 2)}
     
     if (blocks.length > 0) {
         const enhancedCode = blocks[0][1].trim();
-        fs.writeFileSync(targetFile, enhancedCode, "utf8");
-        console.log(`✨ Enhanced test file saved: ${targetFile}`);
+        if (isLikelyStaleAiRewrite(originalCode, enhancedCode, path.basename(targetFile))) {
+            console.log("⚠️ AI enhancement did not match the current scenario. Keeping the generated scenario-specific test.");
+        } else {
+            fs.writeFileSync(targetFile, enhancedCode, "utf8");
+            console.log(`✨ Enhanced test file saved: ${targetFile}`);
+        }
     } else {
         console.log("⚠️ No enhanced code found in AI response");
     }
@@ -376,4 +425,7 @@ function analyzeGenericPatterns(code) {
     return patterns;
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});

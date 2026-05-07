@@ -3,17 +3,21 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 async function main() {
-    // Get API key from environment variable
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
+    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
     
     if (!apiKey) {
         console.error('Error: GEMINI_API_KEY or GOOGLE_AI_API_KEY environment variable is required');
         process.exit(1);
     }
 
-    // Initialize the AI client
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+            temperature: Number(process.env.GEMINI_TEMPERATURE || 0.2)
+        }
+    });
 
     try {
         // Read input from stdin
@@ -29,14 +33,13 @@ async function main() {
             process.exit(1);
         }
 
-        // Generate response
         const result = await model.generateContent(input);
         const response = result.response.text();
         
         console.log(response);
         
     } catch (error) {
-        console.error('Error:', error.message);
+        console.error(`Error calling Gemini model "${modelName}":`, error.message);
         process.exit(1);
     }
 }

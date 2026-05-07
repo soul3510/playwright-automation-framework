@@ -6,6 +6,10 @@ let scenarioText = "";
 const id = "manual";
 const generatedDir = path.join(process.cwd(), "generated");
 
+if (!fs.existsSync(generatedDir)) {
+    fs.mkdirSync(generatedDir, { recursive: true });
+}
+
 if (process.argv.includes('--file')) {
     const filePath = process.argv[process.argv.indexOf('--file') + 1];
     scenarioText = fs.readFileSync(path.resolve(filePath), "utf8");

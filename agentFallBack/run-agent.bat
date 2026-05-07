@@ -1,7 +1,7 @@
 @echo off
 setlocal
 echo Launching Playwright Automation Agent...
-cd /d "%~dp0agentFallBack"
+cd /d "%~dp0"
 
 :: Cleanup Check
 set /p choice="Would you like to clean up the 'generated/' folder first? (y/n): "

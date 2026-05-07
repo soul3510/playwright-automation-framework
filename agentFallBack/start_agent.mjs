@@ -4,6 +4,7 @@ import {stdin as input, stdout as output} from 'node:process';
 import {spawn} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const rl = readline.createInterface({input, output});
 
@@ -59,6 +60,23 @@ async function getMultiLineInput(promptText, allowEmptyDone = true) {
     return lines.join("\n");
 }
 
+function fileSha(value) {
+    return crypto.createHash('sha256').update(value).digest('hex').slice(0, 12);
+}
+
+function resetRunState(agentDir, source = 'manual') {
+    const statePath = path.join(agentDir, 'task_state.json');
+    const freshState = {
+        currentAgent: 'orchestrator',
+        status: 'RUNNING',
+        source,
+        startedAt: new Date().toISOString(),
+        logs: [],
+        bugReport: { detectedBugs: [] }
+    };
+    fs.writeFileSync(statePath, JSON.stringify(freshState, null, 2), 'utf8');
+}
+
 async function main() {
     // 1. Robust Directory Setup
     const agentDir = process.cwd();
@@ -94,6 +112,7 @@ async function main() {
         const keys = await rl.question("Enter Jira Ticket Key(s) (e.g., DN-123,DN-456): ");
         pipelineStatus = await runCommand('node', ['run_one_page_multi_task.mjs', '--jiraKeys', keys, '--mode', 'smart']);
     } else if (choice === '3') {
+        resetRunState(agentDir, 'manual');
         console.log("\n📝 MANUAL SCENARIO LOADER");
 
         // 1. Check if the scenario file exists
@@ -107,6 +126,9 @@ async function main() {
 
         console.log(`📂 Reading scenario from: ${manualScenarioPath}`);
         const fileContent = fs.readFileSync(manualScenarioPath, "utf8");
+        const scenarioStats = fs.statSync(manualScenarioPath);
+        console.log(`ðŸ•’ Scenario modified: ${scenarioStats.mtime.toLocaleString()}`);
+        console.log(`ðŸ” Scenario SHA: ${fileSha(fileContent)}`);
 
         // 2. Simple Parser to show the user what we found (Review Block)
         console.log("\n------------------------------------------");
@@ -141,7 +163,10 @@ async function main() {
             }
 
             console.log("Running Refinement & Healing (Generic Mode)...");
-            pipelineStatus = await runCommand('node', ['3_qa_engineer_generic.mjs', '--pageId', 'manual']);
+            status = await runCommand('node', ['3_qa_engineer_generic.mjs', '--pageId', 'manual']);
+            if (status !== 0) { pipelineStatus = 1; rl.close(); return; }
+
+            pipelineStatus = await runCommand('node', ['4_healer.mjs', '--pageId', 'manual']);
 
             if (pipelineStatus === 0) {
                 console.log("\n✨ E2E Generation & Verification Complete!");
@@ -152,6 +177,7 @@ async function main() {
             return;
         }
     } else if (choice === '4') {
+        resetRunState(agentDir, 'fix_existing');
         console.log("\n🔧 FIX EXISTING TEST MODE");
         console.log("This will regenerate an existing test with the same logic using verification & self-healing.\n");
 
@@ -360,11 +386,11 @@ async function main() {
     rl.close();
 }
 
-main();
+await main();
 
 // Post-process: Generate Success Summary
-const metadataPath = path.join(process.cwd(), "agentFallBack/generated/last_generated_test.json");
-const reportPath = path.join(process.cwd(), `agentFallBack/generated/generation_report_manual.json`);
+const metadataPath = path.join(process.cwd(), "generated/last_generated_test.json");
+const reportPath = path.join(process.cwd(), `generated/generation_report_manual.json`);
 
 if (fs.existsSync(metadataPath)) {
     const metadata = JSON.parse(fs.readFileSync(metadataPath, "utf8"));

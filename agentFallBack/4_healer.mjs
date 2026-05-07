@@ -372,7 +372,8 @@ async function runTest(testFile) {
         env.FORCE_COLOR = "0";
         env.PLAYWRIGHT_SERVICE_URL = ""; 
 
-        const child = spawn("npx", ["playwright", "test", targetPath, "--headed", "--reporter=line"], {
+        const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+        const child = spawn(npxCommand, ["playwright", "test", targetPath, "--headed", "--reporter=line"], {
             cwd: repoRoot,
             shell: true,
             env: env
@@ -398,18 +399,18 @@ async function runTest(testFile) {
 
             // Business Logic Verification: Check for 'STEP:' logs
             if (success) {
-                const stepMatches = output.match(/STEP:/g);
+                const stepMatches = output.match(/STEP\s*\d*:/g);
                 const stepCount = stepMatches ? stepMatches.length : 0;
                 
                 console.log(`\n📊 Verification: Detected ${stepCount} 'STEP:' logs.`);
 
-                // Requirement: At least 3 logs (Login + 2 business logic steps)
-                if (stepCount < 3) {
-                    console.warn(`\n⚠️ Business Logic Verification Failed: Only ${stepCount} 'STEP:' logs detected (minimum 3 required).`);
+                // Require visible step logging, but do not force every scenario into a login-shaped test.
+                if (stepCount < 1) {
+                    console.warn(`\n⚠️ Business Logic Verification Failed: No 'STEP:' logs detected.`);
                     success = false;
                     resolve({
                         success: false,
-                        output: output + `\n\n❌ ERROR: Test passed login but failed to execute business logic steps. Only ${stepCount} 'STEP:' logs found. At least 3 are required (Login + 2 business logic steps). The AI_IMPLEMENTATION_START block might be empty or missing required console.log('...') for major actions.`
+                        output: output + `\n\n❌ ERROR: Test passed but no business step logs were found. Add console.log('STEP <n>: ...') markers for major actions.`
                     });
                     return;
                 }
@@ -562,13 +563,13 @@ ${errorLog}
 \`\`\`
 
 REPO KNOWLEDGE (SELECTORS & CONVENTIONS):
-\${JSON.stringify(repoKnowledge, null, 2)}
-\${metadataSection}
-\${goldenPatternsSection}
+${JSON.stringify(repoKnowledge, null, 2)}
+${metadataSection}
+${goldenPatternsSection}
 
-\${DIAGNOSTIC_HELPER}
+${DIAGNOSTIC_HELPER}
 
-\${mcpHealingSection}
+${mcpHealingSection}
 
 INSTRUCTIONS:
 1. ${specificInstructions}

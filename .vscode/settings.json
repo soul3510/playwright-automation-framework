@@ -1,6 +1,8 @@
 {
+  "playwright.config": "playwright.config.ts",
   "playwright.env": {},
   "playwright.reuseBrowser": false,
   "playwright.showTrace": false,
-  "playwright.testExplorer.show": true
+  "playwright.testExplorer.show": true,
+  "testing.gutterEnabled": true
 }

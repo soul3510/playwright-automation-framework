@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Playwright: Run all tests",
+      "type": "shell",
+      "command": "npx.cmd",
+      "args": [
+        "playwright",
+        "test"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Playwright: Run current file",
+      "type": "shell",
+      "command": "npx.cmd",
+      "args": [
+        "playwright",
+        "test",
+        "${file}"
+      ],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Playwright: Run current file headed",
+      "type": "shell",
+      "command": "npx.cmd",
+      "args": [
+        "playwright",
+        "test",
+        "${file}",
+        "--headed"
+      ],
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}

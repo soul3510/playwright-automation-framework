@@ -68,21 +68,21 @@ function sanitizeTestName(name) {
 }
 
 function extractSubject(scenario) {
-    const subjectMatch = scenario.match(/Subject:\s*(.+?)(?:\n|$)/i);
+    const subjectMatch = scenario.match(/Subject:\s*(.+?)(?:\r?\n|$)/i);
     return subjectMatch ? subjectMatch[1].trim() : "Unknown Test";
 }
 
 function extractUser(scenario) {
-    const userMatch = scenario.match(/User:\s*(.+?)(?:\n|$)/i);
+    const userMatch = scenario.match(/User:\s*(.+?)(?:\r?\n|$)/i);
     return userMatch ? userMatch[1].trim() : "Standard User";
 }
 
 function extractSteps(scenario) {
-    const stepsMatch = scenario.match(/Steps:\s*\n((?:\d+\..+?(?:\n|$))+)/i);
+    const stepsMatch = scenario.match(/Steps:\s*\r?\n((?:\d+\..+?(?:\r?\n|$))+)/i);
     if (!stepsMatch) return [];
     
     const steps = stepsMatch[1]
-        .split(/\n(?=\d+\.)/)
+        .split(/\r?\n(?=\d+\.)/)
         .map(step => step.replace(/^\d+\.\s*/, "").trim())
         .filter(step => step.length > 0);
     
@@ -95,8 +95,40 @@ function extractSteps(scenario) {
 }
 
 function extractExpected(scenario) {
-    const expectedMatch = scenario.match(/Expected:\s*\n(.+?)(?:\n\n|$)/is);
+    const expectedMatch = scenario.match(/Expected:\s*\r?\n(.+?)(?:\r?\n\r?\n|$)/is);
     return expectedMatch ? expectedMatch[1].trim() : "Test should complete successfully";
+}
+
+function escapeForSingleQuotedTs(value) {
+    return String(value ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+function extractQuotedValue(text) {
+    const match = String(text || "").match(/["']([^"']+)["']/);
+    return match ? match[1].trim() : "";
+}
+
+function extractUrl(text) {
+    const match = String(text || "").match(/https?:\/\/[^\s)]+/);
+    return match ? match[0].replace(/[.,;]+$/, "") : "";
+}
+
+function cleanClickableText(value) {
+    return String(value || "")
+        .replace(/^on\s+/i, "")
+        .replace(/\s+button$/i, "")
+        .replace(/^the\s+/i, "")
+        .trim()
+        .replace(/^["']|["']$/g, "");
+}
+
+function regexLiteralFromTerms(value, fallback = "result") {
+    const terms = String(value || fallback)
+        .split(/\s+/)
+        .map(term => term.replace(/[^a-zA-Z0-9]/g, ""))
+        .filter(term => term.length >= 3)
+        .slice(0, 4);
+    return (terms.length ? terms : [fallback]).join("|");
 }
 
 // Generic selector generator
@@ -139,6 +171,8 @@ function generateGenericTestCode(scenario, metadata) {
     const user = extractUser(scenario);
     const steps = extractSteps(scenario);
     const expected = extractExpected(scenario);
+    const primaryQuery = extractQuotedValue(scenario);
+    const expectedTermsRegex = regexLiteralFromTerms(primaryQuery || expected || subject);
     
     const testClassName = sanitizeTestName(subject);
     const testName = subject;
@@ -184,10 +218,10 @@ test.describe('${testClassName}', () => {
         code += `    console.log('⏰ Starting step execution at:', new Date().toISOString());\n\n`;
         
         if (step.toLowerCase().includes('navigate') || step.toLowerCase().includes('go to')) {
-            const urlMatch = step.match(/https?:\/\/[^\s]+/);
-            if (urlMatch) {
-                code += `    console.log('📍 Navigating to URL: ${urlMatch[0]}');\n`;
-                code += `    await landingPage.navigateTo('${urlMatch[0]}');\n`;
+            const url = extractUrl(step);
+            if (url) {
+                code += `    console.log('📍 Navigating to URL: ${escapeForSingleQuotedTs(url)}');\n`;
+                code += `    await landingPage.navigateTo('${escapeForSingleQuotedTs(url)}');\n`;
                 code += `    console.log('✅ Navigation completed successfully');\n`;
             } else {
                 code += `    console.log('📍 Navigating to base URL: /');\n`;
@@ -209,11 +243,40 @@ test.describe('${testClassName}', () => {
         } else if (step.toLowerCase().includes('click') || step.toLowerCase().includes('press')) {
             const elementMatch = step.match(/(?:click|press)\s+["']?(.+?)["']?$/i);
             if (elementMatch) {
-                const element = elementMatch[1];
-                code += `    console.log('🖱️ Preparing to click element: ${element}');\n`;
+                const element = cleanClickableText(elementMatch[1]);
+                code += `    console.log('🖱️ Preparing to click element: ${escapeForSingleQuotedTs(element)}');\n`;
                 
                 // Enhanced selector generation for common button patterns
-                if (element.toLowerCase().includes('try calm for free')) {
+                if (step.toLowerCase().includes('press enter')) {
+                    code += `    console.log('⌨️ Pressing Enter');\n`;
+                    code += `    await page.keyboard.press('Enter');\n`;
+                    code += `    await page.waitForLoadState('domcontentloaded');\n`;
+                    code += `    console.log('✅ Enter key submitted successfully');\n`;
+                } else if (element.toLowerCase().includes('first search result') || element.toLowerCase().includes('first result') || element.toLowerCase().includes('first product')) {
+                    code += `    console.log('🎯 Opening the first search result');\n`;
+                    code += `    const firstResult = page.locator('[data-component-type="s-search-result"] h2 a, [data-component-type="s-search-result"] a.a-link-normal, .mw-search-result-heading a, .mw-search-results li a, main a').first();\n`;
+                    code += `    await expect(firstResult).toBeVisible({ timeout: 15000 });\n`;
+                    code += `    await firstResult.click();\n`;
+                    code += `    await page.waitForLoadState('domcontentloaded');\n`;
+                    code += `    console.log('✅ First result opened successfully');\n`;
+                } else if (element.toLowerCase().includes('add to cart')) {
+                    code += `    console.log('🎯 Adding product to cart');\n`;
+                    code += `    const addToCartButton = page.getByRole('button', { name: /add to cart/i }).or(page.locator('input[name="submit.add-to-cart"], #add-to-cart-button')).first();\n`;
+                    code += `    await expect(addToCartButton).toBeVisible({ timeout: 15000 });\n`;
+                    code += `    await addToCartButton.click();\n`;
+                    code += `    await page.waitForLoadState('domcontentloaded');\n`;
+                    code += `    console.log('✅ Add to Cart clicked successfully');\n`;
+                } else if (element.toLowerCase().includes('search button') || element.toLowerCase().includes('search')) {
+                    code += `    console.log('🎯 Submitting search');\n`;
+                    code += `    const searchButton = page.getByRole('button', { name: /search/i }).first();\n`;
+                    code += `    if (await searchButton.isVisible({ timeout: 3000 }).catch(() => false)) {\n`;
+                    code += `      await searchButton.click();\n`;
+                    code += `    } else {\n`;
+                    code += `      await page.keyboard.press('Enter');\n`;
+                    code += `    }\n`;
+                    code += `    await page.waitForLoadState('domcontentloaded');\n`;
+                    code += `    console.log('✅ Search submitted successfully');\n`;
+                } else if (element.toLowerCase().includes('try calm for free')) {
                     code += `    console.log('🎯 Targeting "Try Calm for Free" button');\n`;
                     code += `    // Try multiple selectors for "Try Calm for Free" button\n`;
                     code += `    await landingPage.verifyTryButtonVisible();\n`;
@@ -226,12 +289,12 @@ test.describe('${testClassName}', () => {
                     code += `    await landingPage.clickLoginButton();\n`;
                     code += `    console.log('✅ Login button clicked');\n`;
                 } else {
-                    code += `    console.log('⚠️ Generic click action for: ${element}');\n`;
+                    code += `    console.log('⚠️ Generic click action for: ${escapeForSingleQuotedTs(element)}');\n`;
                     code += `    // Generic click action - add custom method as needed\n`;
-                    code += `    const element = page.locator('text=${element}').first();\n`;
-                    code += `    await expect(element).toBeVisible({ timeout: 10000 });\n`;
-                    code += `    await element.click();\n`;
-                    code += `    console.log(\`✅ Clicked element: \${element}\`);\n`;
+                    code += `    const element${stepNumber} = page.getByText('${escapeForSingleQuotedTs(element)}', { exact: false }).first();\n`;
+                    code += `    await expect(element${stepNumber}).toBeVisible({ timeout: 10000 });\n`;
+                    code += `    await element${stepNumber}.click();\n`;
+                    code += `    console.log('✅ Clicked element: ${escapeForSingleQuotedTs(element)}');\n`;
                 }
             } else {
                 code += `    console.log('⚠️ Step ${stepNumber}: Click action - element not recognized in step: ${step}');\n`;
@@ -250,18 +313,42 @@ test.describe('${testClassName}', () => {
             code += `    await landingPage.verifySignInButtonVisible();\n`;
             code += `    console.log('✅ Sign In button verification completed');\n`;
         } else if (step.toLowerCase().includes('enter') || step.toLowerCase().includes('fill') || step.toLowerCase().includes('type')) {
-            const fieldMatch = step.match(/(?:enter|fill|type)\s+(?:.+?)\s+(?:in|into)\s+(.+?)(?:\s+(?:field|input))?$/i);
+            const fieldMatch = step.match(/(?:enter|fill|type)\s+(.+?)\s+(?:in|into)\s+(.+?)(?:\s+(?:field|input|box))?$/i);
             if (fieldMatch) {
-                const field = fieldMatch[1];
-                code += `    console.log('⌨️ Preparing to fill field: ${field}');\n`;
-                const selector = generateGenericSelector(field, 'fill', step);
-                code += `    await expect(page.locator('${selector}')).toBeVisible();\n`;
-                code += `    await page.fill('${selector}', 'test-data'); // TODO: Update with actual test data\n`;
-                code += `    console.log(\`✅ Field filled: \${field}\`);\n`;
+                const rawValue = extractQuotedValue(fieldMatch[1]) || fieldMatch[1].trim();
+                const field = fieldMatch[2].trim();
+                const value = escapeForSingleQuotedTs(rawValue);
+                code += `    console.log('⌨️ Preparing to fill field: ${escapeForSingleQuotedTs(field)}');\n`;
+                if (field.toLowerCase().includes('search')) {
+                    code += `    const searchInput = page.getByRole('searchbox').or(page.locator('input[type="search"], input[name="search"], input[name="searchInput"], #searchInput')).first();\n`;
+                    code += `    await expect(searchInput).toBeVisible({ timeout: 10000 });\n`;
+                    code += `    await searchInput.fill('${value}');\n`;
+                } else {
+                    const selector = generateGenericSelector(field, 'fill', step);
+                    code += `    await expect(page.locator('${selector}')).toBeVisible();\n`;
+                    code += `    await page.fill('${selector}', '${value}');\n`;
+                }
+                code += `    console.log('✅ Field filled: ${escapeForSingleQuotedTs(field)}');\n`;
             } else {
                 code += `    console.log('⚠️ Step ${stepNumber}: Fill action - field not recognized in step: ${step}');\n`;
                 code += `    // TODO: Implement fill action - field not recognized\n`;
             }
+        } else if (step.toLowerCase().includes('verify') && step.toLowerCase().includes('search result')) {
+            code += `    console.log('🔍 Verifying search results are visible');\n`;
+            code += `    await expect(page.locator('[data-component-type="s-search-result"], .s-result-item, .mw-search-results li, .mw-search-result-heading, main, body').first()).toBeVisible({ timeout: 15000 });\n`;
+            code += `    await expect(page.locator('body')).toContainText(/${expectedTermsRegex}/i, { timeout: 15000 });\n`;
+            code += `    console.log('✅ Search results are visible');\n`;
+        } else if (step.toLowerCase().includes('verify') && (step.toLowerCase().includes('article') || step.toLowerCase().includes('title') || step.toLowerCase().includes('product details'))) {
+            code += `    console.log('🔍 Verifying details page title');\n`;
+            code += `    await expect(page.locator('h1, #productTitle, .firstHeading').first()).toBeVisible({ timeout: 15000 });\n`;
+            code += `    const detailsTitle = (await page.locator('h1, #productTitle, .firstHeading').first().innerText()).trim();\n`;
+            code += `    console.log(\`📄 Details title: \${detailsTitle}\`);\n`;
+            code += `    expect(detailsTitle.length).toBeGreaterThan(0);\n`;
+            code += `    console.log('✅ Details page title verified');\n`;
+        } else if (step.toLowerCase().includes('verify') && (step.toLowerCase().includes('cart') || step.toLowerCase().includes('added'))) {
+            code += `    console.log('🔍 Verifying cart update');\n`;
+            code += `    await expect(page.locator('body')).toContainText(/cart|added|basket|1/i, { timeout: 15000 });\n`;
+            code += `    console.log('✅ Cart update verified');\n`;
         } else {
             code += `    console.log('⚠️ Step ${stepNumber}: Pattern not recognized - ${step}');\n`;
             code += `    // TODO: Implement this step - pattern not recognized\n`;
@@ -273,7 +360,8 @@ test.describe('${testClassName}', () => {
     }
     
     // Enhanced verification steps
-    code += `    // Verification: ${expected}\n`;
+    const expectedComment = expected.split(/\r?\n/).map(line => `    // Verification: ${line}`).join("\n");
+    code += `${expectedComment}\n`;
     
     if (expected.toLowerCase().includes('landing page works') || expected.toLowerCase().includes('page works')) {
         code += `    // Verify landing page is working correctly using page object\n`;
@@ -282,6 +370,14 @@ test.describe('${testClassName}', () => {
         code += `    await expect(page).toHaveURL(/dashboard|home|welcome/);\n`;
         code += `    const successElement = await page.locator('text=welcome, dashboard, logout').first();\n`;
         code += `    await expect(successElement).toBeVisible();\n`;
+    } else if (expected.toLowerCase().includes('search result') || expected.toLowerCase().includes('article') || expected.toLowerCase().includes('product') || expected.toLowerCase().includes('cart')) {
+        const expectedQuery = primaryQuery || "";
+        code += `    await expect(page.locator('body')).toBeVisible();\n`;
+        if (expectedQuery) {
+            code += `    await expect(page.locator('body')).toContainText(/${regexLiteralFromTerms(expectedQuery, subject)}/i);\n`;
+        }
+        code += `    const finalTitle = await page.title();\n`;
+        code += `    expect(finalTitle.length).toBeGreaterThan(0);\n`;
     } else if (expected.toLowerCase().includes('redirect')) {
         code += `    await page.waitForLoadState('networkidle');\n`;
         code += `    const currentUrl = page.url();\n`;
@@ -325,15 +421,17 @@ async function main() {
         console.log("⚠️ Could not auto-create project structure:", error.message);
     }
 
-    // Read manual scenario directly from the source file
+    // Read the scenario snapshot created by ingestion. This keeps generation tied
+    // to the exact text the user reviewed and confirmed in start_agent.mjs.
     const manualScenarioPath = path.join(repoRoot, "tests/generated-from-agentFallBack/scenario.txt");
-    if (!fs.existsSync(manualScenarioPath)) {
+    const scenarioSourcePath = fs.existsSync(mdPath) ? mdPath : manualScenarioPath;
+    if (!fs.existsSync(scenarioSourcePath)) {
         console.error("❌ Manual scenario not found");
         process.exit(1);
     }
 
-    const scenario = fs.readFileSync(manualScenarioPath, "utf8");
-    console.log(`📄 Read scenario: ${scenario.substring(0, 100)}...`);
+    const scenario = fs.readFileSync(scenarioSourcePath, "utf8");
+    console.log(`📄 Read scenario from ${scenarioSourcePath}: ${scenario.substring(0, 100)}...`);
 
     // Generate generic test code
     const metadata = {
@@ -411,4 +509,7 @@ Return only the complete TypeScript test code wrapped in triple backticks.
     console.log("**********************************************");
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});

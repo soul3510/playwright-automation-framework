@@ -1,9 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
 
-// Import MCP Healer from the integrated healer
-import { MCPHealer } from '../agentFallBack/4_healer.mjs';
-
 export class LandingPage extends BasePage {
     // Selectors
     private readonly tryButtonSelector: Locator;
@@ -12,21 +9,15 @@ export class LandingPage extends BasePage {
     private readonly linksSelector: Locator;
     private readonly imagesSelector: Locator;
     private readonly headerSelector: Locator;
-    
-    // MCP Healer for dynamic selector discovery
-    private healer: MCPHealer;
 
     constructor(page: Page) {
         super(page);
         this.tryButtonSelector = page.locator('button:has-text("Try Calm for Free")').first();
-        this.loginButtonSelector = page.locator('button:has-text("Login"), button:has-text("Login In"), a:has-text("Login")').first();
+        this.loginButtonSelector = page.locator('button:has-text("Login"), button:has-text("Login In"), button:has-text("Log In"), a:has-text("Login"), a:has-text("Log In")').first();
         this.signInButtonSelector = page.locator('button:has-text("Sign In"), button:has-text("Sign in"), a:has-text("Sign In")').first();
         this.linksSelector = page.locator('a[href]');
         this.imagesSelector = page.locator('img');
         this.headerSelector = page.locator('header, .header, nav');
-        
-        // Initialize MCP Healer
-        this.healer = new MCPHealer(page);
     }
 
     // Page Actions
@@ -41,63 +32,38 @@ export class LandingPage extends BasePage {
     }
 
     async clickLoginButton(): Promise<void> {
-        console.log('🔧 Using MCP Healer to discover and click Login button');
-        
-        // First analyze page structure
-        await this.healer.analyzePageStructure();
-        
-        // Use MCP healer to find and click the best matching element
-        const success = await this.healer.healAndClick('click login button');
-        
-        if (!success) {
-            console.log('⚠️ MCP healing failed, trying fallback strategies...');
-            
-            // Fallback to traditional selectors
-            const loginSelectors = [
-                'button:has-text("Login")',
-                'button:has-text("Login In")',
-                'a:has-text("Login")',
-                'button:has-text("Sign In")',
-                'a:has-text("Sign In")',
-                '[data-testid*="login"]',
-                '[class*="login"]'
-            ];
-            
-            let buttonFound = false;
-            for (const selector of loginSelectors) {
+        const loginLocators = [
+            this.page.getByRole('link', { name: /^(log in|login|sign in)$/i }).first(),
+            this.page.getByRole('button', { name: /^(log in|login|sign in)$/i }).first(),
+            this.loginButtonSelector,
+            this.page.locator('a[href*="sign_in"], a[href*="login"]').first(),
+            this.page.locator('[data-testid*="login" i], [class*="login" i], [href*="login" i]').first()
+        ];
+
+        for (const locator of loginLocators) {
+            if (await locator.isVisible({ timeout: 3000 }).catch(() => false)) {
+                const href = await locator.getAttribute('href').catch(() => null);
                 try {
-                    const button = this.page.locator(selector).first();
-                    if (await button.isVisible({ timeout: 3000 })) {
-                        console.log(`✅ Found login button with selector: ${selector}`);
-                        await button.click();
-                        console.log('✅ Login button clicked successfully');
-                        buttonFound = true;
-                        break;
-                    }
+                    await locator.click({ timeout: 5000 });
                 } catch (error) {
-                    continue;
+                    if (!href) {
+                        throw error;
+                    }
+
+                    const newPage = await this.page.context().newPage();
+                    await newPage.goto(href);
                 }
-            }
-            
-            if (!buttonFound) {
-                console.log('⚠️ No login button found, clicking first available button for demo');
-                const anyButton = this.page.locator('button').first();
-                if (await anyButton.isVisible({ timeout: 3000 })) {
-                    await anyButton.click();
-                    console.log('✅ First button clicked successfully');
-                } else {
-                    throw new Error('No suitable button found on the page');
-                }
+                await this.page.waitForTimeout(1000);
+                return;
             }
         }
-        
-        // Wait a moment for any navigation to start
-        await this.page.waitForTimeout(2000);
+
+        throw new Error('No visible login/sign-in control found on the page');
     }
 
     async verifySignInButtonVisible(): Promise<void> {
         console.log('🔍 Checking Sign In button visibility...');
-        await this.signInButtonSelector.isVisible({ timeout: 10000 });
+        await expect(this.signInButtonSelector).toBeVisible({ timeout: 10000 });
         console.log('✅ Sign In button is visible');
     }
 
