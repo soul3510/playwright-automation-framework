@@ -1,15 +1,17 @@
 @echo off
 setlocal
-echo Launching Playwright Automation Agent...
 cd /d "%~dp0"
 
+powershell -NoProfile -Command "Write-Host ''; Write-Host '+----------------------------------------------+' -ForegroundColor Cyan; Write-Host '|     Playwright Automation Agent Launcher    |' -ForegroundColor Cyan; Write-Host '+----------------------------------------------+' -ForegroundColor Cyan; Write-Host ''"
+
 :: Cleanup Check
-set /p choice="Would you like to clean up the 'generated/' folder first? (y/n): "
+powershell -NoProfile -Command "Write-Host '+----------------------------------------------+' -ForegroundColor Yellow; Write-Host '| Clean generated metadata before starting?    |' -ForegroundColor Yellow; Write-Host '| This keeps manual scenario runs fresh.       |' -ForegroundColor DarkYellow; Write-Host '+----------------------------------------------+' -ForegroundColor Yellow"
+set /p choice="Choose y/n: "
 if /i "%choice%"=="y" (
-    echo Cleaning up...
+    powershell -NoProfile -Command "Write-Host 'Cleaning generated folder...' -ForegroundColor Green"
     node cleanup_generated.mjs
 )
 
 :: Start the Agent
-echo 🚀 Starting Orchestrator...
+powershell -NoProfile -Command "Write-Host ''; Write-Host 'Starting Orchestrator...' -ForegroundColor Green; Write-Host ''"
 node start_agent.mjs

@@ -82,7 +82,7 @@ if (!isGenericMode()) {
 }
 
 async function callGemini(prompt) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         const hasApiKey = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY);
         if (!hasApiKey) {
             console.log("ℹ️ No Gemini API key found. Skipping AI enhancement and keeping generated code.");
@@ -93,7 +93,7 @@ async function callGemini(prompt) {
         let child;
         try {
             child = spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
-                shell: true,
+                shell: false,
                 env: {
                     ...process.env,
                     GOOGLE_CLOUD_PROJECT: "codeassist-preview"
@@ -106,21 +106,50 @@ async function callGemini(prompt) {
         }
         
         let fullOutput = "";
-        child.stdin.write(prompt);
-        child.stdin.end();
+        let fullError = "";
+        let settled = false;
+
+        const finish = (value) => {
+            if (settled) return;
+            settled = true;
+            resolve(value);
+        };
+
+        child.stdin.on("error", (error) => {
+            console.warn(`⚠️ Gemini enhancement stdin closed early: ${error.message}`);
+            if (fullError.trim()) console.warn(fullError.trim());
+            finish("");
+        });
+
+        try {
+            child.stdin.end(prompt);
+        } catch (error) {
+            console.warn(`⚠️ Gemini enhancement prompt write failed: ${error.message}`);
+            finish("");
+        }
 
         child.stdout.on("data", (data) => {
             fullOutput += data.toString();
             process.stdout.write(".");
         });
+        child.stderr.on("data", (data) => {
+            fullError += data.toString();
+        });
 
         child.on("close", (code) => {
-            resolve(fullOutput);
+            if (settled) return;
+            if (code !== 0) {
+                console.warn(`⚠️ Gemini enhancement exited with code ${code}.`);
+                if (fullError.trim()) console.warn(fullError.trim());
+                finish("");
+                return;
+            }
+            finish(fullOutput);
         });
 
         child.on("error", (err) => {
             console.warn(`⚠️ Gemini enhancement unavailable: ${err.message}`);
-            resolve("");
+            finish("");
         });
     });
 }

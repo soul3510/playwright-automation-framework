@@ -1,9 +1,15 @@
 {
-  "currentAgent": "orchestrator",
-  "status": "RUNNING",
+  "currentAgent": "healer",
+  "status": "FAILED",
   "source": "manual",
-  "startedAt": "2026-05-07T13:31:28.299Z",
-  "logs": [],
+  "startedAt": "2026-05-07T13:50:35.638Z",
+  "logs": [
+    {
+      "agent": "healer",
+      "timestamp": "2026-05-07T14:22:35.312Z",
+      "message": "Test FAILED after 15 healing attempts: Test_product_search_and_add_to_cart.test.ts"
+    }
+  ],
   "bugReport": {
     "detectedBugs": [
       {
@@ -18,5 +24,15 @@
         "scenario": "manual"
       }
     ]
+  },
+  "healer": {
+    "targetFilePath": "C:\\My_VSC_Projects\\justVSC\\playwright-automation-framework\\tests\\generated-from-agentFallBack\\Test_product_search_and_add_to_cart.test.ts",
+    "targetFileName": "Test_product_search_and_add_to_cart.test.ts",
+    "pageId": "manual",
+    "lastRunStatus": "FAILED",
+    "healingAttempts": 15,
+    "maxRetries": 15,
+    "completed": false,
+    "failedAt": "2026-05-07T14:22:35.312Z"
   }
 }

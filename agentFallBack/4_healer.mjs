@@ -3,10 +3,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import {spawn} from "node:child_process";
+import { createRequire } from "node:module";
 
 const agentDir = process.cwd();
 const repoRoot = path.resolve(agentDir, "..");
 const generatedDir = path.join(agentDir, "generated");
+const require = createRequire(import.meta.url);
 
 function argValue(name) {
     const idx = process.argv.indexOf(name);
@@ -31,6 +33,250 @@ const repoKnowledge = fs.existsSync(repoKnowledgePath)
 function logHealingProgress(message, attempt = null) {
     const prefix = attempt ? `[Healing ${attempt}/${MAX_RETRIES}]` : "[Healing]";
     console.log(`\n${prefix} ${message}`);
+}
+
+function startHealingLoader(message, attempt = null) {
+    const prefix = attempt ? `[Healing ${attempt}/${MAX_RETRIES}]` : "[Healing]";
+    const frames = ["|", "/", "-", "\\"];
+    let index = 0;
+
+    process.stdout.write(`\n${prefix} ${message} ${frames[index]}`);
+    const timer = setInterval(() => {
+        index = (index + 1) % frames.length;
+        process.stdout.write(`\r${prefix} ${message} ${frames[index]}`);
+    }, 150);
+
+    return {
+        stop(doneMessage = "done") {
+            clearInterval(timer);
+            process.stdout.write(`\r${prefix} ${message} ${doneMessage}\n`);
+        }
+    };
+}
+
+function writePromptToChild(child, prompt, onError) {
+    child.stdin.on("error", (error) => {
+        onError(error);
+    });
+
+    try {
+        child.stdin.end(prompt);
+    } catch (error) {
+        onError(error);
+    }
+}
+
+function extractUrlForInspection(code, errorLog) {
+    const errorUrl = String(errorLog || "").match(/https?:\/\/[^\s"')]+/);
+    if (errorUrl) return errorUrl[0].replace(/[.,;]+$/, "");
+
+    const codeUrl = String(code || "").match(/(?:page\.goto|navigateTo)\(\s*['"`](https?:\/\/[^'"`]+)['"`]/);
+    if (codeUrl) return codeUrl[1].replace(/[.,;]+$/, "");
+
+    return "";
+}
+
+function simplifyText(value, max = 120) {
+    return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function stringifyMcpContent(result) {
+    const content = Array.isArray(result?.content) ? result.content : [];
+    return content
+        .map(item => {
+            if (item?.type === "text") return item.text || "";
+            if (item?.text) return item.text;
+            return JSON.stringify(item);
+        })
+        .filter(Boolean)
+        .join("\n");
+}
+
+async function collectOfficialMcpSnapshot(targetUrl, attempt) {
+    let createConnection;
+    let Client;
+    let InMemoryTransport;
+
+    try {
+        ({ createConnection } = require("@playwright/mcp"));
+        ({ Client } = require("@modelcontextprotocol/sdk/client/index.js"));
+        ({ InMemoryTransport } = require("@modelcontextprotocol/sdk/inMemory.js"));
+    } catch (error) {
+        logHealingProgress(`Official MCP unavailable: ${error.message}`, attempt);
+        return null;
+    }
+
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+    const client = new Client({ name: "agent-fallback-healer", version: "1.0.0" });
+    const server = await createConnection({
+        browser: {
+            launchOptions: { headless: true }
+        },
+        outputDir: generatedDir,
+        network: {
+            allowedOrigins: undefined,
+            blockedOrigins: undefined
+        }
+    });
+
+    try {
+        await Promise.all([
+            server.connect(serverTransport),
+            client.connect(clientTransport)
+        ]);
+
+        const tools = await client.listTools();
+        const toolNames = (tools.tools || []).map(tool => tool.name);
+        logHealingProgress(`Official MCP connected with ${toolNames.length} tools.`, attempt);
+
+        await client.callTool({
+            name: "browser_navigate",
+            arguments: { url: targetUrl }
+        });
+
+        const snapshotResult = await client.callTool({
+            name: "browser_snapshot",
+            arguments: {}
+        });
+
+        const snapshotText = stringifyMcpContent(snapshotResult);
+        const context = {
+            source: "official-playwright-mcp",
+            attempt,
+            url: targetUrl,
+            tools: toolNames,
+            snapshot: snapshotText
+        };
+        const contextPath = path.join(generatedDir, `official_mcp_context_attempt_${attempt}.json`);
+        fs.writeFileSync(contextPath, JSON.stringify(context, null, 2), "utf8");
+
+        return {
+            contextPath,
+            text: `
+OFFICIAL PLAYWRIGHT MCP SNAPSHOT:
+URL: ${targetUrl}
+SAVED_TO: ${contextPath}
+AVAILABLE_TOOLS: ${toolNames.join(", ")}
+SNAPSHOT:
+${snapshotText || "(Official MCP returned an empty snapshot.)"}
+`
+        };
+    } finally {
+        await client.close().catch(() => {});
+        await server.close().catch(() => {});
+    }
+}
+
+async function collectPlaywrightMcpContext(testFile, currentCode, errorLog, attempt) {
+    logHealingProgress("Collecting official Playwright MCP snapshot before Gemini...", attempt);
+
+    const targetUrl = extractUrlForInspection(currentCode, errorLog);
+    if (!targetUrl) {
+        logHealingProgress("MCP snapshot skipped: no URL found in test or error log.", attempt);
+        return "";
+    }
+
+    try {
+        const officialSnapshot = await collectOfficialMcpSnapshot(targetUrl, attempt);
+        if (officialSnapshot?.text) {
+            logHealingProgress(`Official MCP snapshot saved: ${officialSnapshot.contextPath}`, attempt);
+            return officialSnapshot.text;
+        }
+    } catch (error) {
+        logHealingProgress(`Official MCP snapshot failed: ${error.message}. Falling back to direct Playwright snapshot.`, attempt);
+    }
+
+    let chromium;
+    try {
+        ({ chromium } = require("playwright"));
+    } catch (error) {
+        logHealingProgress(`MCP snapshot skipped: Playwright package unavailable (${error.message}).`, attempt);
+        return "";
+    }
+
+    const contextPath = path.join(generatedDir, `mcp_context_attempt_${attempt}.json`);
+    let browser;
+
+    try {
+        browser = await chromium.launch({ headless: true });
+        const page = await browser.newPage();
+        await page.goto(targetUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
+        await page.waitForTimeout(1500);
+
+        const snapshot = await page.evaluate(() => {
+            const selectors = [
+                "button",
+                "a",
+                "input",
+                "select",
+                "textarea",
+                "[role]",
+                "[aria-label]",
+                "[data-testid]",
+                "[data-test]",
+                "[data-cy]",
+                "#add-to-cart-button",
+                "[name='submit.add-to-cart']"
+            ];
+
+            return Array.from(document.querySelectorAll(selectors.join(",")))
+                .map((el, index) => {
+                    const rect = el.getBoundingClientRect();
+                    const attrs = {};
+                    for (const name of ["id", "name", "type", "role", "aria-label", "placeholder", "href", "data-testid", "data-test", "data-cy"]) {
+                        const value = el.getAttribute(name);
+                        if (value) attrs[name] = value;
+                    }
+
+                    return {
+                        index,
+                        tag: el.tagName.toLowerCase(),
+                        text: (el.innerText || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 160),
+                        attrs,
+                        visible: !!(rect.width || rect.height || el.getClientRects().length),
+                        enabled: !(el.disabled || el.getAttribute("aria-disabled") === "true")
+                    };
+                })
+                .filter(item => item.visible)
+                .slice(0, 80);
+        });
+
+        const context = {
+            source: "playwright-mcp-pre-gemini",
+            note: "MCP-style live browser snapshot collected before Gemini healing.",
+            attempt,
+            testFile: path.basename(testFile),
+            url: page.url(),
+            title: await page.title(),
+            elements: snapshot
+        };
+
+        fs.writeFileSync(contextPath, JSON.stringify(context, null, 2), "utf8");
+        logHealingProgress(`MCP snapshot saved: ${contextPath}`, attempt);
+
+        const focused = snapshot
+            .map(el => `${el.tag}${el.attrs.id ? `#${el.attrs.id}` : ""}${el.attrs.name ? `[name="${el.attrs.name}"]` : ""}${el.attrs.role ? `[role="${el.attrs.role}"]` : ""} text="${simplifyText(el.text, 80)}" aria="${simplifyText(el.attrs["aria-label"], 80)}"`)
+            .join("\n");
+
+        return `
+PLAYWRIGHT MCP SNAPSHOT (LIVE CONTEXT BEFORE GEMINI):
+URL: ${context.url}
+TITLE: ${context.title}
+SAVED_TO: ${contextPath}
+INTERACTIVE ELEMENTS:
+${focused || "(No visible interactive elements captured.)"}
+`;
+    } catch (error) {
+        logHealingProgress(`MCP snapshot failed: ${error.message}`, attempt);
+        return `
+PLAYWRIGHT MCP SNAPSHOT:
+Failed to collect live context before Gemini: ${error.message}
+`;
+    } finally {
+        if (browser) {
+            await browser.close().catch(() => {});
+        }
+    }
 }
 
 function applyDeterministicHealing(testFile, errorLog, attempt) {
@@ -473,6 +719,7 @@ async function heal(testFile, errorLog, attempt) {
     }
 
     const currentCode = fs.readFileSync(testFile, "utf8");
+    const liveMcpContextSection = await collectPlaywrightMcpContext(testFile, currentCode, errorLog, attempt);
     
     // MCP Healing: Check if we can discover elements from the error
     let mcpHealingSection = "";
@@ -615,6 +862,8 @@ ${goldenPatternsSection}
 
 ${DIAGNOSTIC_HELPER}
 
+${liveMcpContextSection}
+
 ${mcpHealingSection}
 
 INSTRUCTIONS:
@@ -640,16 +889,17 @@ CRITICAL RULES TO MAINTAIN:
 5. IF you fixed a locator or identified a flaky element, output a brief JSON block at the very end wrapped in \`\`\`json\`\`\` containing \`{ "lessonsLearned": [{ "locator": "...", "fix": "...", "reason": "..." }] }\`.
 `;
 
-    logHealingProgress("Calling Gemini for a code fix...", attempt);
+    const loader = startHealingLoader("Finding better selectors and code fix...", attempt);
 
     return new Promise((resolve) => {
         let child;
         try {
             child = spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
-                shell: true,
+                shell: false,
                 env: { ...process.env, GOOGLE_CLOUD_PROJECT: "codeassist-preview" }
             });
         } catch (error) {
+            loader.stop("failed");
             console.error(`❌ Could not start Gemini healer: ${error.message}`);
             resolve(false);
             return;
@@ -657,16 +907,30 @@ CRITICAL RULES TO MAINTAIN:
         
         let fullOutput = "";
         let fullError = "";
-        child.stdin.write(prompt);
-        child.stdin.end();
+        let settled = false;
+
+        const finish = (value) => {
+            if (settled) return;
+            settled = true;
+            resolve(value);
+        };
+
+        writePromptToChild(child, prompt, (error) => {
+            loader.stop("failed");
+            console.error(`❌ Gemini stdin closed before the healing prompt was accepted: ${error.message}`);
+            if (fullError.trim()) console.error(fullError.trim());
+            finish(false);
+        });
 
         child.stdout.on("data", (data) => { fullOutput += data.toString(); });
         child.stderr.on("data", (data) => { fullError += data.toString(); });
         child.on("close", (code) => {
+            if (settled) return;
+            loader.stop(code === 0 ? "response received" : "failed");
             if (code !== 0) {
                 console.error(`❌ Gemini healer exited with code ${code}.`);
                 if (fullError.trim()) console.error(fullError.trim());
-                resolve(false);
+                finish(false);
                 return;
             }
 
@@ -678,7 +942,7 @@ CRITICAL RULES TO MAINTAIN:
                 logHealingProgress(`Gemini fix written to ${path.basename(testFile)}. Re-running test next.`, attempt);
             } else {
                 console.error("❌ AI did not return valid code for healing.");
-                resolve(false);
+                finish(false);
                 return;
             }
 
@@ -711,7 +975,12 @@ CRITICAL RULES TO MAINTAIN:
                 }
             }
 
-            resolve(true);
+            finish(true);
+        });
+        child.on("error", (error) => {
+            loader.stop("failed");
+            console.error(`❌ Gemini healer process error: ${error.message}`);
+            finish(false);
         });
     });
 }
@@ -852,17 +1121,24 @@ INSTRUCTIONS:
 `;
             
             const diagChild = spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
-                shell: true,
+                shell: false,
                 env: { ...process.env, GOOGLE_CLOUD_PROJECT: "codeassist-preview" }
             });
             let diagOutput = "";
             let diagError = "";
-            diagChild.stdin.write(diagnosticPrompt);
-            diagChild.stdin.end();
+            let diagnosticSettled = false;
+            writePromptToChild(diagChild, diagnosticPrompt, (error) => {
+                diagnosticSettled = true;
+                console.warn(`⚠️ Final diagnostic Gemini stdin closed early: ${error.message}`);
+            });
             diagChild.stdout.on("data", (data) => { diagOutput += data.toString(); });
             diagChild.stderr.on("data", (data) => { diagError += data.toString(); });
             await new Promise((resolve) => {
                 diagChild.on("close", (code) => {
+                    if (diagnosticSettled) {
+                        resolve();
+                        return;
+                    }
                     if (code !== 0 && diagError.trim()) {
                         console.warn(`⚠️ Final diagnostic Gemini call failed: ${diagError.trim()}`);
                     }
@@ -879,6 +1155,10 @@ INSTRUCTIONS:
                             console.warn("⚠️ Failed to parse diagnostic JSON.");
                         }
                     }
+                    resolve();
+                });
+                diagChild.on("error", (error) => {
+                    console.warn(`⚠️ Final diagnostic Gemini process error: ${error.message}`);
                     resolve();
                 });
             });

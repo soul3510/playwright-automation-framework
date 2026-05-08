@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-07T13:50:37.453Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. Navigate to page: https://www.amazon.com/\r\n2. Enter \"laptop\" in the search bar\r\n3. Click on the search button\r\n4. Verify search results show laptop products\r\n5. Click on the first product in results\r\n6. Verify product details page loads\r\n7. Click on \"Add to Cart\" button\r\n8. Verify item added to cart successfully",
+        "Subject": "Test product search and add to cart",
+        "Expected": "Search returns relevant laptop products\r\nProduct details display correctly\r\nItem successfully added to shopping cart\r\nCart count updates to show 1 item",
+        "Details": "Subject: Test product search and add to cart\r\nUser: no user\r\nSteps:\r\n1. Navigate to page: https://www.amazon.com/\r\n2. Enter \"laptop\" in the search bar\r\n3. Click on the search button\r\n4. Verify search results show laptop products\r\n5. Click on the first product in results\r\n6. Verify product details page loads\r\n7. Click on \"Add to Cart\" button\r\n8. Verify item added to cart successfully\r\n \r\nExpected:\r\nSearch returns relevant laptop products\r\nProduct details display correctly\r\nItem successfully added to shopping cart\r\nCart count updates to show 1 item\n\nADDITIONAL DATA:\n",
+        "Additional": ""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}
