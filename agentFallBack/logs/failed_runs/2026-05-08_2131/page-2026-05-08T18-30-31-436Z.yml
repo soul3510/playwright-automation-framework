@@ -1,0 +1,750 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - link "Creditsafe Business Index" [ref=e7] [cursor=pointer]:
+          - /url: https://www.creditsafe.com/business-index/en-gb
+          - img "Creditsafe Business Index" [ref=e8]
+        - generic [ref=e10]:
+          - textbox "Search by company" [ref=e11]
+          - button [ref=e12] [cursor=pointer]:
+            - img [ref=e13]
+        - generic [ref=e15]:
+          - link "Free Trial" [ref=e16] [cursor=pointer]:
+            - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index
+          - img "United Kingdom (English)" [ref=e20] [cursor=pointer]
+      - text:   
+    - navigation "Breadcrumb" [ref=e22]:
+      - list [ref=e23]:
+        - listitem [ref=e24]:
+          - link "Home >" [ref=e25] [cursor=pointer]:
+            - /url: https://www.creditsafe.com/business-index/en-gb
+        - listitem [ref=e26]:
+          - link "Netherlands >" [ref=e27] [cursor=pointer]:
+            - /url: https://www.creditsafe.com/business-index/en-gb/location/netherlands
+        - listitem [ref=e28]:
+          - link "Science >" [ref=e29] [cursor=pointer]:
+            - /url: https://www.creditsafe.com/business-index/en-gb/sector/netherlands/utrecht/leusden/science
+        - listitem [ref=e30]: Gnn Holding B.V.
+  - main [ref=e31]:
+    - generic [ref=e33]:
+      - link "Creditsafe Business Index Report" [ref=e34] [cursor=pointer]:
+        - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv
+        - img "Creditsafe Business Index Report" [ref=e35]
+      - generic [ref=e37]:
+        - heading "Creditsafe Business Index Report Gnn Holding B.V. Credit Report" [level=1] [ref=e38]:
+          - img "Creditsafe Business Index Report" [ref=e39]
+          - text: Gnn Holding B.V. Credit Report
+        - generic [ref=e40]: Gnn Holding B.V. operates within the Management consulting industry. It was incorporated in 1999. Its headquarters are located at Hamersveldseweg 15, 3833 GK, Leusden. The company number for Gnn Holding B.V. is 32077582, with a safe number NL01855760.
+      - generic [ref=e41]:
+        - generic [ref=e42]: Review a full credit report on Gnn Holding B.V. for free now.
+        - link "Access the full report today for even more information Access full report" [ref=e43] [cursor=pointer]:
+          - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv
+          - img "Access the full report today for even more information" [ref=e44]
+          - generic [ref=e45]: Access full report
+        - link "View Example Report" [ref=e46] [cursor=pointer]:
+          - /url: /business-index/download-report/example-report-uk.pdf
+          - generic [ref=e47]: View Example Report
+    - generic [ref=e48]:
+      - generic [ref=e52]:
+        - generic [ref=e53] [cursor=pointer]: Summary
+        - generic [ref=e54] [cursor=pointer]: Directors
+        - generic [ref=e55] [cursor=pointer]: Scores
+      - generic [ref=e56]:
+        - generic [ref=e58]:
+          - generic [ref=e60]:
+            - heading "Details" [level=2] [ref=e62]
+            - generic [ref=e63]: "Company Name:"
+            - generic [ref=e64]: Gnn Holding B.V.
+            - generic [ref=e65]: "Company Address:"
+            - generic [ref=e66]: Hamersveldseweg 15, 3833 GK, Leusden
+            - generic [ref=e67]: "Incorporation Date:"
+            - generic [ref=e68]: "1999"
+            - generic [ref=e69]: "KVK Number:"
+            - generic [ref=e70]: "32077582"
+            - generic [ref=e71]: "Safe Number:"
+            - generic [ref=e72]: NL01855760
+            - generic [ref=e73]: "VAT:"
+            - generic [ref=e74]: NL808453270B01
+            - generic [ref=e75]: "Phone Number:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e76]:
+              - link "Padlock, click to unlock this information" [ref=e77] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Phone-Number
+                - img "Padlock, click to unlock this information" [ref=e78]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e79] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Phone-Number
+                - generic [ref=e80]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e81]: "Risk Prognosis:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e82]:
+              - link "Padlock, click to unlock this information" [ref=e83] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Risk-Prognosis
+                - img "Padlock, click to unlock this information" [ref=e84]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e85] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Risk-Prognosis
+                - generic [ref=e86]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e87]: "Audit Comment:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e88]:
+              - link "Padlock, click to unlock this information" [ref=e89] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Audit-Comment
+                - img "Padlock, click to unlock this information" [ref=e90]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e91] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Audit-Comment
+                - generic [ref=e92]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e93]: "Director Change:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e94]:
+              - link "Padlock, click to unlock this information" [ref=e95] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Director-Change
+                - img "Padlock, click to unlock this information" [ref=e96]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e97] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Director-Change
+                - generic [ref=e98]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e99]: "Company Type:"
+            - generic [ref=e100]: Private Limited Liability Company (Bv) With Ordinary Structure
+            - generic [ref=e101]: "SIC / NAICS:"
+            - generic [ref=e102]: 70200, Management consulting
+            - generic [ref=e103]: "Status:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e104]:
+              - link "Padlock, click to unlock this information" [ref=e105] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Status
+                - img "Padlock, click to unlock this information" [ref=e106]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e107] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Status
+                - generic [ref=e108]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e109]: "Payments Analysis:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e110]:
+              - link "Padlock, click to unlock this information" [ref=e111] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Payments-Analysis
+                - img "Padlock, click to unlock this information" [ref=e112]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e113] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Payments-Analysis
+                - generic [ref=e114]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e115]: "Credit Score:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e116]:
+              - link "Padlock, click to unlock this information" [ref=e117] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Credit-Score
+                - img "Padlock, click to unlock this information" [ref=e118]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e119] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Credit-Score
+                - generic [ref=e120]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e121]: "Credit Limit:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e122]:
+              - link "Padlock, click to unlock this information" [ref=e123] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Credit-Limit
+                - img "Padlock, click to unlock this information" [ref=e124]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e125] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Credit-Limit
+                - generic [ref=e126]: hidden.hidden.hidden.hidden.hidden
+            - generic [ref=e127]: "Employees:"
+            - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e128]:
+              - link "Padlock, click to unlock this information" [ref=e129] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Employees
+                - img "Padlock, click to unlock this information" [ref=e130]
+              - link "hidden.hidden.hidden.hidden.hidden" [ref=e131] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Employees
+                - generic [ref=e132]: hidden.hidden.hidden.hidden.hidden
+          - generic [ref=e133]:
+            - generic [ref=e135]:
+              - heading "Headquarters Location" [level=2] [ref=e136]
+              - generic [ref=e138]:
+                - button "Marker" [ref=e139] [cursor=pointer]
+                - generic:
+                  - generic [ref=e140]:
+                    - button "Zoom in" [disabled] [ref=e141]: +
+                    - button "Zoom out" [ref=e142] [cursor=pointer]: −
+                  - link "Leaflet" [ref=e144] [cursor=pointer]:
+                    - /url: https://leafletjs.com
+                    - img [ref=e145]
+                    - text: Leaflet
+              - generic [ref=e149]:
+                - link " Send via WhatsApp" [ref=e150] [cursor=pointer]:
+                  - /url: "https://wa.me/?text=Creditsafe Credit Report: Gnn Holding B.V.%0D%0AView the full Creditsafe Credit Report: https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760%0D%0A%0D%0AOpen Address in Maps app: https://maps.google.com/?q=52.1355626,5.4277355%0D%0A"
+                  - generic [ref=e151]: 
+                  - generic [ref=e152]: Send via WhatsApp
+                - link " Send via SMS" [ref=e153] [cursor=pointer]:
+                  - /url: "sms:?body=Creditsafe Credit Report: Gnn Holding B.V.%0D%0A%0D%0AView the full Creditsafe Credit Report: https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760%0D%0A%0D%0AOpen Address in Maps app: https://maps.google.com/?q=52.1355626,5.4277355%0D%0A"
+                  - generic [ref=e154]: 
+                  - generic [ref=e155]: Send via SMS
+                - 'link " Send: Google Maps" [ref=e156] [cursor=pointer]':
+                  - /url: https://maps.google.com/?q=52.1355626,5.4277355
+                  - generic [ref=e157]: 
+                  - generic [ref=e158]: "Send: Google Maps"
+                - link " Send via Email" [ref=e159] [cursor=pointer]:
+                  - /url: "mailto:?subject=Creditsafe Credit Report: Gnn Holding B.V.&body=View the full Creditsafe Credit Report: https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760%0D%0A%0D%0AOpen Address in Maps app: https://maps.google.com/?q=52.1355626,5.4277355%0D%0A%0D%0A%0D%0A"
+                  - generic [ref=e160]: 
+                  - generic [ref=e161]: Send via Email
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - heading "Industry Benchmark" [level=2] [ref=e164]
+                - paragraph [ref=e165]: How does Gnn Holding B.V. compare to the averages within its industry.
+              - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e166]:
+                - generic [ref=e167]:
+                  - generic [ref=e168]: Average Industry Credit Score Comparison
+                  - img [ref=e171] [cursor=pointer]
+                - link "Padlock, click to unlock this information" [ref=e181] [cursor=pointer]:
+                  - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Average-Industry-Credit-Score-Comparison
+                  - img "Padlock, click to unlock this information" [ref=e182]
+              - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e183]:
+                - generic [ref=e184]:
+                  - generic [ref=e185]: Average Industry Credit Limit Comparison
+                  - img [ref=e188] [cursor=pointer]
+                - link "Padlock, click to unlock this information" [ref=e198] [cursor=pointer]:
+                  - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Average-Industry-Credit-Limit-Comparison
+                  - img "Padlock, click to unlock this information" [ref=e199]
+              - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e200]:
+                - generic [ref=e201]:
+                  - generic [ref=e202]: Average Industry Days Beyond Terms Comparison
+                  - img [ref=e205] [cursor=pointer]
+                - link "Padlock, click to unlock this information" [ref=e215] [cursor=pointer]:
+                  - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Average-Industry-Days-Beyond-Terms-Comparison
+                  - img "Padlock, click to unlock this information" [ref=e216]
+              - generic [ref=e219] [cursor=pointer]:
+                - img [ref=e220]
+                - generic [ref=e222]: More information about the scoring
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - generic [ref=e225]: Are you looking to do business with Gnn Holding B.V.?
+              - generic [ref=e226]: Why not view their full credit report for free today.
+            - link "Access the full report today for even more information Access full report" [ref=e228] [cursor=pointer]:
+              - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv
+              - img "Access the full report today for even more information" [ref=e229]
+              - generic [ref=e230]: Access full report
+        - generic [ref=e232]:
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - heading "Financial Data" [level=2] [ref=e237]
+              - generic [ref=e238]:
+                - generic [ref=e240]:
+                  - generic [ref=e241]: "Turnover:"
+                  - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e242]:
+                    - generic [ref=e243]: hidden.hidden.hidden.hidden.hidden
+                    - link "Padlock, click to unlock this information" [ref=e244] [cursor=pointer]:
+                      - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Turnover
+                      - img "Padlock, click to unlock this information" [ref=e245]
+                  - generic [ref=e246]: "Pre-Tax Profit (Total Profit):"
+                  - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e247]:
+                    - generic [ref=e248]: hidden.hidden.hidden.hidden.hidden
+                    - link "Padlock, click to unlock this information" [ref=e249] [cursor=pointer]:
+                      - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Pre-Tax-Profit-(Total-Profit)
+                      - img "Padlock, click to unlock this information" [ref=e250]
+                - generic [ref=e252]:
+                  - generic [ref=e253]: "Total Current Assets:"
+                  - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e254]:
+                    - generic [ref=e255]: hidden.hidden.hidden.hidden.hidden
+                    - link "Padlock, click to unlock this information" [ref=e256] [cursor=pointer]:
+                      - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Total-Current-Assets
+                      - img "Padlock, click to unlock this information" [ref=e257]
+                  - generic [ref=e258]: "Total Fixed Assets:"
+                  - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e259]:
+                    - generic [ref=e260]: hidden.hidden.hidden.hidden.hidden
+                    - link "Padlock, click to unlock this information" [ref=e261] [cursor=pointer]:
+                      - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Total-Fixed-Assets
+                      - img "Padlock, click to unlock this information" [ref=e262]
+                  - generic [ref=e263]: "Net Worth:"
+                  - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e264]:
+                    - generic [ref=e265]: hidden.hidden.hidden.hidden.hidden
+                    - link "Padlock, click to unlock this information" [ref=e266] [cursor=pointer]:
+                      - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Net-Worth
+                      - img "Padlock, click to unlock this information" [ref=e267]
+            - generic [ref=e268]:
+              - heading "Adverse payment profiles" [level=2] [ref=e270]
+              - generic [ref=e272]:
+                - generic [ref=e273]: "Days Beyond Terms:"
+                - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e274]:
+                  - generic [ref=e275]: hidden.hidden.hidden.hidden.hidden
+                  - link "Padlock, click to unlock this information" [ref=e276] [cursor=pointer]:
+                    - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Days-Beyond-Terms
+                    - img "Padlock, click to unlock this information" [ref=e277]
+                - generic [ref=e278]: "Adverse Payments:"
+                - generic "Review a full credit report on Gnn Holding B.V. for free now." [ref=e279]:
+                  - generic [ref=e280]: hidden.hidden.hidden.hidden.hidden
+                  - link "Padlock, click to unlock this information" [ref=e281] [cursor=pointer]:
+                    - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv&cta=Adverse-Payments
+                    - img "Padlock, click to unlock this information" [ref=e282]
+          - generic [ref=e283]:
+            - generic [ref=e284]:
+              - generic [ref=e285]: Want to know more about Gnn Holding B.V.?
+              - generic [ref=e286]: Why not view their full credit report for free today.
+            - link "Access the full report today for even more information Access full report" [ref=e288] [cursor=pointer]:
+              - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index&safeNo=NL01855760&reportname=gnn-holding-bv&reportName=gnn-holding-bv
+              - img "Access the full report today for even more information" [ref=e289]
+              - generic [ref=e290]: Access full report
+      - text:    
+    - generic [ref=e292]:
+      - generic [ref=e293]:
+        - heading "Top searched companies in the same industry" [level=2] [ref=e294]
+        - link "Padlock Image" [ref=e295] [cursor=pointer]:
+          - /url: https://www.creditsafe.com/gb/en/forms/business-index.html?area=business-index
+          - img "Padlock Image" [ref=e296]
+      - table [ref=e297]:
+        - rowgroup [ref=e298]:
+          - row "Company Incorp Date Location" [ref=e299]:
+            - columnheader "Company" [ref=e300]
+            - columnheader "Incorp Date" [ref=e301]
+            - columnheader "Location" [ref=e302]
+        - rowgroup [ref=e303]:
+          - row "Headhouse Consulting ApS 2008 dk" [ref=e304]:
+            - cell "Headhouse Consulting ApS" [ref=e305]:
+              - link "Headhouse Consulting ApS" [ref=e307] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/headhouse-consulting-aps-dk02938264
+            - cell "2008" [ref=e308]:
+              - generic [ref=e310]: "2008"
+            - cell "dk" [ref=e311]:
+              - link "dk" [ref=e313] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/headhouse-consulting-aps-dk02938264
+          - row "R-Evolution AB 1918 se" [ref=e314]:
+            - cell "R-Evolution AB" [ref=e315]:
+              - link "R-Evolution AB" [ref=e317] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/r-evolution-ab-se00557673
+            - cell "1918" [ref=e318]:
+              - generic [ref=e320]: "1918"
+            - cell "se" [ref=e321]:
+              - link "se" [ref=e323] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/r-evolution-ab-se00557673
+          - row "Obege Förvaltning AB 1918 se" [ref=e324]:
+            - cell "Obege Förvaltning AB" [ref=e325]:
+              - link "Obege Förvaltning AB" [ref=e327] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/obege-forvaltning-ab-se00557556
+            - cell "1918" [ref=e328]:
+              - generic [ref=e330]: "1918"
+            - cell "se" [ref=e331]:
+              - link "se" [ref=e333] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/obege-forvaltning-ab-se00557556
+          - row "Asador Sweden AB 1939 se" [ref=e334]:
+            - cell "Asador Sweden AB" [ref=e335]:
+              - link "Asador Sweden AB" [ref=e337] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/asador-sweden-ab-se00561741
+            - cell "1939" [ref=e338]:
+              - generic [ref=e340]: "1939"
+            - cell "se" [ref=e341]:
+              - link "se" [ref=e343] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/asador-sweden-ab-se00561741
+          - row "Loep AB 1941 se" [ref=e344]:
+            - cell "Loep AB" [ref=e345]:
+              - link "Loep AB" [ref=e347] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/loep-ab-se00562193
+            - cell "1941" [ref=e348]:
+              - generic [ref=e350]: "1941"
+            - cell "se" [ref=e351]:
+              - link "se" [ref=e353] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/loep-ab-se00562193
+          - row "Stella Förvaltningsaktiebolag 1942 se" [ref=e354]:
+            - cell "Stella Förvaltningsaktiebolag" [ref=e355]:
+              - link "Stella Förvaltningsaktiebolag" [ref=e357] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/stella-forvaltningsaktiebolag-se00562632
+            - cell "1942" [ref=e358]:
+              - generic [ref=e360]: "1942"
+            - cell "se" [ref=e361]:
+              - link "se" [ref=e363] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/stella-forvaltningsaktiebolag-se00562632
+          - row "Berkland ApS 1987 dk" [ref=e364]:
+            - cell "Berkland ApS" [ref=e365]:
+              - link "Berkland ApS" [ref=e367] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/berkland-aps-dk02955112
+            - cell "1987" [ref=e368]:
+              - generic [ref=e370]: "1987"
+            - cell "dk" [ref=e371]:
+              - link "dk" [ref=e373] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/berkland-aps-dk02955112
+          - row "S.o.g. Energy - Svenska Oljegruppen AB 1915 se" [ref=e374]:
+            - cell "S.o.g. Energy - Svenska Oljegruppen AB" [ref=e375]:
+              - link "S.o.g. Energy - Svenska Oljegruppen AB" [ref=e377] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/sog-energy-svenska-oljegruppen-ab-se00557271
+            - cell "1915" [ref=e378]:
+              - generic [ref=e380]: "1915"
+            - cell "se" [ref=e381]:
+              - link "se" [ref=e383] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/sog-energy-svenska-oljegruppen-ab-se00557271
+          - row "D´point Moderna Media AB 1916 se" [ref=e384]:
+            - cell "D´point Moderna Media AB" [ref=e385]:
+              - link "D´point Moderna Media AB" [ref=e387] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/dpoint-moderna-media-ab-se00557385
+            - cell "1916" [ref=e388]:
+              - generic [ref=e390]: "1916"
+            - cell "se" [ref=e391]:
+              - link "se" [ref=e393] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/dpoint-moderna-media-ab-se00557385
+          - row "AS Group AB 1918 AS Group AB" [ref=e394]:
+            - cell "AS Group AB" [ref=e395]:
+              - link "AS Group AB" [ref=e397] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/as-group-ab-se00557694
+            - cell "1918" [ref=e398]:
+              - generic [ref=e400]: "1918"
+            - cell "AS Group AB" [ref=e401]:
+              - link "AS Group AB" [ref=e403] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/as-group-ab-se00557694
+          - row "Aktiebolaget Hoppet 1919 se" [ref=e404]:
+            - cell "Aktiebolaget Hoppet" [ref=e405]:
+              - link "Aktiebolaget Hoppet" [ref=e407] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/aktiebolaget-hoppet-se00557779
+            - cell "1919" [ref=e408]:
+              - generic [ref=e410]: "1919"
+            - cell "se" [ref=e411]:
+              - link "se" [ref=e413] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/aktiebolaget-hoppet-se00557779
+          - row "Hepa Industri ApS 1988 dk" [ref=e414]:
+            - cell "Hepa Industri ApS" [ref=e415]:
+              - link "Hepa Industri ApS" [ref=e417] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/hepa-industri-aps-dk02964554
+            - cell "1988" [ref=e418]:
+              - generic [ref=e420]: "1988"
+            - cell "dk" [ref=e421]:
+              - link "dk" [ref=e423] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/hepa-industri-aps-dk02964554
+          - row "J.f. Group A/S 1989 dk" [ref=e424]:
+            - cell "J.f. Group A/S" [ref=e425]:
+              - link "J.f. Group A/S" [ref=e427] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/jf-group-as-dk02969501
+            - cell "1989" [ref=e428]:
+              - generic [ref=e430]: "1989"
+            - cell "dk" [ref=e431]:
+              - link "dk" [ref=e433] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/jf-group-as-dk02969501
+          - row "Camilla Frøjk ApS 1989 dk" [ref=e434]:
+            - cell "Camilla Frøjk ApS" [ref=e435]:
+              - link "Camilla Frøjk ApS" [ref=e437] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/camilla-frojk-aps-dk02970441
+            - cell "1989" [ref=e438]:
+              - generic [ref=e440]: "1989"
+            - cell "dk" [ref=e441]:
+              - link "dk" [ref=e443] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/camilla-frojk-aps-dk02970441
+          - row "Wilson Pengen AB 1938 se" [ref=e444]:
+            - cell "Wilson Pengen AB" [ref=e445]:
+              - link "Wilson Pengen AB" [ref=e447] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/wilson-pengen-ab-se00561284
+            - cell "1938" [ref=e448]:
+              - generic [ref=e450]: "1938"
+            - cell "se" [ref=e451]:
+              - link "se" [ref=e453] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/wilson-pengen-ab-se00561284
+          - row "Visionline Future AB 1935 se" [ref=e454]:
+            - cell "Visionline Future AB" [ref=e455]:
+              - link "Visionline Future AB" [ref=e457] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/visionline-future-ab-se00560701
+            - cell "1935" [ref=e458]:
+              - generic [ref=e460]: "1935"
+            - cell "se" [ref=e461]:
+              - link "se" [ref=e463] [cursor=pointer]:
+                - /url: https://www.creditsafe.com/business-index/en-gb/company/visionline-future-ab-se00560701
+    - generic [ref=e465]:
+      - heading "Frequently asked questions" [level=2] [ref=e467]
+      - generic [ref=e468]:
+        - group [ref=e469]:
+          - generic "Where is Gnn Holding B.V. headquarters? " [ref=e470] [cursor=pointer]:
+            - text: Where is Gnn Holding B.V. headquarters?
+            - generic [ref=e471]: 
+        - group [ref=e472]:
+          - generic "What is Gnn Holding B.V.'s industry? " [ref=e473] [cursor=pointer]:
+            - text: What is Gnn Holding B.V.'s industry?
+            - generic [ref=e474]: 
+        - group [ref=e475]:
+          - generic "What year was Gnn Holding B.V. incorporated? " [ref=e476] [cursor=pointer]:
+            - text: What year was Gnn Holding B.V. incorporated?
+            - generic [ref=e477]: 
+        - group [ref=e478]:
+          - generic "What is Gnn Holding B.V.'s VAT number? " [ref=e479] [cursor=pointer]:
+            - text: What is Gnn Holding B.V.'s VAT number?
+            - generic [ref=e480]: 
+    - generic [ref=e482]:
+      - generic [ref=e483]: "Large, small, global and local: discover why companies choose Creditsafe."
+      - iframe [ref=e485]:
+        - generic [ref=f1e2]:
+          - link "Trustpilot reviews. Rated Excellent. 4.5 out of 5. Based on 3,679 reviews on Trustpilot. Click to view Trustpilot profile." [ref=f1e4] [cursor=pointer]:
+            - /url: https://uk.trustpilot.com/review/creditsafe.com/gb/en.html?utm_medium=trustbox&utm_source=Carousel
+            - generic [ref=f1e5]: Excellent
+            - img "4.5 out of 5 star rating on Trustpilot" [ref=f1e10]
+            - generic [ref=f1e30]:
+              - text: Based on
+              - strong [ref=f1e31]: 3,679 reviews
+            - img "Trustpilot" [ref=f1e35]
+          - generic [ref=f1e39]:
+            - button "Carousel scroll left" [disabled] [ref=f1e41] [cursor=pointer]:
+              - img [ref=f1e44]
+            - button "Carousel scroll right" [ref=f1e48] [cursor=pointer]:
+              - img [ref=f1e51]
+            - list "Showing our 4 & 5 star reviews" [ref=f1e55]:
+              - listitem [ref=f1e56]:
+                - img "5 out of 5 star rating on Trustpilot" [ref=f1e62]
+                - link "Excellent demonstration of the products… Excellent demonstration of the products and availability of additional services. Review by Simon, 1 day ago Click to view the full review on Trustpilot" [ref=f1e82] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69fcb32e1bd685b788dca11e?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e83]:
+                    - generic [ref=f1e84]: Excellent demonstration of the products…
+                    - generic [ref=f1e85]: Excellent demonstration of the products and availability of additional services.
+                    - generic [ref=f1e86]:
+                      - generic [ref=f1e87]: Review by
+                      - generic [ref=f1e88]: Simon,
+                      - generic [ref=f1e89]: 1 day ago
+                    - generic [ref=f1e90]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e91]:
+                - generic [ref=f1e92]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e97]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e119] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e120]:
+                      - img [ref=f1e124]
+                      - generic [ref=f1e126]: Verified
+                - link "Great response from customer support… Great response from customer support team through a single point of contact. Iss... Review by Ronald Stevenson, 1 day ago Click to view the full review on Trustpilot" [ref=f1e127] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69fcac05cef2e768fdb7e6ae?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e128]:
+                    - generic [ref=f1e129]: Great response from customer support…
+                    - generic [ref=f1e130]: Great response from customer support team through a single point of contact. Iss...
+                    - generic [ref=f1e131]:
+                      - generic [ref=f1e132]: Review by
+                      - generic [ref=f1e133]: Ronald Stevenson,
+                      - generic [ref=f1e134]: 1 day ago
+                    - generic [ref=f1e135]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e136]:
+                - generic [ref=f1e137]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e142]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e164] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e165]:
+                      - img [ref=f1e169]
+                      - generic [ref=f1e171]: Verified
+                - link "Great System We've been a customer of Creditsafe for many years and have just renewed our con... Review by CIT, 1 day ago Click to view the full review on Trustpilot" [ref=f1e172] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69fc79ff0c38f362c3abf8c0?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e173]:
+                    - generic [ref=f1e174]: Great System
+                    - generic [ref=f1e175]: We've been a customer of Creditsafe for many years and have just renewed our con...
+                    - generic [ref=f1e176]:
+                      - generic [ref=f1e177]: Review by
+                      - generic [ref=f1e178]: CIT,
+                      - generic [ref=f1e179]: 1 day ago
+                    - generic [ref=f1e180]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e181]:
+                - generic [ref=f1e182]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e187]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e209] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e210]:
+                      - img [ref=f1e214]
+                      - generic [ref=f1e216]: Verified
+                - link "Great company to work with Vicky is very helpful and great to work with Review by Elaine Parkes, 2 days ago Click to view the full review on Trustpilot" [ref=f1e217] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69fb5784e58394bcd2f5d6dd?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e218]:
+                    - generic [ref=f1e219]: Great company to work with
+                    - generic [ref=f1e220]: Vicky is very helpful and great to work with
+                    - generic [ref=f1e221]:
+                      - generic [ref=f1e222]: Review by
+                      - generic [ref=f1e223]: Elaine Parkes,
+                      - generic [ref=f1e224]: 2 days ago
+                    - generic [ref=f1e225]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e226]:
+                - generic [ref=f1e227]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e232]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e254] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e255]:
+                      - img [ref=f1e259]
+                      - generic [ref=f1e261]: Verified
+                - link "Friendly Friendly, informative and the system is easy to use. Review by John Balague, 1 May Click to view the full review on Trustpilot" [ref=f1e262] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f4821f102b423ddc62ce66?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e263]:
+                    - generic [ref=f1e264]: Friendly
+                    - generic [ref=f1e265]: Friendly, informative and the system is easy to use.
+                    - generic [ref=f1e266]:
+                      - generic [ref=f1e267]: Review by
+                      - generic [ref=f1e268]: John Balague,
+                      - generic [ref=f1e269]: 1 May
+                    - generic [ref=f1e270]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e271]:
+                - img "5 out of 5 star rating on Trustpilot" [ref=f1e277]
+                - link "my account manager Sandra my account manager Sandra, was clear concise and very enthusiastic. We are a bra... Review by David Lycett, 1 May Click to view the full review on Trustpilot" [ref=f1e297] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f464e165b7e902ad78e38d?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e298]:
+                    - generic [ref=f1e299]: my account manager Sandra
+                    - generic [ref=f1e300]: my account manager Sandra, was clear concise and very enthusiastic. We are a bra...
+                    - generic [ref=f1e301]:
+                      - generic [ref=f1e302]: Review by
+                      - generic [ref=f1e303]: David Lycett,
+                      - generic [ref=f1e304]: 1 May
+                    - generic [ref=f1e305]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e306]:
+                - generic [ref=f1e307]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e312]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e334] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e335]:
+                      - img [ref=f1e339]
+                      - generic [ref=f1e341]: Verified
+                - link "Novak was brilliant Novak was brilliant, he called me and within 10 minutes we were on a teams call... Review by Kerry Catterall, 30 April Click to view the full review on Trustpilot" [ref=f1e342] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f35b5da48013aad83f4736?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e343]:
+                    - generic [ref=f1e344]: Novak was brilliant
+                    - generic [ref=f1e345]: Novak was brilliant, he called me and within 10 minutes we were on a teams call...
+                    - generic [ref=f1e346]:
+                      - generic [ref=f1e347]: Review by
+                      - generic [ref=f1e348]: Kerry Catterall,
+                      - generic [ref=f1e349]: 30 April
+                    - generic [ref=f1e350]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e351]:
+                - img "5 out of 5 star rating on Trustpilot" [ref=f1e357]
+                - link "Really positive experience Really positive experience getting an initial review as a SME to using the Credi... Review by Andy, 30 April Click to view the full review on Trustpilot" [ref=f1e377] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f33f5caca1715867ed8b66?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e378]:
+                    - generic [ref=f1e379]: Really positive experience
+                    - generic [ref=f1e380]: Really positive experience getting an initial review as a SME to using the Credi...
+                    - generic [ref=f1e381]:
+                      - generic [ref=f1e382]: Review by
+                      - generic [ref=f1e383]: Andy,
+                      - generic [ref=f1e384]: 30 April
+                    - generic [ref=f1e385]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e386]:
+                - generic [ref=f1e387]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e392]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e414] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e415]:
+                      - img [ref=f1e419]
+                      - generic [ref=f1e421]: Verified
+                - link "Spot on service Spot on, up to date data at our finger tips. Review by Andy Dale, 30 April Click to view the full review on Trustpilot" [ref=f1e422] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f33365d2fed0ff8e3422c7?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e423]:
+                    - generic [ref=f1e424]: Spot on service
+                    - generic [ref=f1e425]: Spot on, up to date data at our finger tips.
+                    - generic [ref=f1e426]:
+                      - generic [ref=f1e427]: Review by
+                      - generic [ref=f1e428]: Andy Dale,
+                      - generic [ref=f1e429]: 30 April
+                    - generic [ref=f1e430]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e431]:
+                - img "5 out of 5 star rating on Trustpilot" [ref=f1e437]
+                - link "Great company and easy to deal with Great company and easy to deal with. The trainer, Sharon Jones was excellent. Review by Jon, 30 April Click to view the full review on Trustpilot" [ref=f1e457] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f326227aeea7295c8c95af?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e458]:
+                    - generic [ref=f1e459]: Great company and easy to deal with
+                    - generic [ref=f1e460]: Great company and easy to deal with. The trainer, Sharon Jones was excellent.
+                    - generic [ref=f1e461]:
+                      - generic [ref=f1e462]: Review by
+                      - generic [ref=f1e463]: Jon,
+                      - generic [ref=f1e464]: 30 April
+                    - generic [ref=f1e465]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e466]:
+                - img "5 out of 5 star rating on Trustpilot" [ref=f1e472]
+                - link "Excellent Customer Service I have engaged the services of Creditsafe for a few years now and I have to say... Review by Joanne T, 29 April Click to view the full review on Trustpilot" [ref=f1e492] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f222a9c7c970699aa5df29?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e493]:
+                    - generic [ref=f1e494]: Excellent Customer Service
+                    - generic [ref=f1e495]: I have engaged the services of Creditsafe for a few years now and I have to say...
+                    - generic [ref=f1e496]:
+                      - generic [ref=f1e497]: Review by
+                      - generic [ref=f1e498]: Joanne T,
+                      - generic [ref=f1e499]: 29 April
+                    - generic [ref=f1e500]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e501]:
+                - generic [ref=f1e502]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e507]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e529] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e530]:
+                      - img [ref=f1e534]
+                      - generic [ref=f1e536]: Verified
+                - link "Really good service and give us insight… Really good service and give us insight into our customers and suppliers. Review by Rizwan Malik, 29 April Click to view the full review on Trustpilot" [ref=f1e537] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f1dabbc11407bcdb90807f?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e538]:
+                    - generic [ref=f1e539]: Really good service and give us insight…
+                    - generic [ref=f1e540]: Really good service and give us insight into our customers and suppliers.
+                    - generic [ref=f1e541]:
+                      - generic [ref=f1e542]: Review by
+                      - generic [ref=f1e543]: Rizwan Malik,
+                      - generic [ref=f1e544]: 29 April
+                    - generic [ref=f1e545]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e546]:
+                - img "5 out of 5 star rating on Trustpilot" [ref=f1e552]
+                - link "Great system, easy to use. Great, easy system. Demo was set out simply and easy to understand. Review by Sarah, 28 April Click to view the full review on Trustpilot" [ref=f1e572] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f08f36dccf5f2cb9241d82?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e573]:
+                    - generic [ref=f1e574]: Great system, easy to use.
+                    - generic [ref=f1e575]: Great, easy system. Demo was set out simply and easy to understand.
+                    - generic [ref=f1e576]:
+                      - generic [ref=f1e577]: Review by
+                      - generic [ref=f1e578]: Sarah,
+                      - generic [ref=f1e579]: 28 April
+                    - generic [ref=f1e580]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e581]:
+                - generic [ref=f1e582]:
+                  - img "5 out of 5 star rating on Trustpilot" [ref=f1e587]
+                  - link "Verified review. Click to learn more about review types" [ref=f1e609] [cursor=pointer]:
+                    - /url: https://help.trustpilot.com/s/article/How-do-reviews-get-on-Trustpilot?language=en_US
+                    - generic [ref=f1e610]:
+                      - img [ref=f1e614]
+                      - generic [ref=f1e616]: Verified
+                - link "Great Customer service It has been a pleasure working alongside Natali Jones. She provided excellent cu... Review by Bobby Smith, 28 April Click to view the full review on Trustpilot" [ref=f1e617] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f07cd0a5ce9b0b3e4ca39d?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e618]:
+                    - generic [ref=f1e619]: Great Customer service
+                    - generic [ref=f1e620]: It has been a pleasure working alongside Natali Jones. She provided excellent cu...
+                    - generic [ref=f1e621]:
+                      - generic [ref=f1e622]: Review by
+                      - generic [ref=f1e623]: Bobby Smith,
+                      - generic [ref=f1e624]: 28 April
+                    - generic [ref=f1e625]: Click to view the full review on Trustpilot
+              - listitem [ref=f1e626]:
+                - img "5 out of 5 star rating on Trustpilot" [ref=f1e632]
+                - link "Great portal to use Great portal to use, simple interface and excellent service, support and trainin... Review by Jeremy Peat, 28 April Click to view the full review on Trustpilot" [ref=f1e652] [cursor=pointer]:
+                  - /url: https://uk.trustpilot.com/reviews/69f06aeb55f04d919f718f83?utm_medium=trustbox&utm_source=Carousel
+                  - generic [ref=f1e653]:
+                    - generic [ref=f1e654]: Great portal to use
+                    - generic [ref=f1e655]: Great portal to use, simple interface and excellent service, support and trainin...
+                    - generic [ref=f1e656]:
+                      - generic [ref=f1e657]: Review by
+                      - generic [ref=f1e658]: Jeremy Peat,
+                      - generic [ref=f1e659]: 28 April
+                    - generic [ref=f1e660]: Click to view the full review on Trustpilot
+            - generic [ref=f1e661]: Showing our 4 & 5 star reviews
+    - generic [ref=e488]:
+      - generic [ref=e489]: Looking to compare and benchmark another company?
+      - generic [ref=e491]:
+        - textbox "Search by company..." [ref=e492]
+        - button [ref=e493] [cursor=pointer]:
+          - img [ref=e494]
+    - generic [ref=e500]:
+      - generic [ref=e501]:
+        - img "Company Credit Reports" [ref=e503]
+        - generic [ref=e504]:
+          - paragraph [ref=e505]: Company Credit Reports
+          - paragraph [ref=e506]: Reduce risk associated with your new or existing UK customers and suppliers with a trusted credit checking system.
+          - link "Company Credit Reports" [ref=e507] [cursor=pointer]:
+            - /url: https://www.creditsafe.com/gb/en/credit-risk/credit-reports/company-credit-reports
+      - generic [ref=e508]:
+        - img "International Credit Reports" [ref=e510]
+        - generic [ref=e511]:
+          - paragraph [ref=e512]: International Credit Reports
+          - paragraph [ref=e513]: Protect your business when trading in less familiar locations with comprehensive international reports.
+          - link "International Credit Reports" [ref=e514] [cursor=pointer]:
+            - /url: https://www.creditsafe.com/gb/en/credit-risk/credit-reports/international-credit-reports
+      - generic [ref=e515]:
+        - img "Creditsafe Data API" [ref=e517]
+        - generic [ref=e518]:
+          - paragraph [ref=e519]: Creditsafe Data API
+          - paragraph [ref=e520]: Easily add company profile data and director information into your apps and build bespoke tools for your business.
+          - link "Creditsafe Data API" [ref=e521] [cursor=pointer]:
+            - /url: https://www.creditsafe.com/gb/en/enterprise/integrations/company-data-api
+  - contentinfo [ref=e522]:
+    - generic [ref=e525]:
+      - generic [ref=e526]: SALES & SUPPORT
+      - link " 02920 886 500" [ref=e528] [cursor=pointer]:
+        - /url: tel:+442920886500
+        - generic [ref=e529]: 
+        - text: 02920 886 500
+      - link " Contact Us" [ref=e531] [cursor=pointer]:
+        - /url: https://www.creditsafe.com/gb/en/more/help/contact-us.html
+        - generic [ref=e532]: 
+        - text: Contact Us
+    - generic [ref=e535]:
+      - generic [ref=e536]:
+        - link "Terms of Service" [ref=e538] [cursor=pointer]:
+          - /url: https://www.creditsafe.com/gb/en/legal/terms-and-conditions.html
+        - link "Privacy Policy" [ref=e540] [cursor=pointer]:
+          - /url: https://www.creditsafe.com/gb/en/legal/privacy-policy.html
+        - link "Clearbit Logos" [ref=e542] [cursor=pointer]:
+          - /url: https://clearbit.com
+      - paragraph [ref=e544]: © Creditsafe Business Solutions Ltd 2026
+  - region "Cookie banner" [active] [ref=e546]:
+    - alertdialog "Privacy" [ref=e547]:
+      - generic [ref=e549]:
+        - generic [ref=e552]: Our website uses cookies to give you the best online experience and to allow us and third parties to personalise advertising. Please let us know if you agree to all of these cookies.
+        - generic [ref=e554]:
+          - button "Cookie Settings" [ref=e555] [cursor=pointer]
+          - button "Reject All" [ref=e556] [cursor=pointer]
+          - button "Accept All" [ref=e557] [cursor=pointer]

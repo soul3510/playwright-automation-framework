@@ -1,0 +1,208 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Ensure_View_Example_Report_and_Access_full_report_endpoints_are_reachable_and_re.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Ensure_View_Example_Report_and_Access_full_report_endpoints_are_reachable_and_re.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Ensure_View_Example_Report_and_Access_full_report_endpoints_are_reachable_and_re.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+const inputDataProviders = [
+  {
+    "caseName": "case_1",
+    "Search_by_company": "myCompany"
+  },
+  {
+    "caseName": "case_2",
+    "Search_by_company": "myCompany valid"
+  },
+  {
+    "caseName": "case_3",
+    "Search_by_company": "myCompany 123"
+  },
+  {
+    "caseName": "case_4",
+    "Search_by_company": "myCompany edge case"
+  },
+  {
+    "caseName": "case_5",
+    "Search_by_company": "myCompany long value for validation"
+  }
+];
+
+
+test.describe('Ensure_View_Example_Report_and_Access_full_report_endpoints_are_reachable_and_re', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Ensure 'View Example Report' and 'Access full report' endpoints are reachable and return metadata' });
+  });
+
+  test('Ensure 'View Example Report' and 'Access full report' endpoints are reachable and return metadata', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData = inputDataProviders[0];
+    // =========================================
+    // STEP 1: FROM THE PROFILE PAGE, LOCATE THE LINK TEXT 'VIEW EXAMPLE REPORT' AND 'ACCESS FULL REPORT'
+    // =========================================
+    console.log('\n🚀 STEP 1: From the profile page, locate the link text 'View Example Report' and 'Access full report'');
+
+    console.log('⚠️ Step 1: Pattern not recognized - From the profile page, locate the link text 'View Example Report' and 'Access full report'');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 1 completed');
+
+    // =========================================
+    // STEP 2: PERFORM API/HTTP REQUEST TO THE TARGET URLS (E.G., EXAMPLE-REPORT-UK.PDF OR REPORT HTML/JSON METADATA)
+    // =========================================
+    console.log('\n🚀 STEP 2: Perform API/HTTP request to the target URLs (e.g., example-report-uk.pdf or report HTML/JSON metadata)');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 2: Pattern not recognized - Perform API/HTTP request to the target URLs (e.g., example-report-uk.pdf or report HTML/JSON metadata)');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 2 completed');
+
+    // =========================================
+    // STEP 3: VERIFY HTTP STATUS 200 AND RESPONSE HEADERS INDICATE A DOWNLOADABLE RESOURCE OR RENDERABLE REPORT
+    // =========================================
+    console.log('\n🚀 STEP 3: Verify HTTP status 200 and response headers indicate a downloadable resource or renderable report');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 3: Pattern not recognized - Verify HTTP status 200 and response headers indicate a downloadable resource or renderable report');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 3 completed');
+
+    // =========================================
+    // STEP 4: IF JSON METADATA IS RETURNED, VERIFY FIELDS SUCH AS REPORTNAME, REPORTDATE, REPORTFORMAT, AND REPORTSIZE
+    // =========================================
+    console.log('\n🚀 STEP 4: If JSON metadata is returned, verify fields such as reportName, reportDate, reportFormat, and reportSize');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 4: Pattern not recognized - If JSON metadata is returned, verify fields such as reportName, reportDate, reportFormat, and reportSize');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 4 completed');
+
+    // Verification: Requests to report endpoints return 200 with valid metadata or a downloadable resource descriptor
+    // Verification: Reason: Users expect to preview or access full reports; verify endpoints are functional and return a consistent report metadata object or a downloadable resource.
+    // Custom verification for: Requests to report endpoints return 200 with valid metadata or a downloadable resource descriptor
+    // Reason: Users expect to preview or access full reports; verify endpoints are functional and return a consistent report metadata object or a downloadable resource.
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    console.log('Custom verification completed with generic page visibility check');
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+- Keep `handlePageInterruptions(page)` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If `inputDataProviders` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require `main` or `[role="main"]` for generic page-load verification unless the snapshot proves it exists. Prefer `body` plus visible content such as headings, nav, article, section, or body.
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.

@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "createDataProviders": true,
+  "fields": {
+    "Search_by_company": "myCompany"
+  }
+}

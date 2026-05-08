@@ -1,0 +1,210 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Check_Directors_Shareholders_endpoints_return_current_directors.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Check_Directors_Shareholders_endpoints_return_current_directors.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Check_Directors_Shareholders_endpoints_return_current_directors.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+const inputDataProviders = [
+  {
+    "caseName": "case_1",
+    "Search_by_company": "myCompany"
+  },
+  {
+    "caseName": "case_2",
+    "Search_by_company": "myCompany valid"
+  },
+  {
+    "caseName": "case_3",
+    "Search_by_company": "myCompany 123"
+  },
+  {
+    "caseName": "case_4",
+    "Search_by_company": "myCompany edge case"
+  },
+  {
+    "caseName": "case_5",
+    "Search_by_company": "myCompany long value for validation"
+  }
+];
+
+
+test.describe('Check_Directors_Shareholders_endpoints_return_current_directors', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Check Directors/Shareholders endpoints return current directors' });
+  });
+
+  test('Check Directors/Shareholders endpoints return current directors', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData = inputDataProviders[0];
+    // =========================================
+    // STEP 1: NAVIGATE TO HTTPS://WWW.CREDITSAFE.COM/BUSINESS-INDEX/EN-GB/COMPANY/GNN-HOLDING-BV-NL01855760
+    // =========================================
+    console.log('\n🚀 STEP 1: Navigate to https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760');
+
+    console.log('📍 Navigating to URL: https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760');
+    await page.goto('https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    await handlePageInterruptions(page);
+    console.log('✅ Navigation completed successfully');
+    console.log('✅ Step 1 completed');
+
+    // =========================================
+    // STEP 2: IDENTIFY API CALL THAT RETURNS DIRECTORS/SHAREHOLDERS DATA (CURRENT DIRECTORS AND TOP SHAREHOLDERS SECTIONS)
+    // =========================================
+    console.log('\n🚀 STEP 2: Identify API call that returns Directors/Shareholders data (Current Directors and Top Shareholders sections)');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 2: Pattern not recognized - Identify API call that returns Directors/Shareholders data (Current Directors and Top Shareholders sections)');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 2 completed');
+
+    // =========================================
+    // STEP 3: VERIFY RESPONSE CONTAINS: LIST OF DIRECTORS WITH NAME, ROLE, APPOINTMENTDATE, STATUS; LIST OF TOP SHAREHOLDERS WITH NAME, SHAREHOLDINGPERCENTAGE
+    // =========================================
+    console.log('\n🚀 STEP 3: Verify response contains: list of directors with name, role, appointmentDate, status; list of top shareholders with name, shareholdingPercentage');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 3: Pattern not recognized - Verify response contains: list of directors with name, role, appointmentDate, status; list of top shareholders with name, shareholdingPercentage');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 3 completed');
+
+    // =========================================
+    // STEP 4: ASSERT THAT AT LEAST ONE DIRECTOR ENTRY IS PRESENT AND APPOINTMENTDATE IS A VALID DATE
+    // =========================================
+    console.log('\n🚀 STEP 4: Assert that at least one director entry is present and appointmentDate is a valid date');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 4: Pattern not recognized - Assert that at least one director entry is present and appointmentDate is a valid date');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 4 completed');
+
+    // Verification: Directors/Shareholders endpoint returns a non-empty list with required fields and valid dates
+    // Verification: Reason: Directors and shareholders are critical for risk assessment; ensure endpoint returns up-to-date roster with roles and appointment dates.
+    // Custom verification for: Directors/Shareholders endpoint returns a non-empty list with required fields and valid dates
+    // Reason: Directors and shareholders are critical for risk assessment; ensure endpoint returns up-to-date roster with roles and appointment dates.
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    console.log('Custom verification completed with generic page visibility check');
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+- Keep `handlePageInterruptions(page)` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If `inputDataProviders` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require `main` or `[role="main"]` for generic page-load verification unless the snapshot proves it exists. Prefer `body` plus visible content such as headings, nav, article, section, or body.
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.

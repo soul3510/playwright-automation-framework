@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-08T18:24:28.277Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. Navigate to https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760\n2. Identify API call that returns Directors/Shareholders data (Current Directors and Top Shareholders sections)\n3. Verify response contains: list of directors with name, role, appointmentDate, status; list of top shareholders with name, shareholdingPercentage\n4. Assert that at least one director entry is present and appointmentDate is a valid date",
+        "Subject": "Check Directors/Shareholders endpoints return current directors",
+        "Expected": "Directors/Shareholders endpoint returns a non-empty list with required fields and valid dates\nReason: Directors and shareholders are critical for risk assessment; ensure endpoint returns up-to-date roster with roles and appointment dates.",
+        "Details": "Subject: Check Directors/Shareholders endpoints return current directors\nUser: no user\nSteps:\n1. Navigate to https://www.creditsafe.com/business-index/en-gb/company/gnn-holding-bv-nl01855760\n2. Identify API call that returns Directors/Shareholders data (Current Directors and Top Shareholders sections)\n3. Verify response contains: list of directors with name, role, appointmentDate, status; list of top shareholders with name, shareholdingPercentage\n4. Assert that at least one director entry is present and appointmentDate is a valid date\n\nExpected:\nDirectors/Shareholders endpoint returns a non-empty list with required fields and valid dates\nReason: Directors and shareholders are critical for risk assessment; ensure endpoint returns up-to-date roster with roles and appointment dates.\n\nAdditional:\nCategory: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\"\n\nADDITIONAL DATA:\nCategory: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\"",
+        "Additional": "Category: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

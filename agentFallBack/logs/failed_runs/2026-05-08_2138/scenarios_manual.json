@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-08T18:33:05.940Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. From the profile page, locate the link text 'View Example Report' and 'Access full report'\n2. Perform API/HTTP request to the target URLs (e.g., example-report-uk.pdf or report HTML/JSON metadata)\n3. Verify HTTP status 200 and response headers indicate a downloadable resource or renderable report\n4. If JSON metadata is returned, verify fields such as reportName, reportDate, reportFormat, and reportSize",
+        "Subject": "Ensure 'View Example Report' and 'Access full report' endpoints are reachable and return metadata",
+        "Expected": "Requests to report endpoints return 200 with valid metadata or a downloadable resource descriptor\nReason: Users expect to preview or access full reports; verify endpoints are functional and return a consistent report metadata object or a downloadable resource.",
+        "Details": "Subject: Ensure 'View Example Report' and 'Access full report' endpoints are reachable and return metadata\nUser: no user\nSteps:\n1. From the profile page, locate the link text 'View Example Report' and 'Access full report'\n2. Perform API/HTTP request to the target URLs (e.g., example-report-uk.pdf or report HTML/JSON metadata)\n3. Verify HTTP status 200 and response headers indicate a downloadable resource or renderable report\n4. If JSON metadata is returned, verify fields such as reportName, reportDate, reportFormat, and reportSize\n\nExpected:\nRequests to report endpoints return 200 with valid metadata or a downloadable resource descriptor\nReason: Users expect to preview or access full reports; verify endpoints are functional and return a consistent report metadata object or a downloadable resource.\n\nAdditional:\nCategory: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\"\n\nADDITIONAL DATA:\nCategory: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\"",
+        "Additional": "Category: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

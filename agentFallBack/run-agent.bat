@@ -2,16 +2,7 @@
 setlocal
 cd /d "%~dp0"
 
-powershell -NoProfile -Command "Write-Host ''; Write-Host '+----------------------------------------------+' -ForegroundColor Cyan; Write-Host '|     Playwright Automation Agent Launcher    |' -ForegroundColor Cyan; Write-Host '+----------------------------------------------+' -ForegroundColor Cyan; Write-Host ''"
+powershell -NoProfile -Command "Write-Host ''; Write-Host '+----------------------------------------------+' -ForegroundColor Cyan; Write-Host '|     Playwright Automation Agent Web UI      |' -ForegroundColor Cyan; Write-Host '+----------------------------------------------+' -ForegroundColor Cyan; Write-Host ''; Write-Host 'Opening local form at http://localhost:3789' -ForegroundColor Green; Write-Host 'Keep this terminal open while the agent runs.' -ForegroundColor Yellow; Write-Host ''"
 
-:: Cleanup Check
-powershell -NoProfile -Command "Write-Host '+----------------------------------------------+' -ForegroundColor Yellow; Write-Host '| Clean generated metadata before starting?    |' -ForegroundColor Yellow; Write-Host '| This keeps manual scenario runs fresh.       |' -ForegroundColor DarkYellow; Write-Host '+----------------------------------------------+' -ForegroundColor Yellow"
-set /p choice="Choose y/n: "
-if /i "%choice%"=="y" (
-    powershell -NoProfile -Command "Write-Host 'Cleaning generated folder...' -ForegroundColor Green"
-    node cleanup_generated.mjs
-)
-
-:: Start the Agent
-powershell -NoProfile -Command "Write-Host ''; Write-Host 'Starting Orchestrator...' -ForegroundColor Green; Write-Host ''"
-node start_agent.mjs
+start "" "http://localhost:3789"
+node web_agent_server.mjs

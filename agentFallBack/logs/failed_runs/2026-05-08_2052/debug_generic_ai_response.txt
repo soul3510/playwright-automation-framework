@@ -1,0 +1,163 @@
+```typescript
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Verify_client_side_validation_for_the_lead_generation_contact_form_specifically_.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+// Removed Page Object import as per Generic Mode guidelines
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+test.describe('Verify_client_side_validation_for_the_lead_generation_contact_form_specifically_', () => {
+  
+  test.beforeEach(async ({ page }) => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify client-side validation for the lead generation contact form, specifically for the disclaimer checkbox.' });
+      // Ensure page interruptions are handled before each test, especially for initial load
+      await handlePageInterruptions(page);
+  });
+
+  test('Verify client-side validation for the lead generation contact form, specifically for the disclaimer checkbox.', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Removed Page Object instantiation as per Generic Mode guidelines
+    
+    // =========================================
+    // STEP 1: NAVIGATE TO PAGE: HTTPS://WWW.CLALBIT.CO.IL/COOP/RETURNSCAMPAIGNGEHIS/?TXTREF=FUNDER_MAAVARON_TSUOT_ISHTALMUT_&UTM_SOURCE=FUNDER&UTM_MEDIUM=MAAVARON&UTM_CAMPAIGN=TSUOT_ISHTALMUT&UTM_CONTENT=
+    // =========================================
+    console.log('\n🚀 STEP 1: Navigate to page: https://www.clalbit.co.il/coop/returnscampaigngehis/?txtref=funder_maavaron_tsuot_ishtalmut_&utm_source=funder&utm_medium=maavaron&utm_campaign=tsuot_ishtalmut&utm_content=');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    const targetUrl = 'https://www.clalbit.co.il/coop/returnscampaigngehis/?txtref=funder_maavaron_tsuot_ishtalmut_&utm_source=funder&utm_medium=maavaron&utm_campaign=tsuot_ishtalmut&utm_content=';
+    console.log('📍 Navigating to URL:', targetUrl);
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    
+    // Improved assertion: Wait for the form to be visible, indicating the page has loaded relevant content.
+    const contactForm = page.getByRole('form');
+    await expect(contactForm).toBeVisible({ timeout: 15000 });
+    await handlePageInterruptions(page); // Handle any post-navigation pop-ups
+    console.log('✅ Navigation completed successfully');
+    console.log('⏰ Step 1 completed at:', new Date().toISOString());
+
+    // =========================================
+    // STEP 2: LOCATE THE CONTACT FORM (DIV WITH ROLE='FORM').
+    // =========================================
+    console.log('\n🚀 STEP 2: Locate the contact form (div with role=\'form\').');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    await handlePageInterruptions(page); // Handle any interruptions before interacting with the form
+
+    // Implemented: Locate the form using getByRole
+    await expect(contactForm).toBeVisible({ timeout: 10000 });
+    console.log('✅ Contact form located and visible.');
+    console.log('⏰ Step 2 completed at:', new Date().toISOString());
+
+    // =========================================
+    // STEP 3: FILL IN DUMMY VALID DATA FOR 'שם פרטי' (FIRST NAME), 'שם משפחה' (LAST NAME), 'טלפון נייד' (MOBILE PHONE), 'דואר אלקטרוני' (EMAIL), AND 'ת.ז.' (ID NUMBER).
+    // =========================================
+    console.log('\n🚀 STEP 3: Fill in dummy valid data for \'שם פרטי\' (First Name), \'שם משפחה\' (Last Name), \'טלפון נייד\' (Mobile Phone), \'דואר אלקטרוני\' (Email), and \'ת.ז.\' (ID number).');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    await handlePageInterruptions(page); // Handle any interruptions before filling fields
+
+    // Implemented: Fill actions using semantic locators (getByLabel)
+    // Using a try-catch block for robustness in case a field is not found immediately
+    try {
+      await page.getByLabel('שם פרטי').fill('גיל'); // First Name
+      await page.getByLabel('שם משפחה').fill('ישראלי'); // Last Name
+      await page.getByLabel('טלפון נייד').fill('0501234567'); // Mobile Phone
+      await page.getByLabel('דואר אלקטרוני').fill('test@example.com'); // Email
+      await page.getByLabel('ת.ז.').fill('123456789'); // ID Number
+      console.log('✅ All form fields filled successfully.');
+    } catch (error) {
+      console.error('❌ Failed to fill one or more form fields:', error);
+      // Optionally, take a screenshot or fail the test explicitly
+      await test.fail(`Failed to fill form fields: ${error.message}`);
+    }
+    console.log('⏰ Step 3 completed at:', new Date().toISOString());
+
+    // =========================================
+    // STEP 4: ENSURE THE 'DISCLAIMER' CHECKBOX (INPUT WITH ID='DISCLAIMER') IS *UNCHECKED*.
+    // =========================================
+    console.log('\n🚀 STEP 4: Ensure the \'Disclaimer\' checkbox (input with id=\'Disclaimer\') is *unchecked*.');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    await handlePageInterruptions(page); // Handle any interruptions before interacting with the checkbox
+
+    // Implemented: Locate the checkbox by ID and ensure it's unchecked
+    const disclaimerCheckbox = page.locator('#Disclaimer');
+    await expect(disclaimerCheckbox).toBeVisible({ timeout: 10000 });
+    
+    // If the checkbox is checked by default, uncheck it.
+    if (await disclaimerCheckbox.isChecked()) {
+      await disclaimerCheckbox.uncheck();
+      console.log('ℹ️ Disclaimer checkbox was checked and has been unchecked.');
+    }
+    await expect(disclaimerCheckbox).not.toBeChecked();
+    console.log('✅ Disclaimer checkbox is confirmed to be unchecked.');
+    console.log('⏰ Step 4 completed at:', new Date().toISOString());
+
+    // =========================================
+    // STEP 5: CLICK THE 'שלח/י' (SEND) BUTTON (BUTTON WITH TYPE='SUBMIT' AND TEXT 'שלח/י').
+    // =========================================
+    console.log('\n🚀 STEP 5: Click the \'שלח/י\' (Send) button (button with type=\'submit\' and text \'שלח/י\').');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    await handlePageInterruptions(page); // Handle any interruptions before clicking the button
+
+    // Improved: Use getByRole for the button
+    const sendButton = page.getByRole('button', { name: 'שלח/י' });
+    await expect(sendButton).toBeVisible({ timeout: 10000 });
+    
+    // Monitor network requests to ensure no form submission occurs
+    const formSubmissionPromise = page.waitForResponse(
+      response => response.request().method() === 'POST' && response.url().includes('coop/returnscampaigngehis'), // Adjust URL pattern if needed
+      { timeout: 5000 } // Short timeout, expecting it to fail
+    ).catch(() => null); // Catch the timeout error, indicating no submission
+
+    await sendButton.click();
+    console.log('✅ Clicked element: \'שלח/י\' (Send) button.');
+    
+    await handlePageInterruptions(page); // Handle any pop-ups or new elements after click (e.g., validation messages)
+    console.log('⏰ Step 5 completed at:', new Date().toISOString());
+
+    // =========================================
+    // VERIFICATION:
+    // =========================================
+    console.log('\n🔎 VERIFICATION: Checking for client-side validation errors.');
+    console.log('⏰ Starting verification at:', new Date().toISOString());
+
+    // Verification 1: An error message or visual indicator appears, stating that the disclaimer checkbox is required.
+    // Common error messages for required checkboxes in Hebrew might be "שדה חובה" (required field)
+    // or more specific like "יש לאשר את התקנון" (must approve the terms).
+    // We'll look for a generic required field message near the checkbox or a more specific one.
+    const disclaimerErrorMessage = page.locator('div:has(input#Disclaimer) + span.error-message, div:has(input#Disclaimer) + div.error-message, span:has-text("שדה חובה"), span:has-text("יש לאשר את התקנון"), div:has-text("שדה חובה"), div:has-text("יש לאשר את התקנון")').first();
+    
+    // Wait for the error message to become visible
+    await expect(disclaimerErrorMessage).toBeVisible({ timeout: 10000 });
+    await expect(disclaimerErrorMessage).toHaveText(/שדה חובה|יש לאשר את התקנון/); // Assert text content
+    console.log('✅ Verification 1: Disclaimer required error message is visible and contains expected text.');
+
+    // Verification 2: The form is not submitted (no network request for form submission is initiated).
+    // We check if the form submission promise timed out (meaning no submission occurred).
+    const submissionResponse = await formSubmissionPromise;
+    expect(submissionResponse).toBeNull(); // Expecting the promise to have timed out, indicating no response.
+    console.log('✅ Verification 2: Form submission network request was NOT initiated.');
+
+    // Additional verification: Ensure the URL has not changed, indicating no successful navigation/submission
+    await expect(page).toHaveURL(targetUrl, { timeout: 5000 });
+    console.log('✅ Verification 3: Page URL remained unchanged, confirming no successful form submission.');
+
+    console.log('🎉 All verifications passed successfully!');
+    console.log('⏰ Verification completed at:', new Date().toISOString());
+  });
+});
+
+export {}; // Make this a module
+```

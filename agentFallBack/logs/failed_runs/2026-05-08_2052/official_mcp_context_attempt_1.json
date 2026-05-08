@@ -1,0 +1,31 @@
+{
+  "source": "official-playwright-mcp",
+  "attempt": 1,
+  "url": "https://www.clalbit.co.il/coop/returnscampaigngehis/?txtref=funder_maavaron_tsuot_ishtalmut_&utm_source=funder&utm_medium=maavaron&utm_campaign=tsuot_ishtalmut&utm_content=",
+  "tools": [
+    "browser_close",
+    "browser_resize",
+    "browser_console_messages",
+    "browser_handle_dialog",
+    "browser_evaluate",
+    "browser_file_upload",
+    "browser_drop",
+    "browser_fill_form",
+    "browser_press_key",
+    "browser_type",
+    "browser_navigate",
+    "browser_navigate_back",
+    "browser_network_requests",
+    "browser_network_request",
+    "browser_run_code_unsafe",
+    "browser_take_screenshot",
+    "browser_snapshot",
+    "browser_click",
+    "browser_drag",
+    "browser_hover",
+    "browser_select_option",
+    "browser_tabs",
+    "browser_wait_for"
+  ],
+  "snapshot": "### Page\n- Page URL: https://www.clalbit.co.il/coop/returnscampaigngehis/?txtref=funder_maavaron_tsuot_ishtalmut_&utm_source=funder&utm_medium=maavaron&utm_campaign=tsuot_ishtalmut&utm_content=\n- Page Title: קמפיין תשואות מאי - גמל והשתלמות\n### Snapshot\n```yaml\n- generic [active] [ref=e1]:\n  - generic:\n    - list:\n      - listitem:\n        - link \"��� �����\" [ref=e2] [cursor=pointer]:\n          - /url: javascript:void(0);\n      - listitem:\n        - link \"��� ���\" [ref=e3] [cursor=pointer]:\n          - /url: /contactus/\n      - listitem:\n        - link \"��� ���\" [ref=e4] [cursor=pointer]:\n          - /url: /sitemap\n  - main [ref=e5]:\n    - generic [ref=e8]:\n      - heading \"שומרים על המקום הראשון\" [level=1] [ref=e9]\n      - generic [ref=e10]: כלל ממשיכה להוביל בתשואות בהשתלמות במסלול הכללי בשנה האחרונה\n    - group \"להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן\" [ref=e13]:\n      - generic [ref=e14]: להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן\n      - generic [ref=e15]:\n        - heading \"להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן\" [level=2] [ref=e17]\n        - form [ref=e18]:\n          - group \"להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן\" [ref=e19]:\n            - generic [ref=e20]:\n              - group [ref=e22]:\n                - generic [ref=e23]:\n                  - generic [ref=e24]:\n                    - textbox \"שם פרטי\" [ref=e25]\n                    - generic [ref=e26]: שם פרטי\n                  - text: \n              - group [ref=e28]:\n                - generic [ref=e29]:\n                  - generic [ref=e30]:\n                    - textbox \"שם משפחה\" [ref=e31]\n                    - generic [ref=e32]: שם משפחה\n                  - text: \n              - group [ref=e34]:\n                - generic [ref=e35]:\n                  - generic [ref=e36]:\n                    - textbox \"טלפון נייד\" [ref=e37]\n                    - generic [ref=e38]: טלפון נייד\n                  - text: \n              - generic [ref=e40]:\n                - generic [ref=e41]:\n                  - textbox \"דואר אלקטרוני\" [ref=e42]\n                  - generic [ref=e43]: דואר אלקטרוני\n                - text: \n              - group [ref=e45]:\n                - generic [ref=e46]:\n                  - generic [ref=e47]:\n                    - textbox \"ת.ז.\" [ref=e48]\n                    - generic [ref=e49]: ת.ז.\n                  - text: \n              - generic [ref=e50]:\n                - generic:\n                  - checkbox \"המידע האישי שתמסור לכלל יימסר מרצונך ובהסכמתך, ובלעדיו לא ניתן יהיה לקבל את השירות. ידוע לי שעל השירות חלים תנאי הגישה ומדיניות הפרטיות, הכוללים גם פירוט אודות מטרות השימוש במידע, למי יימסר, דרכי ההתקשרות עם הממונה על הגנת הפרטיות וזכויותיך לעיון ולתיקון המידע\" [checked] [ref=e52]\n                  - paragraph [ref=e56]:\n                    - text: המידע האישי שתמסור לכלל יימסר מרצונך ובהסכמתך, ובלעדיו לא ניתן יהיה לקבל את השירות. ידוע לי שעל השירות חלים\n                    - link \"תנאי הגישה\" [ref=e57] [cursor=pointer]:\n                      - /url: https://www.clalbit.co.il/termsofaccess/\n                    - link \"ומדיניות הפרטיות\" [ref=e58] [cursor=pointer]:\n                      - /url: https://www.clalbit.co.il/policy/\n                    - text: \", הכוללים גם פירוט אודות מטרות השימוש במידע, למי יימסר, דרכי ההתקשרות עם הממונה על הגנת הפרטיות וזכויותיך לעיון ולתיקון המידע\"\n                - text: \n            - button [ref=e61] [cursor=pointer]: שלח/י\n          - text: \n    - generic [ref=e64]:\n      - heading [level=2]\n    - generic [ref=e65]:\n      - paragraph [ref=e66]: תשואה לשנה, שלוש וחמש שנות פרסום המסתיימות ביום 31/03/2026. נתוני התשואות הינם מתוך אתר משרד האוצר, גמל נט. התשואות המוצגות הינן תשואות נומינאליות ברוטו ממוצעות שנתית, לפני ניכוי דמי ניהול. אין במידע על תשואות שהושגו בעבר כדי להצביע על תשואות שתושגנה בעתיד. מטרת המידע לעיל לתת מושג בסיסי בלבד אודות העניין המתואר, אין במידע כדי להוות או להחליף המלצה ו/או ייעוץ ביטוחי ו/או פנסיוני ו/או אחר מכל מין וסוג שהוא. טל\"ח. כלל פנסיה וגמל בע\"מ.\n      - paragraph [ref=e67]:\n        - generic [ref=e68]:\n          - text: לטבלת התשואות המונגשת\n          - link \"לחצו כאן\" [ref=e69] [cursor=pointer]:\n            - /url: /media/jtdd52i2/תשואות-מאביבית-שקוף.xlsx\n    - generic [ref=e70]: ������ ����� ��� ����\n    - generic [ref=e71]: �� ������ ����� ������ ������ ����\n    - generic [ref=e72]: � ������ �� �� ������ ������ ������� ��� ������ ��� �������� �������� ������ ������ �� ������ ������� ��� �-Enter\n  - generic:\n    - generic \"מדיניות הפרטיות\":\n      - region \"מדיניות הפרטיות\" [ref=e73]:\n        - generic \"מדיניות הפרטיות\" [ref=e74]:\n          - generic [ref=e75]:\n            - link \"תנאי השימוש\" [ref=e77] [cursor=pointer]:\n              - paragraph [ref=e78]: תנאי השימוש\n            - link \"מדיניות הפרטיות\" [ref=e80] [cursor=pointer]:\n              - paragraph [ref=e81]: מדיניות הפרטיות\n            - img \"אייקון של עוגייה\" [ref=e82]\n            - paragraph [ref=e85]: אתר זה עושה שימוש בקבצי Cookies. למידע נוסף יש לעיין בתנאי השימוש ובמדיניות הפרטיות\n            - link \"ראיתי\" [ref=e88] [cursor=pointer]:\n              - paragraph [ref=e89]:\n                - strong [ref=e90]: ראיתי\n```"
+}

@@ -1,0 +1,91 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - list:
+      - listitem:
+        - link "��� �����" [ref=e2] [cursor=pointer]:
+          - /url: javascript:void(0);
+      - listitem:
+        - link "��� ���" [ref=e3] [cursor=pointer]:
+          - /url: /contactus/
+      - listitem:
+        - link "��� ���" [ref=e4] [cursor=pointer]:
+          - /url: /sitemap
+  - main [ref=e5]:
+    - generic [ref=e8]:
+      - heading "שומרים על המקום הראשון" [level=1] [ref=e9]
+      - generic [ref=e10]: כלל ממשיכה להוביל בתשואות בהשתלמות במסלול הכללי בשנה האחרונה
+    - group "להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן" [ref=e13]:
+      - generic [ref=e14]: להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן
+      - generic [ref=e15]:
+        - heading "להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן" [level=2] [ref=e17]
+        - form [ref=e18]:
+          - group "להצטרפות, פנה לסוכן הביטוח שלך או השאר פרטים כאן" [ref=e19]:
+            - generic [ref=e20]:
+              - group [ref=e22]:
+                - generic [ref=e23]:
+                  - generic [ref=e24]:
+                    - textbox "שם פרטי" [ref=e25]
+                    - generic [ref=e26]: שם פרטי
+                  - text: 
+              - group [ref=e28]:
+                - generic [ref=e29]:
+                  - generic [ref=e30]:
+                    - textbox "שם משפחה" [ref=e31]
+                    - generic [ref=e32]: שם משפחה
+                  - text: 
+              - group [ref=e34]:
+                - generic [ref=e35]:
+                  - generic [ref=e36]:
+                    - textbox "טלפון נייד" [ref=e37]
+                    - generic [ref=e38]: טלפון נייד
+                  - text: 
+              - generic [ref=e40]:
+                - generic [ref=e41]:
+                  - textbox "דואר אלקטרוני" [ref=e42]
+                  - generic [ref=e43]: דואר אלקטרוני
+                - text: 
+              - group [ref=e45]:
+                - generic [ref=e46]:
+                  - generic [ref=e47]:
+                    - textbox "ת.ז." [ref=e48]
+                    - generic [ref=e49]: ת.ז.
+                  - text: 
+              - generic [ref=e50]:
+                - generic:
+                  - checkbox "המידע האישי שתמסור לכלל יימסר מרצונך ובהסכמתך, ובלעדיו לא ניתן יהיה לקבל את השירות. ידוע לי שעל השירות חלים תנאי הגישה ומדיניות הפרטיות, הכוללים גם פירוט אודות מטרות השימוש במידע, למי יימסר, דרכי ההתקשרות עם הממונה על הגנת הפרטיות וזכויותיך לעיון ולתיקון המידע" [checked] [ref=e52]
+                  - paragraph [ref=e56]:
+                    - text: המידע האישי שתמסור לכלל יימסר מרצונך ובהסכמתך, ובלעדיו לא ניתן יהיה לקבל את השירות. ידוע לי שעל השירות חלים
+                    - link "תנאי הגישה" [ref=e57] [cursor=pointer]:
+                      - /url: https://www.clalbit.co.il/termsofaccess/
+                    - link "ומדיניות הפרטיות" [ref=e58] [cursor=pointer]:
+                      - /url: https://www.clalbit.co.il/policy/
+                    - text: ", הכוללים גם פירוט אודות מטרות השימוש במידע, למי יימסר, דרכי ההתקשרות עם הממונה על הגנת הפרטיות וזכויותיך לעיון ולתיקון המידע"
+                - text: 
+            - button [ref=e61] [cursor=pointer]: שלח/י
+          - text: 
+    - generic [ref=e64]:
+      - heading [level=2]
+    - generic [ref=e65]:
+      - paragraph [ref=e66]: תשואה לשנה, שלוש וחמש שנות פרסום המסתיימות ביום 31/03/2026. נתוני התשואות הינם מתוך אתר משרד האוצר, גמל נט. התשואות המוצגות הינן תשואות נומינאליות ברוטו ממוצעות שנתית, לפני ניכוי דמי ניהול. אין במידע על תשואות שהושגו בעבר כדי להצביע על תשואות שתושגנה בעתיד. מטרת המידע לעיל לתת מושג בסיסי בלבד אודות העניין המתואר, אין במידע כדי להוות או להחליף המלצה ו/או ייעוץ ביטוחי ו/או פנסיוני ו/או אחר מכל מין וסוג שהוא. טל"ח. כלל פנסיה וגמל בע"מ.
+      - paragraph [ref=e67]:
+        - generic [ref=e68]:
+          - text: לטבלת התשואות המונגשת
+          - link "לחצו כאן" [ref=e69] [cursor=pointer]:
+            - /url: /media/jtdd52i2/תשואות-מאביבית-שקוף.xlsx
+    - generic [ref=e70]: ������ ����� ��� ����
+    - generic [ref=e71]: �� ������ ����� ������ ������ ����
+    - generic [ref=e72]: � ������ �� �� ������ ������ ������� ��� ������ ��� �������� �������� ������ ������ �� ������ ������� ��� �-Enter
+  - generic:
+    - generic "מדיניות הפרטיות":
+      - region "מדיניות הפרטיות" [ref=e73]:
+        - generic "מדיניות הפרטיות" [ref=e74]:
+          - generic [ref=e75]:
+            - link "תנאי השימוש" [ref=e77] [cursor=pointer]:
+              - paragraph [ref=e78]: תנאי השימוש
+            - link "מדיניות הפרטיות" [ref=e80] [cursor=pointer]:
+              - paragraph [ref=e81]: מדיניות הפרטיות
+            - img "אייקון של עוגייה" [ref=e82]
+            - paragraph [ref=e85]: אתר זה עושה שימוש בקבצי Cookies. למידע נוסף יש לעיין בתנאי השימוש ובמדיניות הפרטיות
+            - link "ראיתי" [ref=e88] [cursor=pointer]:
+              - paragraph [ref=e89]:
+                - strong [ref=e90]: ראיתי

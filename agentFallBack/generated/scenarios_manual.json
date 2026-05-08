@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-08T18:38:47.929Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. On the profile page, identify API calls providing location data (addresses and coordinates for HQ)\n2. Validate response includes headquartersAddress, city, country, latitude, longitude\n3. Cross-check latitude/longitude values produce a plausible map point (e.g., within Netherlands for Leusden address) using a lightweight geo validation",
+        "Subject": "Verify location and map-related data endpoints align with Headquarters Location section",
+        "Expected": "Location data contains a valid address and plausible coordinates; lat/long renderable by maps component\nReason: Headquarters location is shown textually and may be tied to map coordinates; ensure location data is consistent across map/service endpoints.",
+        "Details": "Subject: Verify location and map-related data endpoints align with Headquarters Location section\nUser: no user\nSteps:\n1. On the profile page, identify API calls providing location data (addresses and coordinates for HQ)\n2. Validate response includes headquartersAddress, city, country, latitude, longitude\n3. Cross-check latitude/longitude values produce a plausible map point (e.g., within Netherlands for Leusden address) using a lightweight geo validation\n\nExpected:\nLocation data contains a valid address and plausible coordinates; lat/long renderable by maps component\nReason: Headquarters location is shown textually and may be tied to map coordinates; ensure location data is consistent across map/service endpoints.\n\nAdditional:\nCategory: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\"\n\nADDITIONAL DATA:\nCategory: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\"",
+        "Additional": "Category: BE_API\nDiscovered page signals:\n- Interruption handled before scan: safe button: Reject All\n- Heading: Gnn Holding B.V. Credit Report\n- Heading: Details\n- Heading: Headquarters Location\n- Heading: Industry Benchmark\n- Heading: Financial Data\n- Heading: Adverse payment profiles\n- Heading: Directors/Shareholders Summary\n- Heading: Current Directors\n- Element: a\n- Element: input\n- Element: button\n- Element: a \"Free Trial\"\n- Element: a \"Home >\"\n- Element: a \"Netherlands >\"\n- Element: a \"Science >\"\n- Element: a\n- Element: a \"Access full report\"\n- Element: a #secondary-cta \"View Example Report\"\n- Element: a\n- Element: a \"hidden.hidden.hidden.hidden.hidden\""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

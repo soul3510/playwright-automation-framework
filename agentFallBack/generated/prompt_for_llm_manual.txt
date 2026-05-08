@@ -1,0 +1,196 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Verify_location_and_map_related_data_endpoints_align_with_Headquarters_Location_.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_location_and_map_related_data_endpoints_align_with_Headquarters_Location_.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Verify_location_and_map_related_data_endpoints_align_with_Headquarters_Location_.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+const inputDataProviders = [
+  {
+    "caseName": "case_1",
+    "Search_by_company": "myCompany"
+  },
+  {
+    "caseName": "case_2",
+    "Search_by_company": "myCompany valid"
+  },
+  {
+    "caseName": "case_3",
+    "Search_by_company": "myCompany 123"
+  },
+  {
+    "caseName": "case_4",
+    "Search_by_company": "myCompany edge case"
+  },
+  {
+    "caseName": "case_5",
+    "Search_by_company": "myCompany long value for validation"
+  }
+];
+
+
+test.describe('Verify_location_and_map_related_data_endpoints_align_with_Headquarters_Location_', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify location and map-related data endpoints align with Headquarters Location section' });
+  });
+
+  test('Verify location and map-related data endpoints align with Headquarters Location section', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData = inputDataProviders[0];
+    // =========================================
+    // STEP 1: ON THE PROFILE PAGE, IDENTIFY API CALLS PROVIDING LOCATION DATA (ADDRESSES AND COORDINATES FOR HQ)
+    // =========================================
+    console.log('\n🚀 STEP 1: On the profile page, identify API calls providing location data (addresses and coordinates for HQ)');
+
+    console.log('⚠️ Step 1: Pattern not recognized - On the profile page, identify API calls providing location data (addresses and coordinates for HQ)');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 1 completed');
+
+    // =========================================
+    // STEP 2: VALIDATE RESPONSE INCLUDES HEADQUARTERSADDRESS, CITY, COUNTRY, LATITUDE, LONGITUDE
+    // =========================================
+    console.log('\n🚀 STEP 2: Validate response includes headquartersAddress, city, country, latitude, longitude');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 2: Pattern not recognized - Validate response includes headquartersAddress, city, country, latitude, longitude');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 2 completed');
+
+    // =========================================
+    // STEP 3: CROSS-CHECK LATITUDE/LONGITUDE VALUES PRODUCE A PLAUSIBLE MAP POINT (E.G., WITHIN NETHERLANDS FOR LEUSDEN ADDRESS) USING A LIGHTWEIGHT GEO VALIDATION
+    // =========================================
+    console.log('\n🚀 STEP 3: Cross-check latitude/longitude values produce a plausible map point (e.g., within Netherlands for Leusden address) using a lightweight geo validation');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 3: Pattern not recognized - Cross-check latitude/longitude values produce a plausible map point (e.g., within Netherlands for Leusden address) using a lightweight geo validation');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 3 completed');
+
+    // Verification: Location data contains a valid address and plausible coordinates; lat/long renderable by maps component
+    // Verification: Reason: Headquarters location is shown textually and may be tied to map coordinates; ensure location data is consistent across map/service endpoints.
+    // Custom verification for: Location data contains a valid address and plausible coordinates; lat/long renderable by maps component
+    // Reason: Headquarters location is shown textually and may be tied to map coordinates; ensure location data is consistent across map/service endpoints.
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    console.log('Custom verification completed with generic page visibility check');
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+- Keep `handlePageInterruptions(page)` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If `inputDataProviders` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require `main` or `[role="main"]` for generic page-load verification unless the snapshot proves it exists. Prefer `body` plus visible content such as headings, nav, article, section, or body.
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.

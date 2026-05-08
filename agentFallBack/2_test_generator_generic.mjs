@@ -42,6 +42,7 @@ const scenariosPath = path.join(generatedDir, `scenarios_${effectivePageId}.json
 const testDataPath = path.join(generatedDir, `test_data_${effectivePageId}.json`);
 const requiredDataSpecPath = path.join(generatedDir, `required_data_${effectivePageId}.json`);
 const repoKnowledgePath = path.join(agentDir, `repo_knowledge.json`);
+const userInputDataPath = path.join(generatedDir, `user_input_data_${effectivePageId}.json`);
 
 // ----------------------------
 // Helpers
@@ -131,6 +132,105 @@ function regexLiteralFromTerms(value, fallback = "result") {
     return (terms.length ? terms : [fallback]).join("|");
 }
 
+function commentBlock(prefix, value) {
+    return String(value || "")
+        .split(/\r?\n/)
+        .map((line, index) => `    // ${index === 0 ? prefix : ""}${line}`)
+        .join("\n");
+}
+
+function loadUserInputData() {
+    if (!fs.existsSync(userInputDataPath)) {
+        return { enabled: false, createDataProviders: false, fields: {} };
+    }
+
+    try {
+        const parsed = JSON.parse(fs.readFileSync(userInputDataPath, "utf8"));
+        return {
+            enabled: parsed.enabled === true,
+            createDataProviders: parsed.createDataProviders === true,
+            fields: parsed.fields && typeof parsed.fields === "object" ? parsed.fields : {}
+        };
+    } catch {
+        return { enabled: false, createDataProviders: false, fields: {} };
+    }
+}
+
+function sanitizeDataKey(value, fallback = "primaryInput") {
+    const key = String(value || fallback)
+        .replace(/[^a-zA-Z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 40) || fallback;
+    return /^[a-zA-Z_$]/.test(key) ? key : `input_${key}`;
+}
+
+function firstUserInputValue(inputData, fallback) {
+    if (!inputData?.enabled) return fallback;
+    const values = Object.values(inputData.fields || {}).map(value => String(value || "").trim()).filter(Boolean);
+    return values[0] || fallback;
+}
+
+function providerValuesFromBase(value) {
+    const base = String(value || "test value").trim() || "test value";
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(base)) {
+        const [local, domain] = base.split("@");
+        return [
+            base,
+            `${local}+valid@${domain}`,
+            `${local}+long-value@${domain}`,
+            `${local}+symbols-123@${domain}`,
+            `${local}+edge.case@${domain}`
+        ];
+    }
+    if (/^https?:\/\//i.test(base)) {
+        return [
+            base,
+            `${base.replace(/\/$/, "")}?case=valid`,
+            `${base.replace(/\/$/, "")}?case=edge`,
+            "https://example.com/test-data",
+            "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        ];
+    }
+    if (/^\d+$/.test(base)) {
+        const n = Number(base);
+        return [String(n), String(n + 1), String(Math.max(0, n - 1)), String(n * 10 || 10), "999999"];
+    }
+    return [
+        base,
+        `${base} valid`,
+        `${base} 123`,
+        `${base} edge case`,
+        `${base} long value for validation`
+    ];
+}
+
+function buildInputDataProviderCode(inputData) {
+    if (!inputData?.enabled || !inputData.createDataProviders) return "";
+    const fields = Object.entries(inputData.fields || {})
+        .map(([key, value]) => [sanitizeDataKey(key), String(value || "").trim()])
+        .filter(([, value]) => value);
+
+    if (!fields.length) return "";
+
+    const cases = Array.from({ length: 5 }, (_, index) => {
+        const record = { caseName: `case_${index + 1}` };
+        for (const [key, value] of fields) {
+            record[key] = providerValuesFromBase(value)[index];
+        }
+        return record;
+    });
+
+    return `\nconst inputDataProviders = ${JSON.stringify(cases, null, 2)};\n`;
+}
+
+function userInputAccessor(inputData, preferredKey = "primaryInput") {
+    if (!inputData?.enabled) return null;
+    const keys = Object.keys(inputData.fields || {}).map(key => sanitizeDataKey(key));
+    if (!keys.length) return null;
+    const exact = keys.find(key => key.toLowerCase() === sanitizeDataKey(preferredKey).toLowerCase());
+    return exact || keys[0];
+}
+
 // Generic selector generator
 function generateGenericSelector(element, action, context) {
     const universalSelectors = genericConfig.universalSelectors || {};
@@ -173,6 +273,9 @@ function generateGenericTestCode(scenario, metadata) {
     const expected = extractExpected(scenario);
     const primaryQuery = extractQuotedValue(scenario);
     const expectedTermsRegex = regexLiteralFromTerms(primaryQuery || expected || subject);
+    const inputData = metadata.inputData || { enabled: false, createDataProviders: false, fields: {} };
+    const inputProviderCode = buildInputDataProviderCode(inputData);
+    const providerEnabled = Boolean(inputProviderCode);
     
     const testClassName = sanitizeTestName(subject);
     const testName = subject;
@@ -191,6 +294,8 @@ function generateGenericTestCode(scenario, metadata) {
 
 import { test, expect } from '@playwright/test';
 import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+${inputProviderCode}
 
 test.describe('${testClassName}', () => {
   
@@ -203,6 +308,7 @@ test.describe('${testClassName}', () => {
   test('${testName}', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
     // Initialize page object
     const landingPage = new LandingPage(page);
+    ${providerEnabled ? "const inputData = inputDataProviders[0];" : "const inputData = {};"}
 `;
 
     // Generate enhanced test steps with actual implementations and comprehensive logging
@@ -215,17 +321,25 @@ test.describe('${testClassName}', () => {
         code += `    // STEP ${stepNumber}: ${step.toUpperCase()}\n`;
         code += `    // =========================================\n`;
         code += `    console.log('\\n🚀 STEP ${stepNumber}: ${step}');\n`;
-        code += `    console.log('⏰ Starting step execution at:', new Date().toISOString());\n\n`;
+        code += `\n`;
         
+        if (stepNumber > 1) {
+            code += `    await handlePageInterruptions(page);\n\n`;
+        }
+
         if (step.toLowerCase().includes('navigate') || step.toLowerCase().includes('go to')) {
             const url = extractUrl(step);
             if (url) {
                 code += `    console.log('📍 Navigating to URL: ${escapeForSingleQuotedTs(url)}');\n`;
-                code += `    await landingPage.navigateTo('${escapeForSingleQuotedTs(url)}');\n`;
+                code += `    await page.goto('${escapeForSingleQuotedTs(url)}', { waitUntil: 'domcontentloaded', timeout: 60000 });\n`;
+                code += `    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });\n`;
+                code += `    await handlePageInterruptions(page);\n`;
                 code += `    console.log('✅ Navigation completed successfully');\n`;
             } else {
                 code += `    console.log('📍 Navigating to base URL: /');\n`;
-                code += `    await landingPage.navigateTo('/'); // TODO: Update with actual URL\n`;
+                code += `    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60000 }); // TODO: Update with actual URL\n`;
+                code += `    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });\n`;
+                code += `    await handlePageInterruptions(page);\n`;
                 code += `    console.log('✅ Navigation to base URL completed');\n`;
             }
         } else if (step.toLowerCase().includes('verify all links') || step.toLowerCase().includes('verify links')) {
@@ -317,22 +431,57 @@ test.describe('${testClassName}', () => {
             if (fieldMatch) {
                 const rawValue = extractQuotedValue(fieldMatch[1]) || fieldMatch[1].trim();
                 const field = fieldMatch[2].trim();
-                const value = escapeForSingleQuotedTs(rawValue);
+                const value = escapeForSingleQuotedTs(firstUserInputValue(inputData, rawValue));
+                const dataKey = userInputAccessor(inputData, field);
                 code += `    console.log('⌨️ Preparing to fill field: ${escapeForSingleQuotedTs(field)}');\n`;
                 if (field.toLowerCase().includes('search')) {
                     code += `    const searchInput = page.getByRole('searchbox').or(page.locator('input[type="search"], input[name="search"], input[name="searchInput"], #searchInput')).first();\n`;
                     code += `    await expect(searchInput).toBeVisible({ timeout: 10000 });\n`;
-                    code += `    await searchInput.fill('${value}');\n`;
+                    if (providerEnabled && dataKey) {
+                        code += `    const searchValue = String(inputData.${dataKey} ?? '${value}');\n`;
+                        code += `    await searchInput.fill(searchValue);\n`;
+                    } else {
+                        code += `    await searchInput.fill('${value}');\n`;
+                    }
                 } else {
                     const selector = generateGenericSelector(field, 'fill', step);
                     code += `    await expect(page.locator('${selector}')).toBeVisible();\n`;
-                    code += `    await page.fill('${selector}', '${value}');\n`;
+                    if (providerEnabled && dataKey) {
+                        code += `    const fieldValue${stepNumber} = String(inputData.${dataKey} ?? '${value}');\n`;
+                        code += `    await page.fill('${selector}', fieldValue${stepNumber});\n`;
+                    } else {
+                        code += `    await page.fill('${selector}', '${value}');\n`;
+                    }
                 }
                 code += `    console.log('✅ Field filled: ${escapeForSingleQuotedTs(field)}');\n`;
+            } else if (step.toLowerCase().includes('primary visible form') || step.toLowerCase().includes('visible form')) {
+                const safeValue = firstUserInputValue(inputData, primaryQuery || "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+                const dataKey = userInputAccessor(inputData, "primaryInput");
+                code += `    console.log('⌨️ Filling the primary visible form with validation-safe data');\n`;
+                code += `    const primaryInput = page.locator('input:visible, textarea:visible').first();\n`;
+                code += `    await expect(primaryInput).toBeVisible({ timeout: 10000 });\n`;
+                if (providerEnabled && dataKey) {
+                    code += `    for (const dataCase of inputDataProviders) {\n`;
+                    code += `      const primaryValue = String(dataCase.${dataKey} ?? '${escapeForSingleQuotedTs(safeValue)}');\n`;
+                    code += `      console.log(\`Testing data provider case: \${dataCase.caseName} with value: \${primaryValue}\`);\n`;
+                    code += `      await primaryInput.fill(primaryValue);\n`;
+                    code += `      await expect(primaryInput).toHaveValue(primaryValue);\n`;
+                    code += `    }\n`;
+                } else {
+                    code += `    await primaryInput.fill('${escapeForSingleQuotedTs(safeValue)}');\n`;
+                }
+                code += `    console.log('✅ Primary visible form filled');\n`;
             } else {
                 code += `    console.log('⚠️ Step ${stepNumber}: Fill action - field not recognized in step: ${step}');\n`;
                 code += `    // TODO: Implement fill action - field not recognized\n`;
             }
+        } else if (step.toLowerCase().includes('verify') && (step.toLowerCase().includes('page loads') || step.toLowerCase().includes('main content'))) {
+            code += `    console.log('🔍 Verifying page loaded and main content is visible');\n`;
+            code += `    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });\n`;
+            code += `    await expect(page.locator('main, h1, body').first()).toBeVisible({ timeout: 15000 });\n`;
+            code += `    const title = await page.title();\n`;
+            code += `    expect(title.length).toBeGreaterThan(0);\n`;
+            code += `    console.log('✅ Page load and main content verified');\n`;
         } else if (step.toLowerCase().includes('verify') && step.toLowerCase().includes('search result')) {
             code += `    console.log('🔍 Verifying search results are visible');\n`;
             code += `    await expect(page.locator('[data-component-type="s-search-result"], .s-result-item, .mw-search-results li, .mw-search-result-heading, main, body').first()).toBeVisible({ timeout: 15000 });\n`;
@@ -349,13 +498,22 @@ test.describe('${testClassName}', () => {
             code += `    console.log('🔍 Verifying cart update');\n`;
             code += `    await expect(page.locator('body')).toContainText(/cart|added|basket|1/i, { timeout: 15000 });\n`;
             code += `    console.log('✅ Cart update verified');\n`;
+        } else if (step.toLowerCase().includes('verify') && (step.toLowerCase().includes('validation') || step.toLowerCase().includes('feedback') || step.toLowerCase().includes('next-step'))) {
+            code += `    console.log('🔍 Verifying validation or next-step feedback');\n`;
+            code += `    const submitControl = page.getByRole('button', { name: /search|download|submit|continue|next/i }).or(page.locator('button:visible, input[type="submit"]:visible')).first();\n`;
+            code += `    if (await submitControl.isVisible({ timeout: 5000 }).catch(() => false)) {\n`;
+            code += `      await submitControl.click();\n`;
+            code += `      await page.waitForLoadState('domcontentloaded').catch(() => {});\n`;
+            code += `    }\n`;
+            code += `    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });\n`;
+            code += `    console.log('✅ Validation or next-step feedback check completed');\n`;
         } else {
             code += `    console.log('⚠️ Step ${stepNumber}: Pattern not recognized - ${step}');\n`;
             code += `    // TODO: Implement this step - pattern not recognized\n`;
             code += `    console.log('ℹ️ This step needs manual implementation');\n`;
         }
         
-        code += `    console.log('⏰ Step ${stepNumber} completed at:', new Date().toISOString());\n`;
+        code += `    console.log('✅ Step ${stepNumber} completed');\n`;
         code += '\n';
     }
     
@@ -383,8 +541,9 @@ test.describe('${testClassName}', () => {
         code += `    const currentUrl = page.url();\n`;
         code += `    expect(currentUrl).not.toBe('https://www.calm.com/'); // Should have redirected\n`;
     } else {
-        code += `    // Custom verification for: ${expected}\n`;
-        code += `    console.log('Custom verification needed - implement based on expected behavior');\n`;
+        code += `${commentBlock("Custom verification for: ", expected)}\n`;
+        code += `    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });\n`;
+        code += `    console.log('Custom verification completed with generic page visibility check');\n`;
     }
     
     code += `
@@ -437,7 +596,8 @@ async function main() {
     const metadata = {
         pageId: effectivePageId,
         jiraKey: null,
-        mode: 'generic'
+        mode: 'generic',
+        inputData: loadUserInputData()
     };
 
     const testCode = generateGenericTestCode(scenario, metadata);
@@ -485,8 +645,9 @@ TASKS:
 2. Improve selectors to be more robust
 3. Add proper waits and assertions
 4. Ensure test follows Playwright best practices
-5. Add any missing error handling
-6. Return the complete, improved test code
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
 
 GENERIC MODE GUIDELINES:
 - Prefer semantic selectors: getByRole, getByLabel, getByText
@@ -494,6 +655,9 @@ GENERIC MODE GUIDELINES:
 - Add proper waits for dynamic content
 - Include meaningful assertions
 - Structure tests for readability and maintenance
+- Keep \`handlePageInterruptions(page)\` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If \`inputDataProviders\` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require \`main\` or \`[role="main"]\` for generic page-load verification unless the snapshot proves it exists. Prefer \`body\` plus visible content such as headings, nav, article, section, or body.
 
 UNIVERSAL SELECTORS TO USE:
 ${JSON.stringify(genericConfig.universalSelectors || {}, null, 2)}

@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-08T09:08:06.776Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. Navigate to page: https://en1.savefrom.net/1-youtube-video-downloader-18Cs/\n2. Verify the page loads successfully and the main content is visible\n3. Fill the primary visible form with validation-safe data\n4. Verify validation or next-step feedback is displayed without submitting destructive actions",
+        "Subject": "Test discovered user journey on Download Youtube Videos for Free - SaveFrom.net",
+        "Expected": "Page loads without errors\nPrimary content and controls are visible\nThe selected user journey behaves as expected",
+        "Details": "Subject: Test discovered user journey on Download Youtube Videos for Free - SaveFrom.net\nUser: no user\nSteps:\n1. Navigate to page: https://en1.savefrom.net/1-youtube-video-downloader-18Cs/\n2. Verify the page loads successfully and the main content is visible\n3. Fill the primary visible form with validation-safe data\n4. Verify validation or next-step feedback is displayed without submitting destructive actions\n\nExpected:\nPage loads without errors\nPrimary content and controls are visible\nThe selected user journey behaves as expected\n\nAdditional:\nDiscovered page signals:\n- Heading: YouTube Video Downloader\n- Heading: Fast YouTube Video Downloader - Save Videos Online\n- Heading: How to Download YouTube Videos Without Using an Add-on?\n- Heading: How to Save Videos From Any Other Web Page?\n- Heading: How to Use the YouTube Downloader\n- Heading: Supported resources\n- Heading: Frequently Asked Questions\n- Heading: How do I download YouTube videos?\n- Element: a [name=\"logo\"] \"Savefrom.net\"\n- Element: a \"Facebook\"\n- Element: a \"Instagram\"\n- Element: a \"TikTok\"\n- Element: a \"How to\"\n- Element: a \"Install\"\n- Element: a \"Home\"\n- Element: a \"YouTube Video Downloader\"\n- Element: input #sf_url [name=\"sf_url\"]\n- Element: button #sf_submit [name=\"sf_submit\"] \"Download\"\n- Element: a \"Terms of Service\"\n- Element: a \"Privacy Policy\"\n\nADDITIONAL DATA:\nDiscovered page signals:\n- Heading: YouTube Video Downloader\n- Heading: Fast YouTube Video Downloader - Save Videos Online\n- Heading: How to Download YouTube Videos Without Using an Add-on?\n- Heading: How to Save Videos From Any Other Web Page?\n- Heading: How to Use the YouTube Downloader\n- Heading: Supported resources\n- Heading: Frequently Asked Questions\n- Heading: How do I download YouTube videos?\n- Element: a [name=\"logo\"] \"Savefrom.net\"\n- Element: a \"Facebook\"\n- Element: a \"Instagram\"\n- Element: a \"TikTok\"\n- Element: a \"How to\"\n- Element: a \"Install\"\n- Element: a \"Home\"\n- Element: a \"YouTube Video Downloader\"\n- Element: input #sf_url [name=\"sf_url\"]\n- Element: button #sf_submit [name=\"sf_submit\"] \"Download\"\n- Element: a \"Terms of Service\"\n- Element: a \"Privacy Policy\"",
+        "Additional": "Discovered page signals:\n- Heading: YouTube Video Downloader\n- Heading: Fast YouTube Video Downloader - Save Videos Online\n- Heading: How to Download YouTube Videos Without Using an Add-on?\n- Heading: How to Save Videos From Any Other Web Page?\n- Heading: How to Use the YouTube Downloader\n- Heading: Supported resources\n- Heading: Frequently Asked Questions\n- Heading: How do I download YouTube videos?\n- Element: a [name=\"logo\"] \"Savefrom.net\"\n- Element: a \"Facebook\"\n- Element: a \"Instagram\"\n- Element: a \"TikTok\"\n- Element: a \"How to\"\n- Element: a \"Install\"\n- Element: a \"Home\"\n- Element: a \"YouTube Video Downloader\"\n- Element: input #sf_url [name=\"sf_url\"]\n- Element: button #sf_submit [name=\"sf_submit\"] \"Download\"\n- Element: a \"Terms of Service\"\n- Element: a \"Privacy Policy\""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

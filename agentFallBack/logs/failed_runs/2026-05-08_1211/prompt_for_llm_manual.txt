@@ -1,0 +1,176 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Test_discovered_user_journey_on_Download_Youtube_Videos_for_Free_SaveFrom_net.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Test_discovered_user_journey_on_Download_Youtube_Videos_for_Free_SaveFrom_net.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Test_discovered_user_journey_on_Download_Youtube_Videos_for_Free_SaveFrom_net.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+
+test.describe('Test_discovered_user_journey_on_Download_Youtube_Videos_for_Free_SaveFrom_net', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Test discovered user journey on Download Youtube Videos for Free - SaveFrom.net' });
+  });
+
+  test('Test discovered user journey on Download Youtube Videos for Free - SaveFrom.net', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    // =========================================
+    // STEP 1: NAVIGATE TO PAGE: HTTPS://EN1.SAVEFROM.NET/1-YOUTUBE-VIDEO-DOWNLOADER-18CS/
+    // =========================================
+    console.log('\n🚀 STEP 1: Navigate to page: https://en1.savefrom.net/1-youtube-video-downloader-18Cs/');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    console.log('📍 Navigating to URL: https://en1.savefrom.net/1-youtube-video-downloader-18Cs/');
+    await landingPage.navigateTo('https://en1.savefrom.net/1-youtube-video-downloader-18Cs/');
+    console.log('✅ Navigation completed successfully');
+    console.log('⏰ Step 1 completed at:', new Date().toISOString());
+
+    // =========================================
+    // STEP 2: VERIFY THE PAGE LOADS SUCCESSFULLY AND THE MAIN CONTENT IS VISIBLE
+    // =========================================
+    console.log('\n🚀 STEP 2: Verify the page loads successfully and the main content is visible');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    console.log('⚠️ Step 2: Pattern not recognized - Verify the page loads successfully and the main content is visible');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('⏰ Step 2 completed at:', new Date().toISOString());
+
+    // =========================================
+    // STEP 3: FILL THE PRIMARY VISIBLE FORM WITH VALIDATION-SAFE DATA
+    // =========================================
+    console.log('\n🚀 STEP 3: Fill the primary visible form with validation-safe data');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    console.log('⚠️ Step 3: Fill action - field not recognized in step: Fill the primary visible form with validation-safe data');
+    // TODO: Implement fill action - field not recognized
+    console.log('⏰ Step 3 completed at:', new Date().toISOString());
+
+    // =========================================
+    // STEP 4: VERIFY VALIDATION OR NEXT-STEP FEEDBACK IS DISPLAYED WITHOUT SUBMITTING DESTRUCTIVE ACTIONS
+    // =========================================
+    console.log('\n🚀 STEP 4: Verify validation or next-step feedback is displayed without submitting destructive actions');
+    console.log('⏰ Starting step execution at:', new Date().toISOString());
+
+    console.log('⚠️ Step 4: Pattern not recognized - Verify validation or next-step feedback is displayed without submitting destructive actions');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('⏰ Step 4 completed at:', new Date().toISOString());
+
+    // Verification: Page loads without errors
+    // Verification: Primary content and controls are visible
+    // Verification: The selected user journey behaves as expected
+    // Custom verification for: Page loads without errors
+Primary content and controls are visible
+The selected user journey behaves as expected
+    console.log('Custom verification needed - implement based on expected behavior');
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Add any missing error handling
+6. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.

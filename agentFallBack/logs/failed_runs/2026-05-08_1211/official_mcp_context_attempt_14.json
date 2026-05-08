@@ -1,0 +1,31 @@
+{
+  "source": "official-playwright-mcp",
+  "attempt": 14,
+  "url": "https://en1.savefrom.net/1-youtube-video-downloader-18Cs/",
+  "tools": [
+    "browser_close",
+    "browser_resize",
+    "browser_console_messages",
+    "browser_handle_dialog",
+    "browser_evaluate",
+    "browser_file_upload",
+    "browser_drop",
+    "browser_fill_form",
+    "browser_press_key",
+    "browser_type",
+    "browser_navigate",
+    "browser_navigate_back",
+    "browser_network_requests",
+    "browser_network_request",
+    "browser_run_code_unsafe",
+    "browser_take_screenshot",
+    "browser_snapshot",
+    "browser_click",
+    "browser_drag",
+    "browser_hover",
+    "browser_select_option",
+    "browser_tabs",
+    "browser_wait_for"
+  ],
+  "snapshot": "### Error\nError: Browser is already in use for C:\\Users\\soul3\\AppData\\Local\\ms-playwright\\mcp-chrome-e6d1921, use --isolated to run multiple instances of the same browser"
+}

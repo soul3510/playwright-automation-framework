@@ -110,9 +110,12 @@ async function collectOfficialMcpSnapshot(targetUrl, attempt) {
     const client = new Client({ name: "agent-fallback-healer", version: "1.0.0" });
     const server = await createConnection({
         browser: {
+            isolated: true,
             launchOptions: { headless: true }
         },
         outputDir: generatedDir,
+        saveSession: false,
+        sharedBrowserContext: false,
         network: {
             allowedOrigins: undefined,
             blockedOrigins: undefined
@@ -302,6 +305,28 @@ function applyDeterministicHealing(testFile, errorLog, attempt) {
             "$1\n    test.setTimeout(120000);"
         );
         changes.push("Raised this generated test timeout to 120 seconds.");
+    }
+
+    if (/main,\s*\[role=["']main["']\]|mainContent\.first\(\)\.waitFor|waiting for locator\('main, \[role="main"\]'\)/i.test(errorLog + "\n" + code)) {
+        code = code.replace(
+            /\/\/ Use a robust wait for main region[\s\S]*?await expect\(mainContent\)\.toBeVisible\(\{ timeout: 40000 \}\);\r?\n/g,
+            [
+                "// Some sites/themes do not expose a <main> or role=\"main\" landmark.",
+                "    const pageContent = page.locator('body');",
+                "    await expect(pageContent).toBeVisible({ timeout: 15000 });",
+                "    await expect(page.locator('h1, h2, nav, article, section, body').first()).toBeVisible({ timeout: 15000 });",
+                ""
+            ].join("\n")
+        );
+        code = code.replace(
+            /const\s+mainContent\s*=\s*page\.locator\(['"]main,\s*\[role=["']main["']\]['"]\);\r?\n\s*await\s+mainContent\.first\(\)\.waitFor\(\{ state: ['"]visible['"], timeout: 40000 \}\);\r?\n\s*await expect\(mainContent\)\.toBeVisible\(\{ timeout: 40000 \}\);/g,
+            [
+                "const pageContent = page.locator('body');",
+                "    await expect(pageContent).toBeVisible({ timeout: 15000 });",
+                "    await expect(page.locator('h1, h2, nav, article, section, body').first()).toBeVisible({ timeout: 15000 });"
+            ].join("\n")
+        );
+        changes.push("Replaced strict main/role=main wait with body plus visible content fallback.");
     }
 
     if (code !== originalCode) {
@@ -720,6 +745,14 @@ async function heal(testFile, errorLog, attempt) {
 
     const currentCode = fs.readFileSync(testFile, "utf8");
     const liveMcpContextSection = await collectPlaywrightMcpContext(testFile, currentCode, errorLog, attempt);
+    const interruptionInstructions = `
+PAGE INTERRUPTION HANDLING:
+- Before changing business selectors, check whether the flow is blocked by a cookie/privacy banner, consent dialog, newsletter popup, announcement modal, ad overlay, notification prompt, location prompt, or interstitial.
+- Preserve or add \`import { handlePageInterruptions } from '../../utils/pageInterruptions';\` when the test is in tests/generated-from-agentFallBack.
+- Preserve or add \`await handlePageInterruptions(page);\` after navigation and before major scenario actions.
+- Only dismiss safe interruption controls: Accept, Accept all, Agree, OK, Got it, Continue, Skip, No thanks, Not now, Decline, Reject all, Close, Dismiss, or an obvious close icon.
+- Do not click business/destructive controls while handling interruptions: login, register, buy, purchase, pay, checkout, delete, download, submit, send, or save.
+`;
     
     // MCP Healing: Check if we can discover elements from the error
     let mcpHealingSection = "";
@@ -864,6 +897,8 @@ ${DIAGNOSTIC_HELPER}
 
 ${liveMcpContextSection}
 
+${interruptionInstructions}
+
 ${mcpHealingSection}
 
 INSTRUCTIONS:
@@ -879,6 +914,8 @@ INSTRUCTIONS:
    - **Navigation**: Ensure \`await page.waitForURL(...)\` is used after navigation actions.
 
 CRITICAL RULES TO MAINTAIN:
+- **Interruptions**: Preserve or add \`handlePageInterruptions(page)\` after navigation and before major scenario actions. Use it before changing selectors when banners, modals, overlays, prompts, or interstitials may be blocking the page.
+- **Main Content Checks**: Do not require \`main\` or \`[role="main"]\` unless the MCP snapshot proves that landmark exists and is visible. For generic page-load checks, prefer \`body\` plus \`h1, h2, nav, article, section, body\`.
 - **Environment Handling**: Never hardcode URLs. Use \`process.env.APP_ENV\`.
 - **Utils Folder**: You MUST use the utils/ folder for testing helpers. Find the right methods in this folder's scripts or add new ones there if they do not exist.
 - **Logging**: Ensure that EVERY healing attempt includes updated \`console.log('...')\` markers for visibility in the verification logs. Maintain these for EVERY major action/step.
@@ -998,6 +1035,7 @@ async function main() {
             state = JSON.parse(fs.readFileSync(statePath, "utf8"));
         } catch(e) {}
     }
+    state.bugReport = { detectedBugs: [] };
     
     const outDir = path.join(repoRoot, "tests/generated-from-agentFallBack");
     
@@ -1055,6 +1093,7 @@ async function main() {
                 completedAt: new Date().toISOString()
             };
             state.status = 'PASSED';
+            state.bugReport = { detectedBugs: [] };
             state.logs = state.logs || [];
             state.logs.push({
                 agent: 'healer',

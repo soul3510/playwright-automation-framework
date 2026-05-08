@@ -50,7 +50,7 @@ function cleanup() {
     }
 
     for (const file of files) {
-        if (file === 'repo_knowledge.json') continue;
+        if (file === 'repo_knowledge.json' || file === 'ai_provider_status.jsonl') continue;
 
         const srcPath = path.join(generatedDir, file);
         const stats = fs.lstatSync(srcPath);
