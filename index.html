@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eyal Sooliman | AI Automation Interview Demo</title>
+  <style>
+    :root {
+      --bg: #070b16;
+      --bg2: #0f172a;
+      --card: rgba(255, 255, 255, 0.08);
+      --card2: rgba(255, 255, 255, 0.115);
+      --border: rgba(255, 255, 255, 0.14);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --soft: #94a3b8;
+      --primary: #38bdf8;
+      --primary2: #818cf8;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --shadow: 0 24px 90px rgba(0, 0, 0, 0.38);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.24), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.22), transparent 34%),
+        linear-gradient(135deg, var(--bg) 0%, #0b1020 45%, var(--bg2) 100%);
+      line-height: 1.65;
+    }
+
+    body[dir="rtl"] { font-family: Arial, "Segoe UI", sans-serif; }
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 54px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 46px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      box-shadow: 0 16px 42px rgba(56, 189, 248, 0.22);
+      overflow: hidden;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .secure-pill,
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 9px 14px;
+    }
+
+    .lang-toggle {
+      cursor: pointer;
+      color: var(--text);
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .lang-toggle:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(56, 189, 248, 0.42);
+    }
+
+    .secure-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.12);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero-card {
+      padding: 46px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset-inline-end: -80px;
+      top: -80px;
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.11);
+      filter: blur(4px);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 13px;
+      border: 1px solid rgba(56, 189, 248, 0.34);
+      background: rgba(56, 189, 248, 0.1);
+      color: #bae6fd;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 60px);
+      line-height: 1.08;
+      letter-spacing: -1.2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 780px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .value-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .value-item {
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .value-item strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .value-item span {
+      color: var(--soft);
+      font-size: 13px;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 48px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-weight: 800;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      color: #06111f;
+      background: linear-gradient(135deg, var(--primary), #a5b4fc);
+      box-shadow: 0 18px 42px rgba(56, 189, 248, 0.22);
+      border: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    .access-card {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .access-title {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    .access-text {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .access-demo-button {
+      width: 100%;
+      min-height: 64px;
+      margin-top: 20px;
+      border-radius: 20px;
+      font-size: 18px;
+      box-shadow: 0 22px 54px rgba(56, 189, 248, 0.28);
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.055);
+      border-radius: 18px;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(56, 189, 248, 0.14);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .step strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin: 28px 0;
+    }
+
+    .feature-card {
+      padding: 24px;
+      min-height: 228px;
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(129, 140, 248, 0.16));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 20px;
+    }
+
+    h2, h3 {
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    .feature-card h3 {
+      font-size: 19px;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p,
+    .section-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .section-card {
+      padding: 30px;
+      margin-top: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .section-header h2 { font-size: 26px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #fef3c7;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.22);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .demo-flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .flow-item,
+    .talking-item {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .flow-item small,
+    .talking-item small {
+      display: block;
+      color: var(--primary);
+      font-weight: 900;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .flow-item strong,
+    .talking-item strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .flow-item span,
+    .talking-item span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .personal-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .quote-card {
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(129, 140, 248, 0.1));
+    }
+
+    .quote-card p {
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .linkedin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.34);
+      background: rgba(56, 189, 248, 0.1);
+      color: #bae6fd;
+      font-weight: 800;
+      font-size: 14px;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .linkedin-link:hover {
+      transform: translateY(-2px);
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .linkedin-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .talking-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--soft);
+      padding: 22px 2px 0;
+      font-size: 14px;
+    }
+
+    @media (max-width: 920px) {
+      .hero,
+      .grid,
+      .demo-flow,
+      .personal-section,
+      .talking-grid,
+      .value-strip { grid-template-columns: 1fr; }
+      .hero-card { padding: 32px 24px; }
+      .section-header { flex-direction: column; }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 22px, 1160px);
+        padding-top: 18px;
+      }
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 34px;
+      }
+      .top-actions { width: 100%; }
+      .secure-pill,
+      .lang-toggle { font-size: 13px; }
+      .btn { width: 100%; }
+      .access-card,
+      .section-card,
+      .feature-card,
+      .quote-card { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://media.licdn.com/dms/image/v2/D4D03AQGzVB7x6RdK-Q/profile-displayphoto-shrink_800_800/B4DZZigim1GsAc-/0/1745409420237?e=1779926400&v=beta&t=79RNaUP8sEPpZmqBu5lzruO6fTcwmPjUwxuvs9ZUUeo" alt="Eyal Sooliman" />
+        </div>
+        <div>
+          <div data-i18n="brandTitle">Eyal Sooliman</div>
+          <small style="color: var(--soft);" data-i18n="brandSubtitle">Senior Automation Developer & QA Lead · Full Automation Infrastructure Demo with LLM & Agents</small>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div class="secure-pill">
+          <span class="secure-dot"></span>
+          <span data-i18n="secureBadge">Secured with Cloudflare Access</span>
+        </div>
+        <button class="lang-toggle" type="button" id="languageToggle" aria-label="Change language">
+          <span>🌐</span>
+          <span id="languageToggleText">English</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="card hero-card">
+        <h1 data-i18n="heroTitle">LLM & Agent Infrastructure Demo for QA Automation.</h1>
+        <p class="subtitle" data-i18n="heroSubtitle">
+          Instead of only describing my experience, I wanted to show it. This demo reflects the way I work: taking an idea, building the automation infrastructure around it, using AI agents where they create real efficiency, and connecting everything into a working flow that a team can actually use.
+        </p>
+
+        <div class="value-strip">
+          <div class="value-item">
+            <strong data-i18n="value1Title">AI Agent Workflow</strong>
+            <span data-i18n="value1Text">Agents help convert product context into practical QA scenarios.</span>
+          </div>
+          <div class="value-item">
+            <strong data-i18n="value2Title">Playwright Execution</strong>
+            <span data-i18n="value2Text">Generated scenarios are connected to real browser automation.</span>
+          </div>
+          <div class="value-item">
+            <strong data-i18n="value3Title">MCP & Tool Integration</strong>
+            <span data-i18n="value3Text">MCP servers and tools support a smarter automation workflow.</span>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <a class="btn btn-secondary" href="#how-it-works" data-i18n="secondaryCta">What to look for</a>
+        </div>
+      </div>
+
+      <aside class="card access-card">
+        <div>
+          <h2 class="access-title" data-i18n="accessTitle">Access instructions</h2>
+          <p class="access-text" data-i18n="accessIntro">
+            The demo is protected because it runs real automation capabilities behind the scenes. Access is granted only to approved reviewer emails.
+          </p>
+
+          <div class="steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div>
+                <strong data-i18n="step1Title">Send me your email</strong>
+                <span data-i18n="step1Text">Use the email address you want to enter with.</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div>
+                <strong data-i18n="step2Title">I approve it in Cloudflare</strong>
+                <span data-i18n="step2Text">Once approved, the access gate will recognize your email.</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div>
+                <strong data-i18n="step3Title">Enter the demo</strong>
+                <span data-i18n="step3Text">Click the button, enter the approved email, and complete the Cloudflare verification flow.</span>
+              </div>
+            </div>
+          </div>
+
+          <a class="btn btn-primary access-demo-button" href="https://qa-agent.work/" target="_blank" rel="noopener" data-i18n="accessCta">Enter the secured demo</a>
+        </div>
+      </aside>
+    </section>
+
+    <section class="personal-section">
+      <article class="card quote-card">
+        <h2 data-i18n="personalTitle">A little about me</h2>
+        <p data-i18n="personalQuote">
+          For me, strong automation is not only about writing tests. It is about building systems that help engineers move faster, understand risk earlier, and release with more confidence.
+        </p>
+        <span style="color: var(--soft);" data-i18n="personalText">
+          This is the mindset I bring into automation roles: practical ownership, technical depth, and the ability to connect QA, development and product needs into one scalable workflow.
+        </span>
+        <p style="font-size: 16px; color: var(--muted); margin-top: 16px;" data-i18n="personalDemoText">
+          I build working tools, connect technologies, validate ideas quickly, and turn automation into something visible and valuable for the team.
+        </p>
+        <p style="font-size: 16px; color: var(--muted); margin-top: 14px;" data-i18n="personalAiText">
+          The goal is to help engineers design better tests, reduce repetitive work, find gaps faster and make smarter QA decisions.
+        </p>
+        <a class="linkedin-link" href="https://www.linkedin.com/in/eyalsooliman/" target="_blank" rel="noopener">
+          <span class="linkedin-icon">in</span>
+          <span data-i18n="linkedinText">View my LinkedIn profile</span>
+        </a>
+      </article>
+    </section>
+
+    <section class="card section-card" id="how-it-works">
+      <div class="section-header">
+        <div>
+          <h2 data-i18n="overviewTitle">What I recommend looking at during the demo</h2>
+          <p data-i18n="overviewSubtitle">The UI is intentionally simple. The important part is the engineering thinking behind the flow: how requirements become scenarios, how scenarios become execution, and how results become insight.</p>
+        </div>
+        <div class="tag" data-i18n="tagText">Live technical demonstration</div>
+      </div>
+
+      <div class="demo-flow">
+        <div class="flow-item">
+          <small data-i18n="flow1Small">STEP 01</small>
+          <strong data-i18n="flow1Title">Start from product behavior</strong>
+          <span data-i18n="flow1Text">The flow begins from a real user or product scenario, not from random test code.</span>
+        </div>
+        <div class="flow-item">
+          <small data-i18n="flow2Small">STEP 02</small>
+          <strong data-i18n="flow2Title">Generate testing intent</strong>
+          <span data-i18n="flow2Text">AI helps structure the scenario, expected behavior and automation direction.</span>
+        </div>
+        <div class="flow-item">
+          <small data-i18n="flow3Small">STEP 03</small>
+          <strong data-i18n="flow3Title">Execute with Playwright</strong>
+          <span data-i18n="flow3Text">The scenario is connected to real browser automation instead of staying as documentation.</span>
+        </div>
+        <div class="flow-item">
+          <small data-i18n="flow4Small">STEP 04</small>
+          <strong data-i18n="flow4Title">Explain the result</strong>
+          <span data-i18n="flow4Text">The output is meant to help people understand what happened and what should be improved next.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-header">
+        <div>
+          <p data-i18n="talkingSubtitle">These are the areas I would be happy to expand on during the interview.</p>
+        </div>
+      </div>
+      <div class="talking-grid">
+        <div class="talking-item">
+          <small data-i18n="talk1Small">ARCHITECTURE</small>
+          <strong data-i18n="talk1Title">How I would scale this in a real company</strong>
+          <span data-i18n="talk1Text">Repository structure, test ownership, CI integration, logs, reports and maintainability.</span>
+        </div>
+        <div class="talking-item">
+          <small data-i18n="talk2Small">TEAM IMPACT</small>
+          <strong data-i18n="talk2Title">How I make automation usable for developers</strong>
+          <span data-i18n="talk2Text">Simple patterns, clear documentation, reusable helpers and mentoring across BE and FE teams.</span>
+        </div>
+        <div class="talking-item">
+          <small data-i18n="talk3Small">AI STRATEGY</small>
+          <strong data-i18n="talk3Title">Where AI helps — and where it should not decide alone</strong>
+          <span data-i18n="talk3Text">Using AI for acceleration while keeping engineering judgment, review and reliability in the loop.</span>
+        </div>
+        <div class="talking-item">
+          <small data-i18n="talk4Small">QUALITY MINDSET</small>
+          <strong data-i18n="talk4Title">How I connect quality to release confidence</strong>
+          <span data-i18n="talk4Text">Risk visibility, coverage thinking, faster feedback loops and data-driven QA decisions.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-header">
+        <div>
+          <p data-i18n="closingText">
+            This demo is a compact example of how I approach automation work: I identify a real bottleneck, design the infrastructure, use AI as a practical accelerator, and build something that makes quality work easier for the entire team.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span data-i18n="footerLeft">Created by Eyal Sooliman for interview demonstration purposes.</span>
+      <span data-i18n="footerRight">Access is granted only to approved reviewers.</span>
+    </footer>
+  </main>
+
+  <script>
+    const translations = {
+      en: {
+        dir: "ltr",
+        htmlLang: "en",
+        toggleText: "עברית",
+        brandTitle: "Eyal Sooliman",
+        brandSubtitle: "Senior Automation Developer & QA Lead · Full Automation Infrastructure Demo with LLM & Agents",
+        secureBadge: "Secured with Cloudflare Access",
+        eyebrow: "Personal technical demo for interviewers",
+        heroTitle: "LLM & Agent Infrastructure Demo for QA Automation.",
+        heroSubtitle: "Instead of only describing my experience, I wanted to show it. This demo reflects the way I work: taking an idea, building the automation infrastructure around it, using AI agents where they create real efficiency, and connecting everything into a working flow that a team can actually use.",
+        value1Title: "AI Agent Workflow",
+        value1Text: "Agents help convert product context into practical QA scenarios.",
+        value2Title: "Playwright Execution",
+        value2Text: "Generated scenarios are connected to real browser automation.",
+        value3Title: "MCP & Tool Integration",
+        value3Text: "MCP servers and tools support a smarter automation workflow.",
+        primaryCta: "Enter secured demo",
+        accessCta: "Enter the secured demo",
+        secondaryCta: "What to look for",
+        accessTitle: "Access instructions",
+        accessIntro: "The demo is protected because it runs real automation capabilities behind the scenes. Access is granted only to approved reviewer emails.",
+        step1Title: "Send me your email",
+        step1Text: "Use the email address you want to enter with.",
+        step2Title: "I approve it in Cloudflare",
+        step2Text: "Once approved, the access gate will recognize your email.",
+        step3Title: "Enter the demo",
+        step3Text: "Click the button, enter the approved email, and complete the Cloudflare verification flow.",
+        personalTitle: "A little about me",
+        personalQuote: "For me, strong automation is not only about writing tests. It is about building systems that help engineers move faster, understand risk earlier, and release with more confidence.",
+        personalText: "This is the mindset I bring into automation roles: practical ownership, technical depth, and the ability to connect QA, development and product needs into one scalable workflow.",
+        personalDemoText: "I build working tools, connect technologies, validate ideas quickly, and turn automation into something visible and valuable for the team.",
+        personalAiText: "The goal is to help engineers design better tests, reduce repetitive work, find gaps faster and make smarter QA decisions.",
+        linkedinText: "View my LinkedIn profile",
+        feature1Title: "What this demonstrates about me",
+        feature1Text: "I build working tools, connect technologies, validate ideas quickly, and turn automation into something visible and valuable for the team.",
+        feature2Title: "How I use AI in engineering",
+        feature2Text: "The goal is not to replace engineers. The goal is to help engineers design better tests, reduce repetitive work, find gaps faster and make smarter QA decisions.",
+        feature3Title: "AI Agent Workflow",
+        feature3Text: "Agents help analyze product context and convert it into practical QA scenarios that can be reviewed, improved and executed.",
+        feature4Title: "Playwright Execution",
+        feature4Text: "The demo connects generated scenarios to real browser automation, showing the bridge between test strategy and execution.",
+        feature5Title: "MCP & Tool Integration",
+        feature5Text: "MCP servers and supporting tools demonstrate how automation can become smarter, more connected and easier to extend.",
+        overviewTitle: "What I recommend looking at during the demo",
+        overviewSubtitle: "The UI is intentionally simple. The important part is the engineering thinking behind the flow: how requirements become scenarios, how scenarios become execution, and how results become insight.",
+        tagText: "Live technical demonstration",
+        flow1Small: "STEP 01",
+        flow1Title: "Start from product behavior",
+        flow1Text: "The flow begins from a real user or product scenario, not from random test code.",
+        flow2Small: "STEP 02",
+        flow2Title: "Generate testing intent",
+        flow2Text: "AI helps structure the scenario, expected behavior and automation direction.",
+        flow3Small: "STEP 03",
+        flow3Title: "Execute with Playwright",
+        flow3Text: "The scenario is connected to real browser automation instead of staying as documentation.",
+        flow4Small: "STEP 04",
+        flow4Title: "Explain the result",
+        flow4Text: "The output is meant to help people understand what happened and what should be improved next.",
+        talkingTitle: "Good interview discussion points",
+        talkingSubtitle: "These are the areas I would be happy to expand on during the interview.",
+        talk1Small: "ARCHITECTURE",
+        talk1Title: "How I would scale this in a real company",
+        talk1Text: "Repository structure, test ownership, CI integration, logs, reports and maintainability.",
+        talk2Small: "TEAM IMPACT",
+        talk2Title: "How I make automation usable for developers",
+        talk2Text: "Simple patterns, clear documentation, reusable helpers and mentoring across BE and FE teams.",
+        talk3Small: "AI STRATEGY",
+        talk3Title: "Where AI helps — and where it should not decide alone",
+        talk3Text: "Using AI for acceleration while keeping engineering judgment, review and reliability in the loop.",
+        talk4Small: "QUALITY MINDSET",
+        talk4Title: "How I connect quality to release confidence",
+        talk4Text: "Risk visibility, coverage thinking, faster feedback loops and data-driven QA decisions.",
+        closingTitle: "The message behind the demo",
+        closingText: "This demo is a compact example of how I approach automation work: I identify a real bottleneck, design the infrastructure, use AI as a practical accelerator, and build something that makes quality work easier for the entire team.",
+        footerLeft: "Created by Eyal Sooliman for interview demonstration purposes.",
+        footerRight: "Access is granted only to approved reviewers."
+      },
+      he: {
+        dir: "rtl",
+        htmlLang: "he",
+        toggleText: "English",
+        brandTitle: "Eyal Sooliman",
+        brandSubtitle: "Senior Automation Developer & QA Lead · דמו תשתית אוטומציה מלאה עם LLM ו־Agents",
+        secureBadge: "מאובטח באמצעות Cloudflare Access",
+        eyebrow: "דמו טכני אישי למראיינים",
+        heroTitle: "דמו תשתית LLM ו־Agents לאוטומציית QA.",
+        heroSubtitle: "במקום רק לספר על הניסיון שלי, רציתי להראות אותו. הדמו הזה משקף את הדרך שבה אני עובד: לקחת רעיון, לבנות סביבו תשתית אוטומציה, להשתמש ב־AI Agents רק במקומות שבהם הם באמת מייצרים יעילות, ולחבר הכול לתהליך עבודה אמיתי שצוות יכול להשתמש בו.",
+        value1Title: "תהליך עבודה עם AI Agents",
+        value1Text: "ה־agents עוזרים להמיר הקשר מוצרי לסנריוים פרקטיים של QA.",
+        value2Title: "הרצת Playwright",
+        value2Text: "סנריוים שנוצרים מחוברים לאוטומציית דפדפן אמיתית.",
+        value3Title: "שילוב MCP וכלי עבודה",
+        value3Text: "MCP Servers וכלים תומכים יוצרים תהליך אוטומציה חכם ומחובר יותר.",
+        primaryCta: "כניסה לדמו המאובטח",
+        accessCta: "כניסה לדמו המאובטח",
+        secondaryCta: "מה חשוב לראות",
+        accessTitle: "הוראות כניסה",
+        accessIntro: "הדמו מוגן כי מאחורי הקלעים רצות יכולות אוטומציה אמיתיות. הגישה ניתנת רק לאימיילים שאושרו מראש.",
+        step1Title: "שלחו לי אימייל",
+        step1Text: "יש להשתמש בכתובת האימייל שאיתה תרצו להיכנס.",
+        step2Title: "אני מאשר גישה ב־Cloudflare",
+        step2Text: "לאחר האישור, שער הכניסה יזהה את כתובת האימייל שלכם.",
+        step3Title: "נכנסים לדמו",
+        step3Text: "לוחצים על הכפתור, מזינים את האימייל שאושר, ומשלימים את תהליך האימות של Cloudflare.",
+        personalTitle: "קצת עליי",
+        personalQuote: "מבחינתי אוטומציה חזקה היא לא רק כתיבת טסטים. היא בניית מערכות שעוזרות למהנדסים לזוז מהר יותר, להבין סיכונים מוקדם יותר, ולשחרר גרסאות בביטחון גבוה יותר.",
+        personalText: "זו הגישה שאני מביא לתפקידי אוטומציה: בעלות מעשית, עומק טכני, והיכולת לחבר בין QA, פיתוח וצרכי מוצר לתהליך עבודה אחד שאפשר להרחיב.",
+        personalDemoText: "אני בונה כלים עובדים, מחבר טכנולוגיות, מאמת רעיונות מהר, והופך אוטומציה למשהו גלוי ובעל ערך עבור הצוות.",
+        personalAiText: "המטרה היא לעזור למהנדסים לתכנן טסטים טובים יותר, לצמצם עבודה חוזרת, למצוא פערים מהר יותר ולקבל החלטות QA חכמות יותר.",
+        linkedinText: "לפרופיל הלינקדאין שלי",
+        feature1Title: "מה הדמו מוכיח עליי",
+        feature1Text: "אני בונה כלים עובדים, מחבר טכנולוגיות, מאמת רעיונות מהר, והופך אוטומציה למשהו גלוי ובעל ערך עבור הצוות.",
+        feature2Title: "איך אני משתמש ב־AI באוטומציה",
+        feature2Text: "המטרה היא לעזור למהנדסים לתכנן טסטים טובים יותר, לצמצם עבודה חוזרת, למצוא פערים מהר יותר ולקבל החלטות QA חכמות יותר.",
+        feature3Title: "תהליך עבודה עם AI Agents",
+        feature3Text: "ה־agents עוזרים לנתח הקשר מוצרי ולהמיר אותו לסנריוים פרקטיים של QA שאפשר לסקור, לשפר ולהריץ.",
+        feature4Title: "הרצת Playwright",
+        feature4Text: "הדמו מחבר סנריוים שנוצרו לאוטומציית דפדפן אמיתית, ומציג את הגשר בין אסטרטגיית בדיקות לבין ביצוע בפועל.",
+        feature5Title: "שילוב MCP וכלי עבודה",
+        feature5Text: "MCP Servers וכלים תומכים מראים איך אוטומציה יכולה להיות חכמה יותר, מחוברת יותר וקלה יותר להרחבה.",
+        overviewTitle: "מה אני ממליץ לראות בזמן הדמו",
+        overviewSubtitle: "הממשק פשוט בכוונה. החלק החשוב הוא החשיבה ההנדסית מאחורי הזרימה: איך דרישות הופכות לסנריוים, איך סנריוים הופכים להרצה, ואיך תוצאות הופכות לתובנה.",
+        tagText: "הדגמה טכנית חיה",
+        flow1Small: "שלב 01",
+        flow1Title: "מתחילים מהתנהגות מוצרית",
+        flow1Text: "הזרימה מתחילה מסנריו אמיתי של משתמש או מוצר, לא מקוד טסטים אקראי.",
+        flow2Small: "שלב 02",
+        flow2Title: "יוצרים כוונת בדיקה",
+        flow2Text: "AI עוזר לבנות את הסנריו, ההתנהגות הצפויה וכיוון האוטומציה.",
+        flow3Small: "שלב 03",
+        flow3Title: "מריצים עם Playwright",
+        flow3Text: "הסנריו מחובר לאוטומציית דפדפן אמיתית במקום להישאר כתיעוד בלבד.",
+        flow4Small: "שלב 04",
+        flow4Title: "מסבירים את התוצאה",
+        flow4Text: "התוצאה נועדה לעזור להבין מה קרה ומה כדאי לשפר בהמשך.",
+        talkingTitle: "נקודות טובות לשיחה בראיון",
+        talkingSubtitle: "אלה הנושאים שאשמח להרחיב עליהם במהלך הראיון.",
+        talk1Small: "ARCHITECTURE",
+        talk1Title: "איך הייתי מרחיב את זה בחברה אמיתית",
+        talk1Text: "מבנה repository, בעלות על טסטים, שילוב CI, לוגים, דוחות ותחזוקה לאורך זמן.",
+        talk2Small: "TEAM IMPACT",
+        talk2Title: "איך אני הופך אוטומציה לשימושית עבור מפתחים",
+        talk2Text: "תבניות פשוטות, תיעוד ברור, helpers לשימוש חוזר ומנטורינג לצוותי BE ו־FE.",
+        talk3Small: "AI STRATEGY",
+        talk3Title: "איפה AI עוזר — ואיפה הוא לא אמור להחליט לבד",
+        talk3Text: "שימוש ב־AI להאצה, תוך שמירה על שיקול דעת הנדסי, review ואמינות.",
+        talk4Small: "QUALITY MINDSET",
+        talk4Title: "איך אני מחבר איכות לביטחון בשחרור גרסאות",
+        talk4Text: "נראות של סיכונים, חשיבה על coverage, feedback loops מהירים והחלטות QA מבוססות נתונים.",
+        closingTitle: "המסר מאחורי הדמו",
+        closingText: "הדמו הזה הוא דוגמה ממוקדת לאופן שבו אני ניגש לעבודת אוטומציה: לזהות bottleneck אמיתי, לתכנן תשתית, להשתמש ב־AI כמאיץ פרקטי, ולבנות משהו שמקל על עבודת האיכות של כל הצוות.",
+        footerLeft: "נוצר על ידי Eyal Sooliman לצורכי הדגמה בראיונות עבודה.",
+        footerRight: "הגישה ניתנת רק למראיינים שאושרו מראש."
+      }
+    };
+
+    const root = document.documentElement;
+    const body = document.body;
+    const toggleButton = document.getElementById("languageToggle");
+    const toggleText = document.getElementById("languageToggleText");
+
+    function applyLanguage(language) {
+      const dictionary = translations[language] || translations.en;
+      root.lang = dictionary.htmlLang;
+      root.dir = dictionary.dir;
+      body.dir = dictionary.dir;
+
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        const key = element.getAttribute("data-i18n");
+        if (dictionary[key]) element.textContent = dictionary[key];
+      });
+
+      toggleText.textContent = dictionary.toggleText;
+      localStorage.setItem("preferredLanguage", language);
+    }
+
+    function getCurrentLanguage() {
+      return localStorage.getItem("preferredLanguage") || "he";
+    }
+
+    toggleButton.addEventListener("click", () => {
+      const nextLanguage = getCurrentLanguage() === "en" ? "he" : "en";
+      applyLanguage(nextLanguage);
+    });
+
+    applyLanguage(getCurrentLanguage());
+  </script>
+</body>
+</html>
