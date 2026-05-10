@@ -1,0 +1,206 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Verify_accessibility_of_the_web_check_in_landing_page_for_users_with_disabilitie.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_accessibility_of_the_web_check_in_landing_page_for_users_with_disabilitie.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Verify_accessibility_of_the_web_check_in_landing_page_for_users_with_disabilitie.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+
+test.describe('Verify_accessibility_of_the_web_check_in_landing_page_for_users_with_disabilitie', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify accessibility of the web check-in landing page for users with disabilities' });
+  });
+
+  test('Verify accessibility of the web check-in landing page for users with disabilities', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData = {};
+    // =========================================
+    // STEP 1: NAVIGATE TO PAGE: HTTPS://WWW.ARKIA.CO.IL/HE/WEB-CHECKIN-LOGIN?UPDATETYPE=0
+    // =========================================
+    console.log('\n🚀 STEP 1: Navigate to page: https://www.arkia.co.il/he/web-checkin-login?updateType=0');
+
+    console.log('📍 Navigating to URL: https://www.arkia.co.il/he/web-checkin-login?updateType=0');
+    await page.goto('https://www.arkia.co.il/he/web-checkin-login?updateType=0', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    await handlePageInterruptions(page);
+    console.log('✅ Navigation completed successfully');
+    console.log('✅ Step 1 completed');
+
+    // =========================================
+    // STEP 2: ACTIVATE THE 'דילוג לתוכן המרכזי' (SKIP TO MAIN CONTENT) LINK USING KEYBOARD NAVIGATION (E.G., TAB KEY THEN ENTER)
+    // =========================================
+    console.log('\n🚀 STEP 2: Activate the 'דילוג לתוכן המרכזי' (Skip to main content) link using keyboard navigation (e.g., Tab key then Enter)');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 2: Fill action - field not recognized in step: Activate the 'דילוג לתוכן המרכזי' (Skip to main content) link using keyboard navigation (e.g., Tab key then Enter)');
+    // TODO: Implement fill action - field not recognized
+    console.log('✅ Step 2 completed');
+
+    // =========================================
+    // STEP 3: USE AN AUTOMATED ACCESSIBILITY TESTING TOOL (E.G., AXE-CORE, LIGHTHOUSE ACCESSIBILITY AUDIT) TO SCAN THE PAGE
+    // =========================================
+    console.log('\n🚀 STEP 3: Use an automated accessibility testing tool (e.g., Axe-core, Lighthouse Accessibility audit) to scan the page');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 3: Pattern not recognized - Use an automated accessibility testing tool (e.g., Axe-core, Lighthouse Accessibility audit) to scan the page');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 3 completed');
+
+    // =========================================
+    // STEP 4: MANUALLY VERIFY KEYBOARD NAVIGATION THROUGH ALL INTERACTIVE ELEMENTS (E.G., NAVIGATION LINKS, BUTTONS, COOKIE BANNER CLOSE BUTTON)
+    // =========================================
+    console.log('\n🚀 STEP 4: Manually verify keyboard navigation through all interactive elements (e.g., navigation links, buttons, cookie banner close button)');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 4: Pattern not recognized - Manually verify keyboard navigation through all interactive elements (e.g., navigation links, buttons, cookie banner close button)');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 4 completed');
+
+    // =========================================
+    // STEP 5: MANUALLY VERIFY THAT THE PAGE'S PRIMARY LANGUAGE IS CORRECTLY IDENTIFIED FOR SCREEN READERS.
+    // =========================================
+    console.log('\n🚀 STEP 5: Manually verify that the page's primary language is correctly identified for screen readers.');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 5: Pattern not recognized - Manually verify that the page's primary language is correctly identified for screen readers.');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 5 completed');
+
+    // Verification: The 'דילוג לתוכן המרכזי' link should successfully move the keyboard focus to the main content area of the page.
+    // Verification: The page should pass all automated accessibility checks with no critical or serious violations (e.g., WCAG 2.1 AA standards).
+    // Verification: All interactive elements should be reachable and operable via keyboard, with clear visual focus indicators.
+    // Verification: Screen readers should correctly announce the page title ('צ'ק אין Online בארקיע לטיסות אילת בלבד') and the main heading ('צ'ק-אין לטיסה').
+    // Verification: The HTML `lang` attribute should be correctly set to 'he' for Hebrew.
+    // Verification: Reason: Ensuring the web check-in page is accessible allows all passengers, including those with visual impairments or motor disabilities, to independently initiate their check-in process, which is a critical step before a flight. This aligns with legal requirements and provides an inclusive user experience.
+    // Custom verification for: The 'דילוג לתוכן המרכזי' link should successfully move the keyboard focus to the main content area of the page.
+    // The page should pass all automated accessibility checks with no critical or serious violations (e.g., WCAG 2.1 AA standards).
+    // All interactive elements should be reachable and operable via keyboard, with clear visual focus indicators.
+    // Screen readers should correctly announce the page title ('צ'ק אין Online בארקיע לטיסות אילת בלבד') and the main heading ('צ'ק-אין לטיסה').
+    // The HTML `lang` attribute should be correctly set to 'he' for Hebrew.
+    // Reason: Ensuring the web check-in page is accessible allows all passengers, including those with visual impairments or motor disabilities, to independently initiate their check-in process, which is a critical step before a flight. This aligns with legal requirements and provides an inclusive user experience.
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    console.log('Custom verification completed with generic page visibility check');
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+- Keep `handlePageInterruptions(page)` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If `inputDataProviders` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require `main` or `[role="main"]` for generic page-load verification unless the snapshot proves it exists. Prefer `body` plus visible content such as headings, nav, article, section, or body.
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.

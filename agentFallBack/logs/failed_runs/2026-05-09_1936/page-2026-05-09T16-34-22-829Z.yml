@@ -1,0 +1,118 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "דילוג לתוכן המרכזי" [ref=e3] [cursor=pointer]:
+      - /url: "#main-content"
+    - main [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e10]:
+          - text: 
+          - navigation "main menu" [ref=e14]:
+            - menubar [ref=e16]:
+              - list [ref=e17]:
+                - listitem [ref=e18] [cursor=pointer]:
+                  - button "טיסות וחופשות" [ref=e19]
+                - listitem [ref=e20] [cursor=pointer]:
+                  - button "היעדים שלנו" [ref=e21]
+                - listitem [ref=e22] [cursor=pointer]:
+                  - button "מידע לנוסעים" [ref=e23]
+                - listitem [ref=e24] [cursor=pointer]:
+                  - link "מדיניות ביטולים" [ref=e26]:
+                    - /url: /he/content/cancel-reservation
+                - menuitem [ref=e27] [cursor=pointer]:
+                  - link [ref=e29]:
+                    - /url: /he/content/contact-with-arkia
+                - menuitem "בחירת שפה" [ref=e30] [cursor=pointer]:
+                  - button "בחירת שפה" [ref=e31]: צ'ק אין Check In Online
+            - list [ref=e33]:
+              - button "נגישות צבעים - כבוי" [ref=e34] [cursor=pointer]:
+                - img [ref=e37]
+              - listitem [ref=e41]:
+                - link "אזור אישי" [ref=e42] [cursor=pointer]:
+                  - img [ref=e45]
+        - generic [ref=e48]:
+          - generic [ref=e52]:
+            - text: 
+            - generic [ref=e53]:
+              - generic [ref=e56]:
+                - heading "צ'ק-אין לטיסה" [level=1] [ref=e57]
+                - link "לתנאי השירות לחצו כאן>>" [ref=e58] [cursor=pointer]:
+                  - /url: content/checkin
+              - iframe [ref=e62]:
+                - generic [ref=f3e3]:
+                  - banner [ref=f3e4]:
+                    - img "Arkia Airlines" [ref=f3e5]
+                  - main [ref=f3e6]:
+                    - generic [ref=f3e7]:
+                      - generic [ref=f3e8]: v
+                      - heading "צ'ק-אין אונליין" [level=1] [ref=f3e9]
+                    - generic [ref=f3e12]:
+                      - paragraph [ref=f3e13]: יש להשלים את כל השדות מטה
+                      - generic [ref=f3e14]:
+                        - generic [ref=f3e15]:
+                          - generic [ref=f3e16]:
+                            - generic [ref=f3e17]: מספר הזמנה
+                            - textbox "מספר הזמנה" [ref=f3e19]
+                          - generic [ref=f3e20]:
+                            - generic [ref=f3e21]: מספר טיסה
+                            - generic [ref=f3e23]: IZ
+                            - textbox "מספר טיסה" [ref=f3e26]:
+                              - /placeholder: לדוגמה, 1234
+                          - generic [ref=f3e27]:
+                            - generic [ref=f3e28]: המראה מ
+                            - combobox "המראה מ" [ref=f3e30]:
+                              - option [selected]
+                              - option "Tel Aviv Yafo (TLV)"
+                              - option "Eilat (ETM)"
+                              - option "Tirana (TIA)"
+                              - option "Baku (GYD)"
+                              - option "Sarajevo (SJJ)"
+                              - option "Plovdiv (PDV)"
+                              - option "Sofia (SOF)"
+                              - option "Larnaca (LCA)"
+                              - option "Paphos (PFO)"
+                              - option "Prague (PRG)"
+                              - option "Lyon St-Exupéry (LYS)"
+                              - option "Paris (CDG)"
+                              - option "Batumi (BUS)"
+                              - option "Tbilisi (TBS)"
+                              - option "Athens (ATH)"
+                              - option "Budapest (BUD)"
+                              - option "Milan (MXP)"
+                              - option "Rome (FCO)"
+                              - option "Venice (VCE)"
+                              - option "Verona (VRN)"
+                              - option "Kaunas (KUN)"
+                              - option "Chisinau (RMO)"
+                              - option "Tivat (TIV)"
+                              - option "Amsterdam (AMS)"
+                              - option "Hilversum (QYI)"
+                              - option "Lisbon (LIS)"
+                              - option "Bucharest (OTP)"
+                              - option "Barcelona (BCN)"
+                              - option "Zanzibar (ZNZ)"
+                              - option "Bangkok (BKK)"
+                              - option "London (STN) (STN)"
+                              - option "New York (JFK)"
+                              - option "Hanoi (HAN)"
+                          - generic [ref=f3e31]:
+                            - generic [ref=f3e32]: תאריך המראה
+                            - combobox "תאריך המראה" [ref=f3e34]:
+                              - option "יום שבת, 9 במאי 2026"
+                              - option "יום ראשון, 10 במאי 2026" [selected]
+                              - option "יום שני, 11 במאי 2026"
+                              - option "יום שלישי, 12 במאי 2026"
+                        - button "המשך" [ref=f3e36] [cursor=pointer]: המשך
+              - generic [ref=e63]:
+                - img [ref=e66]
+                - generic [ref=e68]: הזמנה שבוצעה באמצעות סוכן נסיעות - נא לפנות לסוכן הנסיעות לטיפול בהזמנה קיימת. ניתן גם לפנות למוקד השירות (בתוספת דמי טיפול) או באתר ארקיע (בתהליך ווב צ'ק אין) החל מ- 24 שעות ממועד הטיסה
+          - generic "יעדים אשר ניתן לבצע צ'ק אין מחו\"ל לארץ:אמסטרדם,אתונה,ברצלונה,בטומי,טבילסי,פריז,לרנקה,פאפוס,טוויט,פראג,סופיה,זנזיבר,ניו יורק,רומא,באקו,ליסבון, ונציה,בודפשט, וייטנאם, תאילנד,לונדון צק אין אונליין נפתח 24 שעות לפני מועד הטיסה" [ref=e70]
+          - generic:
+            - generic:
+              - alertdialog
+  - region "אישור שימוש בקוקיז באתר" [ref=e72]:
+    - generic [ref=e73]:
+      - button "close אישור שימוש בקוקיז באתר" [ref=e76] [cursor=pointer]:
+        - img [ref=e77]
+      - link "לידיעתך, אנחנו משתמשים בעוגיות באתר זה. לפרטים נוספים" [ref=e81] [cursor=pointer]:
+        - paragraph [ref=e82]: לידיעתך, אנחנו משתמשים בעוגיות באתר זה. לפרטים נוספים
+  - navigation "return to the top of the page"

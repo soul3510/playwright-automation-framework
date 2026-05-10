@@ -11,15 +11,21 @@ const generatedDir = path.join(agentDir, "generated");
 const testsScenarioPath = path.join(repoRoot, "tests", "generated-from-agentFallBack", "scenario.txt");
 const generatedTestsDir = path.join(repoRoot, "tests", "generated-from-agentFallBack");
 const playwrightReportDir = path.join(repoRoot, "playwright-report");
+const testResultsDir = path.join(repoRoot, "test-results");
 const aiProviderStatusPath = path.join(generatedDir, "ai_provider_status.jsonl");
+const uiStatePath = path.join(generatedDir, "ui_state.json");
 const PORT = Number(process.env.AGENT_UI_PORT || 3789);
 
+const persistedUiState = loadPersistentUiState();
 let runState = {
     running: false,
     status: "idle",
     scenarioStatuses: [],
     testStatuses: [],
-    generatedTests: [],
+    scenarioDrafts: persistedUiState.scenarioDrafts,
+    discoveryInsight: persistedUiState.discoveryInsight,
+    generatedTests: listGeneratedTests(),
+    failureSummary: null,
     aiProviderStatus: [],
     reportUrl: null,
     logs: [],
@@ -77,11 +83,18 @@ async function readBody(req) {
 function runCommand(command, args, label, cwd = agentDir) {
     return new Promise((resolve) => {
         pushLog(`\n=== ${label} ===\n`);
-        const child = spawn(command, args, {
-            cwd,
-            shell: false,
-            env: { ...process.env }
-        });
+        let child;
+        try {
+            child = spawn(command, args, {
+                cwd,
+                shell: false,
+                env: { ...process.env }
+            });
+        } catch (error) {
+            pushLog(`Command failed to start: ${error.message}\n`);
+            resolve(1);
+            return;
+        }
 
         child.stdout.on("data", data => pushLog(data.toString()));
         child.stderr.on("data", data => pushLog(data.toString()));
@@ -92,6 +105,49 @@ function runCommand(command, args, label, cwd = agentDir) {
         child.on("close", code => {
             pushLog(`\n=== ${label} exited with ${code} ===\n`);
             resolve(code ?? 1);
+        });
+    });
+}
+
+function runCommandCapture(command, args, label, cwd = agentDir) {
+    return new Promise((resolve) => {
+        pushLog(`\n=== ${label} ===\n`);
+        let child;
+        let output = "";
+        try {
+            child = spawn(command, args, {
+                cwd,
+                shell: false,
+                env: { ...process.env }
+            });
+        } catch (error) {
+            const message = `Command failed to start: ${error.message}\n`;
+            pushLog(message);
+            resolve({ code: 1, output: message });
+            return;
+        }
+
+        child.stdout.on("data", data => {
+            const text = data.toString();
+            output += text;
+            pushLog(text);
+        });
+        child.stderr.on("data", data => {
+            const text = data.toString();
+            output += text;
+            pushLog(text);
+        });
+        child.on("error", error => {
+            const message = `Command failed to start: ${error.message}\n`;
+            output += message;
+            pushLog(message);
+            resolve({ code: 1, output });
+        });
+        child.on("close", code => {
+            const message = `\n=== ${label} exited with ${code} ===\n`;
+            output += message;
+            pushLog(message);
+            resolve({ code: code ?? 1, output });
         });
     });
 }
@@ -208,6 +264,23 @@ function resetTaskState(source = "manual") {
     pushLog("Run state reset. Previous bug reports cleared.\n");
 }
 
+function readTaskStateSafe() {
+    const statePath = path.join(agentDir, "task_state.json");
+    try {
+        if (!fs.existsSync(statePath)) return {};
+        return JSON.parse(fs.readFileSync(statePath, "utf8"));
+    } catch {
+        return {};
+    }
+}
+
+function didExhaustHealingRetries() {
+    const healer = readTaskStateSafe().healer || {};
+    const attempts = Number(healer.healingAttempts || 0);
+    const maxRetries = Number(healer.maxRetries || 15);
+    return healer.completed === false && attempts >= maxRetries;
+}
+
 function scenarioSubject(text, fallback) {
     const match = String(text || "").match(/^Subject:\s*(.+)$/mi);
     return match ? match[1].trim() : fallback;
@@ -254,7 +327,291 @@ function readAiProviderStatus(limit = 20) {
         .filter(Boolean);
 }
 
-async function runGeneratedTests({ files, all = false }) {
+function findLatestFile(rootDir, extensions) {
+    if (!fs.existsSync(rootDir)) return null;
+    const wanted = new Set(extensions.map(ext => ext.toLowerCase()));
+    let latest = null;
+
+    const walk = (dir) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(fullPath);
+                continue;
+            }
+            if (!entry.isFile() || !wanted.has(path.extname(entry.name).toLowerCase())) continue;
+            const stat = fs.statSync(fullPath);
+            if (!latest || stat.mtimeMs > latest.mtimeMs) {
+                latest = { fullPath, mtimeMs: stat.mtimeMs, lastModified: stat.mtime.toISOString() };
+            }
+        }
+    };
+
+    walk(rootDir);
+    return latest;
+}
+
+function latestErrorContexts(limit = 5) {
+    if (!fs.existsSync(testResultsDir)) return [];
+    const contexts = [];
+
+    const walk = (dir) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(fullPath);
+                continue;
+            }
+            if (entry.isFile() && entry.name === "error-context.md") {
+                const stat = fs.statSync(fullPath);
+                contexts.push({ fullPath, mtimeMs: stat.mtimeMs });
+            }
+        }
+    };
+
+    walk(testResultsDir);
+    return contexts
+        .sort((a, b) => b.mtimeMs - a.mtimeMs)
+        .slice(0, limit)
+        .map(context => {
+            const text = fs.readFileSync(context.fullPath, "utf8");
+            return {
+                path: context.fullPath,
+                relativePath: path.relative(testResultsDir, context.fullPath).replace(/\\/g, "/"),
+                text
+            };
+        });
+}
+
+function plainEnglishReason(errorText) {
+    const text = String(errorText || "");
+    const lower = text.toLowerCase();
+    if (lower.includes("cannot navigate to invalid url")) {
+        return {
+            reason: "The test tried to open a partial URL, but Playwright needs a full URL unless the project has a base URL configured.",
+            nextAction: "Update the generated test to use the full site URL, or configure Playwright baseURL for this project."
+        };
+    }
+    if (lower.includes("timeout") || lower.includes("timed out")) {
+        return {
+            reason: "The test waited too long for something to appear or finish loading.",
+            nextAction: "Open the screenshot/report and check whether the page was slow, blocked by a popup, or using a different element than expected."
+        };
+    }
+    if (lower.includes("strict mode violation")) {
+        return {
+            reason: "The test found more than one matching element and did not know which one to use.",
+            nextAction: "Make the selector more specific, for example by using visible text, role, or a nearby label."
+        };
+    }
+    if (lower.includes("expect(") || lower.includes("to be visible") || lower.includes("tobevisible")) {
+        return {
+            reason: "An expected element or text was not visible on the page.",
+            nextAction: "Check the screenshot to see whether the page content changed, a modal is covering it, or the test expectation is too strict."
+        };
+    }
+    if (lower.includes("net::") || lower.includes("navigation failed")) {
+        return {
+            reason: "The browser could not load the page or a required network request failed.",
+            nextAction: "Verify the URL is reachable in Chrome and check whether the site blocks automation or requires login/location/cookies."
+        };
+    }
+    return {
+        reason: "Playwright reported a test failure. The detailed error and report contain the exact technical evidence.",
+        nextAction: "Open the screenshot and Playwright report, then adjust the scenario, selector, wait, or test data based on what is visible."
+    };
+}
+
+function buildFailureSummary({ output, selectedNames, exitCode }) {
+    if (exitCode === 0) return null;
+
+    const contexts = latestErrorContexts(5);
+    const contextText = contexts.map(context => context.text).join("\n\n");
+    const combined = `${contextText}\n\n${output || ""}`;
+    const nameMatch = combined.match(/- Name:\s*(.+)/) || combined.match(/\]\s+›\s+(.+)/);
+    const locationMatch = combined.match(/- Location:\s*(.+)/) || combined.match(/\n\s+at\s+(.+:\d+:\d+)/);
+    const errorBlockMatch = combined.match(/# Error details\s*```([\s\S]*?)```/) || combined.match(/\n\s*(Error:[\s\S]*?)(?:\n\s+at |\n\s*attachment|\n\s*\d+\s+failed|$)/);
+    const stepMatch = combined.match(/(?:STEP|Step)\s+\d+[:\s-]+([^\n]+)/);
+    const errorText = (errorBlockMatch?.[1] || errorBlockMatch?.[0] || "No detailed Playwright error was found.").trim();
+    const friendly = plainEnglishReason(errorText);
+    const screenshot = findLatestFile(testResultsDir, [".png", ".jpg", ".jpeg"]);
+
+    return {
+        title: "Some generated tests failed",
+        failedTest: (nameMatch?.[1] || selectedNames[0] || "Unknown test").trim(),
+        failedStep: stepMatch?.[0]?.trim() || "Could not detect the exact step from the logs.",
+        location: (locationMatch?.[1] || "Open the Playwright report for the exact file and line.").trim(),
+        plainReason: friendly.reason,
+        technicalError: errorText.split(/\r?\n/).slice(0, 8).join("\n"),
+        nextAction: friendly.nextAction,
+        screenshotUrl: screenshot ? `/test-results/${path.relative(testResultsDir, screenshot.fullPath).replace(/\\/g, "/")}?t=${Math.round(screenshot.mtimeMs)}` : "",
+        reportUrl: "/playwright-report/index.html"
+    };
+}
+
+function currentPreviewState() {
+    const runningTest = runState.testStatuses?.find(item => item.status === "running")
+        || runState.testStatuses?.find(item => item.status === "queued")
+        || null;
+    const runningScenario = runState.scenarioStatuses?.find(item => item.status === "running")
+        || runState.scenarioStatuses?.find(item => item.status === "queued")
+        || null;
+    const latestScreenshot = findLatestFile(testResultsDir, [".png", ".jpg", ".jpeg"]);
+
+    return {
+        title: runningTest?.name || runningScenario?.title || "No active test",
+        status: runningTest?.status || runningScenario?.status || runState.status || "idle",
+        screenshotUrl: latestScreenshot
+            ? `/test-results/${path.relative(testResultsDir, latestScreenshot.fullPath).replace(/\\/g, "/")}?t=${Math.round(latestScreenshot.mtimeMs)}`
+            : "",
+        screenshotUpdatedAt: latestScreenshot?.lastModified || "",
+        reportUrl: runState.reportUrl || ""
+    };
+}
+
+function loadPersistentUiState() {
+    if (!fs.existsSync(uiStatePath)) {
+        const scenarioDrafts = scenarioDraftsFromGeneratedTests();
+        return {
+            scenarioDrafts,
+            discoveryInsight: scenarioDrafts.length ? "Restored from generated test files." : ""
+        };
+    }
+
+    try {
+        const parsed = JSON.parse(fs.readFileSync(uiStatePath, "utf8"));
+        const hasSavedDrafts = Array.isArray(parsed.scenarioDrafts);
+        const scenarioDrafts = hasSavedDrafts ? normalizeScenarioDrafts(parsed.scenarioDrafts) : scenarioDraftsFromGeneratedTests();
+        return {
+            scenarioDrafts,
+            discoveryInsight: String(parsed.discoveryInsight || (!hasSavedDrafts && scenarioDrafts.length ? "Restored from generated test files." : ""))
+        };
+    } catch {
+        const scenarioDrafts = scenarioDraftsFromGeneratedTests();
+        return {
+            scenarioDrafts,
+            discoveryInsight: scenarioDrafts.length ? "Restored from generated test files." : ""
+        };
+    }
+}
+
+function savePersistentUiState() {
+    try {
+        fs.mkdirSync(generatedDir, { recursive: true });
+        fs.writeFileSync(uiStatePath, JSON.stringify({
+            scenarioDrafts: normalizeScenarioDrafts(runState.scenarioDrafts),
+            discoveryInsight: runState.discoveryInsight || "",
+            generatedTests: listGeneratedTests(),
+            updatedAt: new Date().toISOString()
+        }, null, 2), "utf8");
+    } catch (error) {
+        pushLog(`Could not save UI state: ${error.message}\n`);
+    }
+}
+
+function normalizeScenarioDrafts(drafts) {
+    return (Array.isArray(drafts) ? drafts : [])
+        .slice(0, 10)
+        .map((item, index) => {
+            const text = String(item?.text || "").trim();
+            const id = String(item?.id || `scenario-${index + 1}`);
+            return {
+                id,
+                title: String(item?.title || scenarioSubject(text, `Scenario ${index + 1}`)),
+                category: String(item?.category || "SCENARIO"),
+                selected: item?.selected === undefined ? index === 0 : item.selected !== false,
+                open: item?.open === true || index === 0,
+                text
+            };
+        })
+        .filter(item => item.text);
+}
+
+function scenarioDraftsFromGeneratedTests() {
+    return listGeneratedTests().slice(0, 10).map((testFile, index) => {
+        const absolutePath = path.join(generatedTestsDir, testFile.name);
+        let content = "";
+        try {
+            content = fs.readFileSync(absolutePath, "utf8");
+        } catch {
+            content = "";
+        }
+
+        const testTitleMatch = content.match(/test\(\s*['"`]([^'"`]+)['"`]/);
+        const descriptionMatch = content.match(/description:\s*['"`]([^'"`]+)['"`]/i);
+        const title = testTitleMatch?.[1] || descriptionMatch?.[1] || testFile.name.replace(/\.test\.ts$/i, "").replace(/_/g, " ");
+        const category = /api|endpoint|response/i.test(title) ? "BE_API" : "UI_E2E";
+
+        return {
+            id: `generated-test-${index + 1}`,
+            title,
+            category,
+            selected: false,
+            open: index === 0,
+            text: [
+                `Subject: ${title}`,
+                "User: no user",
+                "Steps:",
+                `1. Review generated test file: ${testFile.relativePath}`,
+                "2. Run the generated Playwright test from the Generated Tests section",
+                "3. Review the Playwright report for pass/fail evidence",
+                "",
+                "Expected:",
+                "The generated test executes successfully and reports reliable validation results.",
+                "",
+                "Additional:",
+                `Category: ${category}`,
+                `Restored from generated test file: ${testFile.name}`
+            ].join("\n")
+        };
+    });
+}
+
+function cleanReviewArtifacts() {
+    fs.mkdirSync(path.dirname(testsScenarioPath), { recursive: true });
+    fs.writeFileSync(testsScenarioPath, "", "utf8");
+
+    if (fs.existsSync(generatedTestsDir)) {
+        for (const file of fs.readdirSync(generatedTestsDir)) {
+            if (file.endsWith(".test.ts")) {
+                fs.unlinkSync(path.join(generatedTestsDir, file));
+            }
+        }
+    }
+
+    if (fs.existsSync(uiStatePath)) {
+        fs.unlinkSync(uiStatePath);
+    }
+
+    runState.scenarioDrafts = [];
+    runState.discoveryInsight = "";
+    runState.scenarioStatuses = [];
+    runState.testStatuses = [];
+    runState.generatedTests = [];
+    runState.failureSummary = null;
+    runState.reportUrl = null;
+    runState.exitCode = null;
+    runState.status = "idle";
+    savePersistentUiState();
+}
+
+function discoveryInsightFromResult(result) {
+    if (result?.sitePurpose) {
+        const users = Array.isArray(result.primaryUsers) && result.primaryUsers.length
+            ? ` Users: ${result.primaryUsers.slice(0, 3).join(", ")}.`
+            : "";
+        const goals = Array.isArray(result.mainUserGoals) && result.mainUserGoals.length
+            ? ` Goals: ${result.mainUserGoals.slice(0, 3).join(", ")}.`
+            : "";
+        return `Semantic discovery: ${result.sitePurpose}${users}${goals}`;
+    }
+
+    return result?.generationMode === "rule-based-fallback"
+        ? "Rule-based fallback discovery was used."
+        : "";
+}
+
+async function runGeneratedTests({ files, all = false, parallel = false }) {
     if (runState.running) {
         throw new Error("Agent is already running.");
     }
@@ -264,6 +621,9 @@ async function runGeneratedTests({ files, all = false }) {
     if (!selectedNames.length) {
         throw new Error("No generated tests selected.");
     }
+
+    const preservedScenarioDrafts = normalizeScenarioDrafts(runState.scenarioDrafts);
+    const preservedDiscoveryInsight = runState.discoveryInsight || "";
 
     runState = {
         running: true,
@@ -276,38 +636,57 @@ async function runGeneratedTests({ files, all = false }) {
             startedAt: null,
             finishedAt: null
         })),
+        scenarioDrafts: preservedScenarioDrafts,
+        discoveryInsight: preservedDiscoveryInsight,
         generatedTests: tests,
+        failureSummary: null,
         reportUrl: null,
         logs: [],
         startedAt: new Date().toISOString(),
         finishedAt: null,
         exitCode: null
     };
+    savePersistentUiState();
 
     try {
-        pushLog(`Running ${selectedNames.length} generated test file(s).\n`);
+        pushLog(`Running ${selectedNames.length} generated test file(s)${parallel ? " in parallel" : ""}.\n`);
         runState.testStatuses.forEach(test => {
             test.status = "running";
             test.startedAt = new Date().toISOString();
         });
 
-        const npxCommand = process.platform === "win32" ? "npx.cmd" : "npx";
+        const playwrightCli = [
+            path.join(repoRoot, "node_modules", "playwright", "cli.js"),
+            path.join(agentDir, "node_modules", "playwright", "cli.js")
+        ].find(candidate => fs.existsSync(candidate));
+        const playwrightCommand = playwrightCli
+            ? process.execPath
+            : process.platform === "win32" ? "npx.cmd" : "npx";
+        const playwrightArgsPrefix = playwrightCli
+            ? [playwrightCli]
+            : ["playwright"];
         const relativePaths = selectedNames.map(name => `tests/generated-from-agentFallBack/${name}`);
-        const exitCode = await runCommand(
-            npxCommand,
-            ["playwright", "test", ...relativePaths, "--project=chromium"],
+        const workerArgs = parallel
+            ? ["--workers", String(Math.min(Math.max(selectedNames.length, 1), 6))]
+            : ["--workers", "1"];
+        const result = await runCommandCapture(
+            playwrightCommand,
+            [...playwrightArgsPrefix, "test", ...relativePaths, "--project=chromium", ...workerArgs],
             all ? "Run all generated tests" : "Run selected generated tests",
             repoRoot
         );
+        const exitCode = result.code;
 
         runState.testStatuses.forEach(test => {
-            test.status = exitCode === 0 ? "passed" : "completed";
+            test.status = exitCode === 0 ? "passed" : "needs_attention";
             test.finishedAt = new Date().toISOString();
         });
         runState.status = exitCode === 0 ? "passed" : "failed";
         runState.exitCode = exitCode;
         runState.reportUrl = "/playwright-report/index.html";
+        runState.failureSummary = buildFailureSummary({ output: result.output, selectedNames, exitCode });
         runState.generatedTests = listGeneratedTests();
+        savePersistentUiState();
         pushLog(`\nPlaywright report: http://localhost:${PORT}${runState.reportUrl}\n`);
     } catch (error) {
         pushLog(`\nGenerated test run error: ${error.message}\n`);
@@ -319,21 +698,37 @@ async function runGeneratedTests({ files, all = false }) {
         });
         runState.status = "failed";
         runState.exitCode = 1;
+        runState.failureSummary = {
+            title: "The test runner could not complete",
+            failedTest: "Generated test run",
+            failedStep: "Starting or running Playwright",
+            location: "UI generated test runner",
+            plainReason: "The test command failed before a normal Playwright result could be created.",
+            technicalError: error.message,
+            nextAction: "Check that Playwright is installed and restart the UI server, then try running the test again.",
+            screenshotUrl: "",
+            reportUrl: runState.reportUrl || ""
+        };
     } finally {
         runState.running = false;
         runState.finishedAt = new Date().toISOString();
     }
 }
 
-async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, inputDataOptions }) {
+async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, inputDataOptions, scenarioDrafts }) {
     if (runState.running) {
         throw new Error("Agent is already running.");
     }
+
+    const preservedScenarioDrafts = normalizeScenarioDrafts(scenarioDrafts?.length ? scenarioDrafts : runState.scenarioDrafts);
+    const preservedDiscoveryInsight = runState.discoveryInsight || "";
 
     runState = {
         running: true,
         status: "running",
         scenarioStatuses: [],
+        scenarioDrafts: preservedScenarioDrafts,
+        discoveryInsight: preservedDiscoveryInsight,
         generatedTests: listGeneratedTests(),
         aiProviderStatus: readAiProviderStatus(),
         logs: [],
@@ -341,6 +736,7 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
         finishedAt: null,
         exitCode: null
     };
+    savePersistentUiState();
 
     try {
         fs.mkdirSync(generatedDir, { recursive: true });
@@ -352,6 +748,18 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
 
         if (selectedScenarios.length === 0) {
             throw new Error("At least one scenario is required.");
+        }
+
+        if (!runState.scenarioDrafts.length) {
+            runState.scenarioDrafts = normalizeScenarioDrafts(selectedScenarios.map((text, index) => ({
+                id: `scenario-${index + 1}`,
+                title: scenarioSubject(text, `Scenario ${index + 1}`),
+                category: "SCENARIO",
+                selected: true,
+                open: index === 0,
+                text
+            })));
+            savePersistentUiState();
         }
 
         runState.scenarioStatuses = selectedScenarios.map((text, index) => ({
@@ -401,11 +809,13 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
             for (const [script, args, label] of steps) {
                 pipelineCode = await runCommand(process.execPath, [script, ...args], label);
                 runState.generatedTests = listGeneratedTests();
+                savePersistentUiState();
                 if (pipelineCode !== 0) break;
             }
 
             await runCommand(process.execPath, ["7_reporter.mjs"], `${scenarioLabel}: Final report`);
             runState.generatedTests = listGeneratedTests();
+            savePersistentUiState();
 
             if (pipelineCode === 0) {
                 runState.scenarioStatuses[i].status = "passed";
@@ -413,9 +823,10 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
                 runState.scenarioStatuses[i].exitCode = 0;
                 await runCommand(process.execPath, ["cleanup_generated.mjs"], `${scenarioLabel}: Post-success cleanup`);
                 runState.generatedTests = listGeneratedTests();
+                savePersistentUiState();
             } else {
                 finalCode = pipelineCode;
-                runState.scenarioStatuses[i].status = "failed";
+                runState.scenarioStatuses[i].status = didExhaustHealingRetries() ? "needs_attention" : "failed";
                 runState.scenarioStatuses[i].finishedAt = new Date().toISOString();
                 runState.scenarioStatuses[i].exitCode = pipelineCode;
                 await runCommand(process.execPath, ["cleanup_generated.mjs", "--archive"], `${scenarioLabel}: Archive failed run metadata`);
@@ -1024,13 +1435,13 @@ async function suggestScenariosFromUrl(url, requestedCount = 3, requestedTypes =
     return { scenario: scenarios[0]?.text || "", scenarios, snapshot, generationMode: "rule-based-fallback" };
 }
 
-function pageHtml(initialScenario) {
+function pageHtml(initialScenario, initialUiState = {}) {
     return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Playwright Automation Agent</title>
+  <title>QA Agent Review Console</title>
   <style>
     :root { color-scheme: light; --ink:#202124; --muted:#5f6368; --line:#d8dde6; --panel:#ffffff; --accent:#0b57d0; --ok:#147a3c; --warn:#b06000; --bg:#f5f7fb; }
     * { box-sizing: border-box; }
@@ -1038,14 +1449,15 @@ function pageHtml(initialScenario) {
     header { background: #102033; color: white; padding: 20px 28px; }
     header h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: 0; }
     header p { margin: 4px 0 0; color: #c9d7e8; }
-    main { max-width: 1180px; margin: 0 auto; padding: 22px; display: grid; grid-template-columns: minmax(0, 1.25fr) 420px; gap: 18px; align-items: start; }
+    main { width: 100%; max-width: none; margin: 0; padding: 22px; display: block; }
+    main > section { width: 100%; }
     section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
     h2 { margin: 0 0 12px; font-size: 16px; }
     label { display: block; font-weight: 600; margin: 12px 0 6px; }
-    textarea, input[type="url"], input[type="number"] { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 10px; font: 13px/1.4 Consolas, monospace; resize: vertical; background: white; }
+    textarea, input[type="url"], input[type="number"], select { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 10px; font: 13px/1.4 Consolas, monospace; resize: vertical; background: white; }
     textarea { min-height: 230px; }
-    input[type="url"], input[type="number"] { font-family: inherit; }
-    input[type="number"] { max-width: 96px; }
+    input[type="url"], input[type="number"], select { font-family: inherit; }
+    input[type="number"], select { max-width: 120px; }
     .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .row label { margin: 0; font-weight: 500; }
     button { border: 0; border-radius: 6px; padding: 10px 14px; font-weight: 650; cursor: pointer; background: var(--accent); color: white; }
@@ -1053,15 +1465,83 @@ function pageHtml(initialScenario) {
     button.danger { background: #fce8e6; color: #9b1c14; }
     button:disabled { opacity: .55; cursor: wait; }
     .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+    .review-modal { border: 1px solid #b7c9ef; border-radius: 8px; background: #f7faff; padding: 14px; box-shadow: inset 4px 0 0 #0b57d0; }
+    .review-modal h2 { margin: 0 0 10px; }
+    .process-progress { border: 1px solid #c8d7f4; border-radius: 8px; background: #fff; padding: 12px; margin-top: 12px; display: grid; gap: 8px; }
+    .progress-topline { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 12px; color: #27415f; }
+    .progress-title { font-weight: 700; color: var(--ink); }
+    .progress-track { height: 10px; background: #e8eef8; border-radius: 999px; overflow: hidden; }
+    .progress-bar { width: 0%; height: 100%; background: #0b57d0; border-radius: 999px; transition: width .35s ease; }
+    .progress-caption { font-size: 12px; color: var(--muted); }
+    .review-flow { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 18px; margin: 0; }
+    .flow-step { position: relative; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 10px; color: #27415f; font-size: 12px; min-height: 72px; }
+    .flow-step:not(:last-child)::after { content: "→"; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: #0b57d0; font-weight: 800; font-size: 18px; }
+    .flow-step strong { display: block; color: var(--ink); font-size: 13px; margin-bottom: 2px; }
+    .review-modal-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .review-modal-head h2 { margin: 0; }
+    .flow-step { text-align: left; font-weight: 500; }
+    .flow-step:hover { border-color: #9bb7e4; background: #f8fafd; }
+    .review-flow .flow-step:not(:last-child)::after { content: "->"; right: -17px; font-size: 15px; }
+    .walkthrough-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(16, 32, 51, .45); display: none; align-items: center; justify-content: center; padding: 18px; }
+    .walkthrough-backdrop.visible { display: flex; }
+    .walkthrough-dialog { width: min(720px, 100%); max-height: calc(100vh - 36px); overflow-y: auto; overflow-x: hidden; background: #fff; border-radius: 8px; box-shadow: 0 22px 70px rgba(16, 32, 51, .36); border: 1px solid var(--line); }
+    .walkthrough-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 16px 18px; background: #102033; color: #fff; }
+    .walkthrough-header h2 { margin: 0; font-size: 16px; }
+    .walkthrough-header button { background: #e8eef8; color: #123; padding: 7px 10px; }
+    .walkthrough-body { padding: 18px; display: grid; gap: 12px; }
+    .walkthrough-step-label { color: #5f6368; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .walkthrough-title { margin: 0; font-size: 20px; }
+    .walkthrough-mini-progress { color: #27415f; font-size: 12px; font-weight: 700; }
+    .walkthrough-card { border: 1px solid var(--line); border-radius: 8px; background: #fbfcff; padding: 12px; }
+    .walkthrough-card, .walkthrough-body, .wizard-list, .wizard-row { min-width: 0; max-width: 100%; }
+    .walkthrough-card strong { display: block; margin-bottom: 5px; }
+    .url-preview { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+    .walkthrough-card textarea { min-height: 150px; }
+    .activity-feed { display: grid; gap: 8px; margin-top: 8px; }
+    .activity-step { display: flex; align-items: center; gap: 8px; color: #5f6368; font-size: 13px; }
+    .activity-dot { width: 9px; height: 9px; border-radius: 99px; background: #c5cbd3; flex: 0 0 auto; }
+    .activity-step.active { color: #8a4b00; font-weight: 650; }
+    .activity-step.active .activity-dot { background: var(--warn); animation: pulse 1s infinite; }
+    .activity-step.done { color: #137333; }
+    .activity-step.done .activity-dot { background: var(--ok); }
+    .activity-step.failed { color: #a50e0e; font-weight: 650; }
+    .activity-step.failed .activity-dot { background: #c5221f; }
+    .wizard-list { display: grid; gap: 10px; max-height: 340px; overflow: auto; padding-right: 4px; }
+    .wizard-row { border: 1px solid var(--line); border-radius: 8px; background: #fbfcff; padding: 12px; display: grid; gap: 8px; }
+    .wizard-row-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .wizard-scenario-details { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
+    .wizard-scenario-details summary { background: #fbfcff; }
+    .wizard-scenario-body { padding: 12px; display: grid; gap: 10px; }
+    .summary-remove { padding: 5px 8px; font-size: 11px; }
+    .walkthrough-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 0 18px 18px; }
+    .section-heading { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 6px 0 2px; }
+    .section-heading h3 { margin: 0; font-size: 15px; }
     .toolbar { justify-content: space-between; margin-top: 8px; }
     .scenario-list { display: grid; gap: 10px; }
     .test-list { display: grid; gap: 8px; max-height: 220px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfcff; }
     .test-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px; border-radius: 6px; background: #fff; border: 1px solid #edf1f7; }
     .test-name { font-family: Consolas, monospace; font-size: 12px; overflow-wrap: anywhere; }
+    .failure-summary { display: none; border: 1px solid #f4b4ae; border-radius: 8px; background: #fff7f6; padding: 14px; margin-top: 12px; }
+    .failure-summary.visible { display: grid; gap: 10px; }
+    .failure-summary h3 { margin: 0; font-size: 15px; color: #a50e0e; }
+    .failure-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+    .failure-item { border: 1px solid #f8d0cc; border-radius: 6px; background: #fff; padding: 10px; }
+    .failure-item strong { display: block; font-size: 12px; color: #5f6368; margin-bottom: 4px; }
+    .failure-summary pre { height: auto; max-height: 160px; margin: 0; background: #2b1618; }
+    .failure-summary img { max-width: 100%; border: 1px solid var(--line); border-radius: 6px; }
+    .run-summary { display: none; border: 1px solid #b7c9ef; border-radius: 8px; background: #f7faff; padding: 14px; margin-top: 12px; }
+    .run-summary.visible { display: grid; gap: 10px; }
+    .run-summary h3 { margin: 0; font-size: 15px; color: #174ea6; }
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+    .summary-item { border: 1px solid #d6e2fb; border-radius: 6px; background: #fff; padding: 10px; }
+    .summary-item strong { display: block; font-size: 12px; color: #5f6368; margin-bottom: 4px; }
+    .summary-number { font-size: 22px; font-weight: 700; color: #174ea6; }
     .input-data-panel { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fbfcff; display: grid; gap: 10px; }
     .input-data-grid { display: grid; gap: 8px; }
     .input-data-row { display: grid; grid-template-columns: minmax(120px, .45fr) minmax(180px, 1fr); gap: 10px; align-items: center; }
     .input-data-row span { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+    .insight-frame { border: 1px solid var(--line); border-radius: 8px; background: #fbfcff; padding: 10px 12px; margin: 10px 0 12px; color: #3c4960; }
+    .insight-frame:empty { display: none; }
     details.scenario-card { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
     details.scenario-card[open] { border-color: #9bb7e4; }
     summary { cursor: pointer; list-style: none; padding: 10px 12px; background: #f8fafd; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
@@ -1072,7 +1552,7 @@ function pageHtml(initialScenario) {
     .scenario-status.queued { background: #f1f3f4; color: #3c4043; }
     .scenario-status.running { background: #fff4e5; color: #8a4b00; border-color: #f5c277; }
     .scenario-status.passed { background: #e6f4ea; color: #137333; border-color: #a8dab5; }
-    .scenario-status.failed { background: #fce8e6; color: #a50e0e; border-color: #f4b4ae; }
+    .scenario-status.failed, .scenario-status.needs_attention { background: #fce8e6; color: #a50e0e; border-color: #f4b4ae; }
     .scenario-status.ready { background: #e8eef8; color: #174ea6; border-color: #b7c9ef; }
     .scenario-status.completed { background: #e8eef8; color: #174ea6; border-color: #b7c9ef; }
     .agent-work-status { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; font-size: 12px; color: #27415f; background: #f8fafd; }
@@ -1082,50 +1562,83 @@ function pageHtml(initialScenario) {
     .agent-work-status.failed::before { background: #c5221f; }
     .scenario-body { padding: 12px; display: grid; gap: 10px; }
     .empty-state { border: 1px dashed var(--line); border-radius: 8px; padding: 16px; color: var(--muted); background: #fbfcff; }
-    .status { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; background: #fff; }
+    .status { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; background: #fff; color: #202124; }
     .dot { width: 9px; height: 9px; border-radius: 99px; background: var(--muted); }
     .status.running .dot { background: var(--warn); animation: pulse 1s infinite; }
     .status.passed .dot { background: var(--ok); }
     .status.failed .dot { background: #c5221f; }
     @keyframes pulse { 50% { opacity: .35; } }
-    .floating-console { position: fixed; right: 18px; bottom: 18px; z-index: 50; width: min(430px, calc(100vw - 36px)); max-height: min(420px, calc(100vh - 36px)); box-shadow: 0 14px 42px rgba(16, 32, 51, .28); padding: 0; overflow: hidden; }
-    .floating-console.expanded { width: min(860px, calc(100vw - 36px)); max-height: calc(100vh - 36px); }
+    .review-drawer-toggle { position: fixed; right: 18px; bottom: 18px; z-index: 51; box-shadow: 0 12px 34px rgba(16, 32, 51, .24); }
+    .review-side-drawer { position: fixed; top: 0; right: 0; z-index: 60; width: min(760px, calc(100vw - 28px)); height: 100vh; background: #f5f7fb; border-left: 1px solid var(--line); box-shadow: -18px 0 44px rgba(16, 32, 51, .24); transform: translateX(100%); transition: transform .22s ease; display: grid; grid-template-rows: auto 1fr; padding: 0; }
+    .review-side-drawer.open { transform: translateX(0); }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; background: #102033; color: #fff; }
+    .drawer-header h2 { margin: 0; font-size: 15px; }
+    .drawer-header button { background: #e8eef8; color: #123; padding: 7px 10px; }
+    .drawer-body { overflow: auto; padding: 14px; display: grid; gap: 14px; align-content: start; }
+    .drawer-panel { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 0; overflow: hidden; box-shadow: 0 10px 28px rgba(16, 32, 51, .10); }
     .console-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; background: #102033; color: #fff; }
     .console-header h2 { margin: 0; font-size: 14px; }
     .console-actions { display: flex; align-items: center; gap: 8px; }
     .console-actions button { padding: 7px 9px; background: #e8eef8; color: #123; }
+    .preview-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; background: #1f3a2e; color: #fff; }
+    .preview-header h2 { margin: 0; font-size: 14px; }
+    .preview-body { padding: 12px; background: var(--panel); display: grid; gap: 10px; }
+    .preview-meta { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+    .preview-title { font-weight: 650; color: var(--ink); overflow-wrap: anywhere; }
+    .preview-frame { border: 1px solid var(--line); border-radius: 8px; background: #f8fafd; min-height: 180px; display: grid; place-items: center; overflow: hidden; }
+    .preview-frame img { width: 100%; height: auto; display: block; }
     .console-body { padding: 12px; background: var(--panel); }
-    pre { width: 100%; height: 180px; overflow: auto; margin: 10px 0 0; background: #101820; color: #e7edf3; border-radius: 8px; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.35; }
-    .floating-console.expanded pre { height: min(680px, calc(100vh - 170px)); }
+    pre { width: 100%; height: min(360px, 38vh); overflow: auto; margin: 10px 0 0; background: #101820; color: #e7edf3; border-radius: 8px; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.35; }
     .split { display: grid; gap: 14px; }
     .type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px; }
     .type-grid label { display: flex; align-items: center; gap: 7px; margin: 0; font-weight: 500; border: 1px solid var(--line); border-radius: 6px; padding: 8px; background: #fbfcff; }
     @media (max-width: 900px) {
-      main { grid-template-columns: 1fr; }
-      .floating-console { right: 10px; bottom: 10px; width: calc(100vw - 20px); }
-      .floating-console.expanded pre { height: min(620px, calc(100vh - 165px)); }
+      .review-flow { grid-template-columns: 1fr; gap: 8px; }
+      .flow-step:not(:last-child)::after { content: "↓"; right: 14px; top: auto; bottom: -16px; transform: none; }
+      .review-flow .flow-step:not(:last-child)::after { content: "v"; right: 14px; top: auto; bottom: -16px; transform: none; }
+      .review-drawer-toggle { right: 10px; bottom: 10px; }
+      .review-side-drawer { width: 100vw; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Playwright Automation Agent</h1>
-    <p>Generate, run, and heal tests from a written scenario or discovered site URL.</p>
+    <h1>QA Agent Review Console</h1>
+    <p>Private review demo</p>
   </header>
   <main>
     <section>
-      <h2>Scenario</h2>
       <div class="split">
-        <div>
-          <label for="siteUrl">Discover from URL</label>
-          <div class="row">
-            <input id="siteUrl" type="url" placeholder="https://example.com">
-            <input id="scenarioCount" type="number" min="1" max="10" value="5" title="Number of scenarios to generate">
-            <button class="secondary" id="discoverBtn" type="button">Discover Scenarios</button>
+        <div class="review-modal">
+          <div class="review-modal-head">
+            <h2>Review Steps</h2>
+            <button class="secondary" id="openWalkthroughBtn" type="button">Open Walkthrough</button>
           </div>
-          <div class="hint">Choose 1-10 scenarios. Discovery drafts UI E2E, API, performance, security, accessibility, and quality scenarios when relevant.</div>
+          <div class="review-flow" aria-label="Review flow">
+            <button class="flow-step" type="button" data-walkthrough-step="0"><strong>1. Create scenarios</strong>Choose a count and create drafts.</button>
+            <button class="flow-step" type="button" data-walkthrough-step="1"><strong>2. Select, edit, or remove scenarios</strong>Edit or remove drafts.</button>
+            <button class="flow-step" type="button" data-walkthrough-step="2"><strong>3. Generate tests</strong>Create Playwright artifacts.</button>
+            <button class="flow-step" type="button" data-walkthrough-step="3"><strong>4. Run tests</strong>Choose generated tests to execute.</button>
+            <button class="flow-step" type="button" data-walkthrough-step="4"><strong>5. Review results</strong>Open report or failure summary.</button>
+          </div>
         </div>
         <div>
+          <div class="section-heading"><h3>A. Site Discovery</h3></div>
+          <label for="siteUrl">Review a Site URL</label>
+          <div class="row">
+            <input id="siteUrl" type="url" placeholder="https://example.com">
+          </div>
+          <div class="row" style="margin-top: 10px;">
+            <input id="startClean" type="checkbox">
+            <label for="startClean">Start Clean? Clear previous scenarios and generated tests before this review</label>
+          </div>
+          <div class="row" style="margin-top: 10px;">
+            <button class="secondary" id="discoverBtn" type="button">Start Review</button>
+          </div>
+          <div class="hint">Start the guided review to choose scenario count, create drafts, generate tests, run them, and review results.</div>
+        </div>
+        <div>
+          <div class="section-heading"><h3>B. Coverage Types</h3><span class="hint">Choose what the agent should look for.</span></div>
           <label>Test types to generate</label>
           <div class="type-grid" id="testTypeGrid">
             <label><input type="checkbox" value="UI_E2E" checked> UI E2E</label>
@@ -1141,20 +1654,17 @@ function pageHtml(initialScenario) {
         </div>
         <div>
           <div class="row toolbar">
-            <label>Scenario drafts</label>
+            <div class="section-heading"><h3>C. Review scenario drafts</h3><span class="hint" id="scenarioMeta">0 selected</span></div>
             <div class="row">
               <span class="agent-work-status" id="agentWorkStatus">Ready</span>
-              <span class="hint" id="scenarioMeta">0 selected</span>
             </div>
           </div>
-          <div class="hint" id="siteInsight"></div>
+          <div class="insight-frame" id="siteInsight"></div>
           <div id="scenarioList" class="scenario-list"></div>
         </div>
-        <div class="row">
-          <input id="cleanup" type="checkbox" checked>
-          <label for="cleanup">Clean generated metadata before starting</label>
-        </div>
-        <div class="input-data-panel">
+        <input id="cleanup" type="hidden" checked value="on">
+        <div class="input-data-panel" style="display:none;" aria-hidden="true">
+          <div class="section-heading"><h3>D. Test Data Options</h3><span class="hint">Optional controls for detected input fields.</span></div>
           <div class="row">
             <input id="useCustomInputData" type="checkbox">
             <label for="useCustomInputData">Ask me for input field data when fields are detected</label>
@@ -1167,53 +1677,114 @@ function pageHtml(initialScenario) {
           <div class="hint">When enabled, generated tests use your values. With data providers enabled, the test creates at least 5 data cases based on each value.</div>
         </div>
         <div class="row">
-          <button id="runBtn" type="button">Run Selected</button>
-          <button class="secondary" id="reloadBtn" type="button">Reload scenario.txt</button>
+          <button id="runBtn" type="button">Generate Tests for Selected Scenarios</button>
           <button class="secondary" id="selectAllBtn" type="button">Select All</button>
           <button class="secondary" id="deleteSelectedBtn" type="button">Delete Selected</button>
           <button class="secondary" id="cleanScenarioBtn" type="button">Clean All</button>
         </div>
         <div>
           <div class="row toolbar">
-            <label>Generated tests</label>
+            <label>E. Generated test artifacts</label>
             <span class="hint" id="testMeta">0 tests</span>
           </div>
           <div id="generatedTestList" class="test-list"></div>
           <div class="row" style="margin-top: 10px;">
             <button class="secondary" id="refreshTestsBtn" type="button">Refresh Tests</button>
-            <button id="runAllTestsBtn" type="button">Run All Tests</button>
-            <button class="secondary" id="runSpecificTestsBtn" type="button">Run Specific Tests</button>
+            <button id="runAllTestsBtn" type="button">Run All Generated Tests</button>
+            <button class="secondary" id="runSpecificTestsBtn" type="button">Run Selected Generated Tests</button>
           </div>
-          <div class="hint">These buttons execute already generated Playwright test files and create a Playwright HTML report.</div>
+          <div class="row" style="margin-top: 10px;">
+            <input id="runTestsInParallel" type="checkbox">
+            <label for="runTestsInParallel">Run selected generated tests in parallel</label>
+          </div>
+          <div id="runSummary" class="run-summary"></div>
+          <div id="failureSummary" class="failure-summary"></div>
         </div>
       </div>
     </section>
-    <section class="floating-console" id="floatingConsole">
-      <div class="console-header">
-        <h2>Console</h2>
-        <div class="console-actions">
-          <div id="status" class="status"><span class="dot"></span><span>idle</span></div>
-          <button class="secondary" id="toggleConsoleBtn" type="button">Expand</button>
+    <div class="walkthrough-backdrop" id="walkthroughModal" role="dialog" aria-modal="true" aria-labelledby="walkthroughHeaderTitle">
+      <div class="walkthrough-dialog">
+        <div class="walkthrough-header">
+          <h2 id="walkthroughHeaderTitle">Create scenarios</h2>
+          <button id="closeWalkthroughBtn" type="button">Close</button>
+        </div>
+        <div class="walkthrough-body">
+          <div class="walkthrough-step-label" id="walkthroughStepLabel">Step 1 of 6</div>
+          <div class="walkthrough-mini-progress" id="wizardProgressText">Step 1 of 5</div>
+          <div id="walkthroughContent"></div>
+        </div>
+        <div class="walkthrough-actions">
+          <button class="secondary" id="prevWalkthroughBtn" type="button">Back</button>
+          <button id="nextWalkthroughBtn" type="button">Next</button>
         </div>
       </div>
-      <div class="console-body">
-        <button class="secondary" id="clearLogsBtn" type="button">Clear Logs</button>
-        <pre id="logs"></pre>
+    </div>
+    <button class="review-drawer-toggle" id="toggleReviewDrawerBtn" type="button">Open Live Logs</button>
+    <aside class="review-side-drawer" id="reviewSideDrawer" aria-label="Run monitor drawer">
+      <div class="drawer-header">
+        <h2>Run Monitor</h2>
+        <button class="secondary" id="closeReviewDrawerBtn" type="button">Close</button>
       </div>
-    </section>
+      <div class="drawer-body">
+        <section class="drawer-panel" id="floatingPreview">
+          <div class="preview-header">
+            <h2>Live Run Preview</h2>
+          </div>
+          <div class="preview-body">
+            <div class="preview-meta">
+              <span class="preview-title" id="previewTitle">No active test</span>
+              <span id="previewStatus">idle</span>
+              <a id="previewReport" href="#" target="_blank" rel="noreferrer" style="display:none;">Open Playwright report</a>
+            </div>
+            <div class="preview-frame" id="previewFrame">
+              <span class="hint">Latest test screenshot will appear here when Playwright creates one.</span>
+            </div>
+          </div>
+        </section>
+        <section class="drawer-panel" id="floatingConsole">
+          <div class="console-header">
+            <h2>Run Logs</h2>
+            <div class="console-actions">
+              <div id="status" class="status"><span class="dot"></span><span>idle</span></div>
+            </div>
+          </div>
+          <div class="console-body">
+            <button class="secondary" id="clearLogsBtn" type="button">Clear Logs</button>
+            <pre id="logs"></pre>
+          </div>
+        </section>
+      </div>
+    </aside>
   </main>
   <script>
     const initialScenarioText = ${JSON.stringify(initialScenario || "")};
-    let scenarios = initialScenarioText.trim()
+    const initialScenarioDrafts = ${JSON.stringify(normalizeScenarioDrafts(initialUiState.scenarioDrafts))};
+    const initialDiscoveryInsight = ${JSON.stringify(initialUiState.discoveryInsight || "")};
+    let scenarios = initialScenarioDrafts.length
+      ? initialScenarioDrafts
+      : initialScenarioText.trim()
       ? [{ id: 'scenario-1', title: readSubject(initialScenarioText) || 'Manual scenario', category: 'MANUAL', selected: true, open: true, text: initialScenarioText }]
       : [];
-    let discoveryInsight = '';
+    let discoveryInsight = initialDiscoveryInsight;
     let lastScenarioStatuses = [];
     let generatedTests = [];
     let selectedGeneratedTests = new Set();
     let lastTestStatuses = [];
     let lastAiProviderStatusText = '';
     let detectedInputFields = [];
+    let wizardScenarioCountValue = '5';
+    let discoveryActivityTimer = null;
+    let discoveryActivityIndex = 0;
+    let discoveryInProgress = false;
+    let generationActivityTimer = null;
+    let generationActivityIndex = 0;
+    let generationInProgress = false;
+    let generationHasStartedRunning = false;
+    let generationActivityState = 'idle';
+    let requiredScenarioInputValues = {};
+    let wizardDetectedInputValues = {};
+    let testRunActivityState = 'idle';
+    let agentRunInProgress = false;
 
     const scenarioList = document.getElementById('scenarioList');
     const scenarioMeta = document.getElementById('scenarioMeta');
@@ -1228,12 +1799,517 @@ function pageHtml(initialScenario) {
     const statusEl = document.getElementById('status');
     const runBtn = document.getElementById('runBtn');
     const discoverBtn = document.getElementById('discoverBtn');
+    const startClean = document.getElementById('startClean');
     const floatingConsole = document.getElementById('floatingConsole');
-    const toggleConsoleBtn = document.getElementById('toggleConsoleBtn');
+    const floatingPreview = document.getElementById('floatingPreview');
+    const reviewSideDrawer = document.getElementById('reviewSideDrawer');
+    const toggleReviewDrawerBtn = document.getElementById('toggleReviewDrawerBtn');
+    const closeReviewDrawerBtn = document.getElementById('closeReviewDrawerBtn');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewStatus = document.getElementById('previewStatus');
+    const previewReport = document.getElementById('previewReport');
+    const previewFrame = document.getElementById('previewFrame');
+    const runSummary = document.getElementById('runSummary');
+    const failureSummary = document.getElementById('failureSummary');
+    const walkthroughModal = document.getElementById('walkthroughModal');
+    const walkthroughHeaderTitle = document.getElementById('walkthroughHeaderTitle');
+    const walkthroughStepLabel = document.getElementById('walkthroughStepLabel');
+    const walkthroughContent = document.getElementById('walkthroughContent');
+    const wizardProgressText = document.getElementById('wizardProgressText');
+    const prevWalkthroughBtn = document.getElementById('prevWalkthroughBtn');
+    const nextWalkthroughBtn = document.getElementById('nextWalkthroughBtn');
+    let lastPreviewScreenshotUrl = '';
+    let activeWalkthroughStep = 0;
+
+    const walkthroughSteps = [
+      { title: 'Create scenarios' },
+      { title: 'Select, edit, or remove scenarios' },
+      { title: 'Generate tests' },
+      { title: 'Run Tests' },
+      { title: 'Review results' }
+    ];
+    const discoveryActivitySteps = [
+      'Opening target URL',
+      'Handling cookie/privacy interruptions',
+      'Reading page title, headings, links, and forms',
+      'Asking AI to understand the site purpose',
+      'Drafting review scenarios',
+      'Saving scenario drafts'
+    ];
+    const generationActivitySteps = [
+      'Saving selected scenario drafts',
+      'Creating Playwright test skeletons',
+      'Calling AI for scenario-specific implementation',
+      'Running validation and healing attempts',
+      'Saving generated test files'
+    ];
+    const testRunActivitySteps = [
+      'Preparing selected generated tests',
+      'Starting Playwright execution',
+      'Running browser checks',
+      'Collecting pass/fail evidence',
+      'Preparing review results'
+    ];
 
     function selectedTestTypes() {
       const types = Array.from(document.querySelectorAll('#testTypeGrid input[type="checkbox"]:checked')).map(input => input.value);
       return types.length ? types : ['UI_E2E'];
+    }
+
+    function setSelectedTestTypes(types) {
+      const selected = new Set(types && types.length ? types : ['UI_E2E']);
+      document.querySelectorAll('#testTypeGrid input[type="checkbox"]').forEach(input => {
+        input.checked = selected.has(input.value);
+      });
+    }
+
+    function renderWalkthroughStep() {
+      const step = walkthroughSteps[activeWalkthroughStep];
+      walkthroughStepLabel.textContent = 'Step ' + (activeWalkthroughStep + 1) + ' of ' + walkthroughSteps.length;
+      walkthroughHeaderTitle.textContent = step.title;
+      prevWalkthroughBtn.disabled = activeWalkthroughStep === 0;
+      nextWalkthroughBtn.textContent = activeWalkthroughStep === 0
+        ? 'Review Generated Scenarios'
+        : activeWalkthroughStep === 1
+        ? 'Generate Tests'
+        : activeWalkthroughStep === 2
+        ? 'Run Generated Tests'
+        : activeWalkthroughStep === 3
+        ? 'Review Results'
+        : activeWalkthroughStep === walkthroughSteps.length - 1 ? 'Finish' : 'Next';
+      updateWizardNavControls();
+      renderWizardProgress();
+      renderWizardContent();
+    }
+
+    function updateWizardNavControls() {
+      if (activeWalkthroughStep === 0) {
+        nextWalkthroughBtn.disabled = discoveryInProgress || scenarios.length === 0;
+        return;
+      }
+      if (activeWalkthroughStep === 2) {
+        nextWalkthroughBtn.disabled = generationInProgress || generatedTests.length === 0;
+        return;
+      }
+      nextWalkthroughBtn.disabled = false;
+    }
+
+    function renderWizardProgress() {
+      const labels = [
+        scenarios.length ? 'Scenarios ready' : 'Create scenario drafts',
+        selectedScenarios().length + ' selected of ' + scenarios.length,
+        generatedTests.length ? generatedTests.length + ' generated test files' : 'Generate test files',
+        lastTestStatuses.length ? 'Test run started' : 'Run tests',
+        'Review results'
+      ];
+      wizardProgressText.textContent = labels[activeWalkthroughStep];
+    }
+
+    function renderDiscoveryActivity(state = 'idle') {
+      const container = document.getElementById('wizardDiscoveryActivity');
+      if (!container) return;
+      if (state === 'idle') {
+        container.innerHTML = '';
+        return;
+      }
+      const failed = state === 'failed';
+      const doneAll = state === 'done';
+      container.innerHTML = '<div class="activity-feed">' + discoveryActivitySteps.map((label, index) => {
+        let cls = '';
+        if (doneAll || index < discoveryActivityIndex) cls = 'done';
+        if (!doneAll && !failed && index === discoveryActivityIndex) cls = 'active';
+        if (failed && index === discoveryActivityIndex) cls = 'failed';
+        return '<div class="activity-step ' + cls + '"><span class="activity-dot"></span><span>' + escapeHtmlClient(label) + '</span></div>';
+      }).join('') + '</div>';
+    }
+
+    function startDiscoveryActivity() {
+      clearInterval(discoveryActivityTimer);
+      discoveryActivityIndex = 0;
+      renderDiscoveryActivity('running');
+      discoveryActivityTimer = setInterval(() => {
+        discoveryActivityIndex = Math.min(discoveryActivityIndex + 1, discoveryActivitySteps.length - 1);
+        renderDiscoveryActivity('running');
+      }, 1800);
+    }
+
+    function finishDiscoveryActivity(success) {
+      clearInterval(discoveryActivityTimer);
+      discoveryActivityIndex = success ? discoveryActivitySteps.length : Math.min(discoveryActivityIndex, discoveryActivitySteps.length - 1);
+      renderDiscoveryActivity(success ? 'done' : 'failed');
+    }
+
+    function renderGenerationActivity(state = 'idle') {
+      const container = document.getElementById('wizardGenerationActivity');
+      if (!container) return;
+      if (state === 'idle') {
+        container.innerHTML = '';
+        return;
+      }
+      const failed = state === 'failed';
+      const doneAll = state === 'done';
+      container.innerHTML = '<div class="activity-feed">' + generationActivitySteps.map((label, index) => {
+        let cls = '';
+        if (doneAll || index < generationActivityIndex) cls = 'done';
+        if (!doneAll && !failed && index === generationActivityIndex) cls = 'active';
+        if (failed && index === generationActivityIndex) cls = 'failed';
+        return '<div class="activity-step ' + cls + '"><span class="activity-dot"></span><span>' + escapeHtmlClient(label) + '</span></div>';
+      }).join('') + '</div>';
+    }
+
+    function startGenerationActivity() {
+      clearInterval(generationActivityTimer);
+      generationInProgress = true;
+      generationHasStartedRunning = false;
+      generationActivityState = 'running';
+      generationActivityIndex = 0;
+      renderGenerationActivity('running');
+      generationActivityTimer = setInterval(() => {
+        generationActivityIndex = Math.min(generationActivityIndex + 1, generationActivitySteps.length - 1);
+        renderGenerationActivity('running');
+      }, 2200);
+    }
+
+    function finishGenerationActivity(success) {
+      clearInterval(generationActivityTimer);
+      generationInProgress = false;
+      generationHasStartedRunning = false;
+      generationActivityState = success ? 'done' : 'failed';
+      generationActivityIndex = success ? generationActivitySteps.length : Math.min(generationActivityIndex, generationActivitySteps.length - 1);
+      renderGenerationActivity(success ? 'done' : 'failed');
+    }
+
+    function testRunStepIndex() {
+      if (!lastTestStatuses.length) return 0;
+      if (lastTestStatuses.some(item => item.status === 'running')) return 2;
+      if (lastTestStatuses.some(item => item.status === 'queued')) return 1;
+      return 4;
+    }
+
+    function renderTestRunActivity(state = testRunActivityState) {
+      const container = document.getElementById('wizardTestRunActivity');
+      if (!container) return;
+      if (state === 'idle' && !lastTestStatuses.length) {
+        container.innerHTML = '';
+        return;
+      }
+      const failed = state === 'failed' || lastTestStatuses.some(item => item.status === 'failed' || item.status === 'needs_attention');
+      const doneAll = state === 'done' || (lastTestStatuses.length && lastTestStatuses.every(item => ['passed', 'completed', 'failed', 'needs_attention'].includes(item.status)));
+      const activeIndex = testRunStepIndex();
+      container.innerHTML = '<div class="activity-feed">' + testRunActivitySteps.map((label, index) => {
+        let cls = '';
+        if (doneAll || index < activeIndex) cls = 'done';
+        if (!doneAll && !failed && index === activeIndex) cls = 'active';
+        if (failed && index === activeIndex) cls = 'failed';
+        return '<div class="activity-step ' + cls + '"><span class="activity-dot"></span><span>' + escapeHtmlClient(label) + '</span></div>';
+      }).join('') + '</div>';
+    }
+
+    function startTestRunActivity() {
+      testRunActivityState = 'running';
+      renderTestRunActivity('running');
+    }
+
+    function finishTestRunActivity(success) {
+      testRunActivityState = success ? 'done' : 'failed';
+      renderTestRunActivity(testRunActivityState);
+    }
+
+    function openWalkthrough(index = 0) {
+      activeWalkthroughStep = Math.max(0, Math.min(walkthroughSteps.length - 1, Number(index) || 0));
+      renderWalkthroughStep();
+      walkthroughModal.classList.add('visible');
+    }
+
+    function closeWalkthrough() {
+      walkthroughModal.classList.remove('visible');
+    }
+
+    function renderWizardContent() {
+      if (activeWalkthroughStep === 0) {
+        const currentCount = wizardScenarioCountValue || '5';
+        const rawReviewUrl = document.getElementById('siteUrl').value.trim();
+        const reviewUrlLabel = rawReviewUrl ? truncateMiddle(rawReviewUrl, 118) : 'Enter a URL in the main page first';
+        walkthroughContent.innerHTML = \`
+          <div class="walkthrough-card">
+            <strong>1. Choose how many scenarios to create</strong>
+            <div class="row">
+              <select id="wizardScenarioCount">
+                \${[1,2,3,4,5,6,7,8,9,10].map(n => '<option value="' + n + '" ' + (String(n) === String(currentCount) ? 'selected' : '') + '>' + n + ' scenario' + (n > 1 ? 's' : '') + '</option>').join('')}
+              </select>
+              <button id="wizardCreateScenariosBtn" type="button">Create Scenarios</button>
+            </div>
+            <div class="hint url-preview" title="\${escapeHtmlClient(rawReviewUrl)}">URL: \${escapeHtmlClient(reviewUrlLabel)}</div>
+            <div id="wizardDiscoveryActivity"></div>
+          </div>
+          <div class="walkthrough-card">
+            <strong>Coverage types</strong>
+            <div class="type-grid" id="wizardTestTypeGrid">
+              \${[
+                ['UI_E2E', 'UI E2E'],
+                ['BE_API', 'BE API'],
+                ['PERFORMANCE', 'Performance'],
+                ['SECURITY', 'Security'],
+                ['ACCESSIBILITY', 'Accessibility'],
+                ['SEO', 'SEO'],
+                ['RESPONSIVE', 'Responsive'],
+                ['QUALITY', 'Quality']
+              ].map(([value, label]) => '<label><input type="checkbox" value="' + value + '" ' + (selectedTestTypes().includes(value) ? 'checked' : '') + '> ' + label + '</label>').join('')}
+            </div>
+            <div class="hint">The agent will create scenario drafts only for selected coverage types.</div>
+          </div>
+          <div class="walkthrough-card">
+            <strong>Generated scenarios</strong>
+            <div id="wizardScenarioPreview" class="wizard-list"></div>
+          </div>
+        \`;
+        document.getElementById('wizardCreateScenariosBtn').onclick = async () => {
+          wizardScenarioCountValue = document.getElementById('wizardScenarioCount').value;
+          setSelectedTestTypes(Array.from(document.querySelectorAll('#wizardTestTypeGrid input[type="checkbox"]:checked')).map(input => input.value));
+          await runScenarioDiscovery();
+          renderWizardScenarioPreview(false);
+          renderWizardProgress();
+        };
+        renderWizardScenarioPreview(false);
+        return;
+      }
+
+      if (activeWalkthroughStep === 1) {
+        scenarios.forEach(item => item.open = false);
+        walkthroughContent.innerHTML = \`
+          <div class="walkthrough-card">
+            <div class="hint">Select only the drafts you want to generate. You can edit text directly here.</div>
+            <div id="wizardScenarioEditor" class="wizard-list"></div>
+          </div>
+        \`;
+        renderWizardScenarioPreview(true);
+        return;
+      }
+
+      if (activeWalkthroughStep === 2) {
+        const requiredFields = requiredInputFieldsForSelectedScenarios();
+        const missingRequiredFields = requiredFields.filter(field => !String(requiredScenarioInputValues[field.key] || '').trim());
+        walkthroughContent.innerHTML = \`
+          <div class="walkthrough-card">
+            <div class="hint">\${selectedScenarios().length} selected scenario(s) will be sent to the agent pipeline.</div>
+            \${requiredFields.length ? renderRequiredScenarioInputCard(requiredFields) : ''}
+            \${renderWizardTestDataOptionsCard()}
+            <button id="wizardGenerateTestsBtn" type="button" \${generationInProgress || missingRequiredFields.length ? 'disabled' : ''}>\${generationInProgress ? 'Generating...' : 'Generate Tests'}</button>
+            \${missingRequiredFields.length ? '<div class="hint">Provide the required data above before generating tests.</div>' : ''}
+            <div id="wizardGenerationActivity"></div>
+          </div>
+          <div class="walkthrough-card"><strong>Generated files</strong><div id="wizardGeneratedFiles" class="wizard-list"></div></div>
+        \`;
+        document.querySelectorAll('[data-required-input-key]').forEach(input => {
+          input.oninput = () => {
+            requiredScenarioInputValues[input.dataset.requiredInputKey] = input.value;
+            updateWizardGenerateButton();
+          };
+        });
+        const wizardCreateDataProviders = document.getElementById('wizardCreateDataProviders');
+        if (wizardCreateDataProviders) {
+          wizardCreateDataProviders.onchange = () => {
+            createDataProviders.checked = wizardCreateDataProviders.checked;
+          };
+        }
+        const wizardUseCustomInputData = document.getElementById('wizardUseCustomInputData');
+        if (wizardUseCustomInputData) {
+          wizardUseCustomInputData.onchange = () => {
+            useCustomInputData.checked = wizardUseCustomInputData.checked;
+            renderWizardContent();
+          };
+        }
+        const wizardOptionalDataProviders = document.getElementById('wizardOptionalDataProviders');
+        if (wizardOptionalDataProviders) {
+          wizardOptionalDataProviders.onchange = () => {
+            createDataProviders.checked = wizardOptionalDataProviders.checked;
+            renderWizardContent();
+          };
+        }
+        document.querySelectorAll('[data-wizard-input-key]').forEach(input => {
+          input.oninput = () => {
+            wizardDetectedInputValues[input.dataset.wizardInputKey] = input.value;
+          };
+        });
+        document.getElementById('wizardGenerateTestsBtn').onclick = () => {
+          startGenerationActivity();
+          runBtn.click();
+          renderWalkthroughStep();
+          updateWizardNavControls();
+        };
+        if (generationActivityState !== 'idle') renderGenerationActivity(generationActivityState);
+        else if (generatedTests.length) renderGenerationActivity('done');
+        renderWizardGeneratedFiles();
+        return;
+      }
+
+      if (activeWalkthroughStep === 3) {
+        walkthroughContent.innerHTML = \`
+          <div class="walkthrough-card">
+            <div class="hint">Select generated tests, then start the Playwright run.</div>
+            <div id="wizardGeneratedTests" class="wizard-list"></div>
+            <div class="row" style="margin-top:10px;">
+              <input id="wizardParallel" type="checkbox" \${document.getElementById('runTestsInParallel').checked ? 'checked' : ''}>
+              <label for="wizardParallel">Run in parallel</label>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button id="wizardRunAllBtn" type="button" \${agentRunInProgress ? 'disabled' : ''}>Run All Tests</button>
+              <button class="secondary" id="wizardRunSelectedBtn" type="button" \${agentRunInProgress ? 'disabled' : ''}>Run Selected Tests</button>
+            </div>
+            <div id="wizardTestRunActivity"></div>
+          </div>
+        \`;
+        renderWizardGeneratedTests();
+        renderTestRunActivity();
+        document.getElementById('wizardParallel').onchange = event => {
+          document.getElementById('runTestsInParallel').checked = event.target.checked;
+        };
+        document.getElementById('wizardRunAllBtn').onclick = () => {
+          startTestRunActivity();
+          document.getElementById('runAllTestsBtn').click();
+        };
+        document.getElementById('wizardRunSelectedBtn').onclick = () => {
+          startTestRunActivity();
+          document.getElementById('runSpecificTestsBtn').click();
+        };
+        return;
+      }
+
+      walkthroughContent.innerHTML = \`
+        <div class="walkthrough-card">
+          <strong>5. Review results</strong>
+          <div id="wizardResults"></div>
+        </div>
+      \`;
+      renderWizardResults();
+    }
+
+    function renderWizardScenarioPreview(editable) {
+      const container = document.getElementById(editable ? 'wizardScenarioEditor' : 'wizardScenarioPreview');
+      if (!container) return;
+      if (!scenarios.length) {
+        container.innerHTML = '<div class="empty-state">No scenarios created yet.</div>';
+        return;
+      }
+      container.innerHTML = scenarios.map((item, index) => {
+        const title = escapeHtmlClient(readSubject(item.text) || item.title || 'Scenario');
+        const category = escapeHtmlClient(item.category || 'SCENARIO');
+        if (!editable) {
+          return \`
+            <div class="wizard-row">
+              <div class="wizard-row-head">
+                <strong>\${index + 1}. \${title}</strong>
+                <span class="badge">\${category}</span>
+              </div>
+              <div class="hint">\${escapeHtmlClient((item.text || '').split('\\n').slice(0, 3).join(' '))}</div>
+            </div>
+          \`;
+        }
+        return \`
+          <details class="wizard-scenario-details" \${item.open ? 'open' : ''} data-wizard-scenario-details="\${item.id}">
+            <summary>
+              <input type="checkbox" data-wizard-scenario-select="\${item.id}" \${item.selected ? 'checked' : ''} onclick="event.stopPropagation()">
+              <span class="scenario-title">\${index + 1}. \${title}</span>
+              <span class="row">
+                <span class="badge">\${category}</span>
+                <button class="danger summary-remove" type="button" data-wizard-scenario-delete="\${item.id}" onclick="event.preventDefault(); event.stopPropagation()">Remove</button>
+              </span>
+            </summary>
+            <div class="wizard-scenario-body">
+              <textarea data-wizard-scenario-text="\${item.id}">\${escapeHtmlClient(item.text)}</textarea>
+              <div class="row">
+                <span class="hint">Edits are kept in this review and sent directly to test generation.</span>
+              </div>
+            </div>
+          </details>
+        \`;
+      }).join('');
+      container.querySelectorAll('[data-wizard-scenario-select]').forEach(input => {
+        input.onchange = () => {
+          const item = scenarios.find(s => s.id === input.dataset.wizardScenarioSelect);
+          if (item) item.selected = input.checked;
+          renderScenarios();
+          persistScenarioDrafts();
+          renderWizardProgress();
+          renderWizardScenarioPreview(true);
+        };
+      });
+      container.querySelectorAll('[data-wizard-scenario-text]').forEach(textarea => {
+        textarea.oninput = () => {
+          const item = scenarios.find(s => s.id === textarea.dataset.wizardScenarioText);
+          if (item) {
+            item.text = textarea.value;
+            item.title = readSubject(item.text) || item.title;
+          }
+          renderScenarios();
+          persistScenarioDrafts();
+        };
+      });
+      container.querySelectorAll('[data-wizard-scenario-delete]').forEach(button => {
+        button.onclick = () => {
+          scenarios = scenarios.filter(s => s.id !== button.dataset.wizardScenarioDelete);
+          renderScenarios();
+          persistScenarioDrafts();
+          renderWalkthroughStep();
+        };
+      });
+      container.querySelectorAll('[data-wizard-scenario-details]').forEach(details => {
+        details.ontoggle = () => {
+          const item = scenarios.find(s => s.id === details.dataset.wizardScenarioDetails);
+          if (item) {
+            item.open = details.open;
+            persistScenarioDrafts();
+          }
+        };
+      });
+    }
+
+    function renderWizardGeneratedFiles() {
+      const container = document.getElementById('wizardGeneratedFiles');
+      if (!container) return;
+      container.innerHTML = generatedTests.length
+        ? generatedTests.map(test => '<div class="wizard-row"><strong>' + escapeHtmlClient(test.name) + '</strong></div>').join('')
+        : '<div class="empty-state">Generated files will appear here after the agent finishes.</div>';
+    }
+
+    function renderWizardGeneratedTests() {
+      const container = document.getElementById('wizardGeneratedTests');
+      if (!container) return;
+      container.innerHTML = generatedTests.length
+        ? generatedTests.map(test => '<label class="wizard-row"><input type="checkbox" data-wizard-test-select="' + escapeHtmlClient(test.name) + '" ' + (selectedGeneratedTests.has(test.name) ? 'checked' : '') + '> ' + escapeHtmlClient(test.name) + '</label>').join('')
+        : '<div class="empty-state">No generated tests found yet.</div>';
+      container.querySelectorAll('[data-wizard-test-select]').forEach(input => {
+        input.onchange = () => {
+          if (input.checked) selectedGeneratedTests.add(input.dataset.wizardTestSelect);
+          else selectedGeneratedTests.delete(input.dataset.wizardTestSelect);
+          renderGeneratedTests();
+        };
+      });
+    }
+
+    function renderWizardResults() {
+      const container = document.getElementById('wizardResults');
+      if (!container) return;
+      const passed = lastTestStatuses.filter(item => item.status === 'passed').length;
+      const failed = lastTestStatuses.filter(item => item.status === 'failed' || item.status === 'needs_attention').length;
+      const coverage = scenarios.reduce((acc, item) => {
+        const key = item.category || 'SCENARIO';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+      const coverageText = Object.keys(coverage).length
+        ? Object.entries(coverage).map(([key, value]) => key + ': ' + value).join(', ')
+        : 'No scenario coverage yet';
+      container.innerHTML = \`
+        <div class="summary-grid">
+          <div class="summary-item"><strong>Generated files</strong><span class="summary-number">\${generatedTests.length}</span></div>
+          <div class="summary-item"><strong>Passed</strong><span class="summary-number">\${passed}</span></div>
+          <div class="summary-item"><strong>Needs attention</strong><span class="summary-number">\${failed}</span></div>
+          <div class="summary-item"><strong>Coverage</strong>\${escapeHtmlClient(coverageText)}</div>
+          <div class="summary-item"><strong>Report</strong>\${previewReport.href && previewReport.style.display !== 'none' ? '<a href="' + previewReport.href + '" target="_blank" rel="noreferrer">Open report</a>' : '<span class="hint">Run tests to create a report.</span>'}</div>
+        </div>
+        <div class="hint">Detailed results and any friendly failure summary are also shown on the main page.</div>
+      \`;
     }
 
     function readSubject(text) {
@@ -1247,6 +2323,15 @@ function pageHtml(initialScenario) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function truncateMiddle(value, maxLength = 118) {
+      const text = String(value || '');
+      if (text.length <= maxLength) return text;
+      const keep = Math.max(20, maxLength - 3);
+      const headLength = Math.ceil(keep * 0.62);
+      const tailLength = Math.floor(keep * 0.38);
+      return text.slice(0, headLength) + '...' + text.slice(-tailLength);
     }
 
     function cleanLogText(value) {
@@ -1272,6 +2357,99 @@ function pageHtml(initialScenario) {
 
     function selectedScenarios() {
       return scenarios.filter(item => item.selected && item.text.trim());
+    }
+
+    function sanitizeInputKeyClient(value, fallback = 'input') {
+      const key = String(value || fallback)
+        .replace(/[^a-zA-Z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 40) || fallback;
+      return /^[a-zA-Z_$]/.test(key) ? key : 'input_' + key;
+    }
+
+    function requiredInputFieldsForSelectedScenarios() {
+      const rules = [
+        { key: 'booking_reference', label: 'Booking reference / booking number', placeholder: 'Real booking reference', pattern: /booking\s*(reference|number|code)|reservation\s*(number|code)|pnr/i },
+        { key: 'last_name', label: 'Last name', placeholder: 'Passenger last name', pattern: /last\s*name|surname|family\s*name/i },
+        { key: 'email', label: 'Email', placeholder: 'user@example.com', pattern: /email|e-mail/i },
+        { key: 'phone', label: 'Phone number', placeholder: 'Phone number', pattern: /phone|mobile|telephone/i },
+        { key: 'passport_number', label: 'Passport number', placeholder: 'Passport number', pattern: /passport/i },
+        { key: 'id_number', label: 'ID number', placeholder: 'ID number', pattern: /\bid\b|identity|national\s*id/i },
+        { key: 'flight_number', label: 'Flight number', placeholder: 'Flight number', pattern: /flight\s*(number|code)/i },
+        { key: 'order_number', label: 'Order / confirmation number', placeholder: 'Order or confirmation number', pattern: /order\s*(number|id)|confirmation\s*(number|code)/i },
+        { key: 'username', label: 'Username', placeholder: 'Username', pattern: /username|user\s*name/i },
+        { key: 'password', label: 'Password', placeholder: 'Password', pattern: /password/i }
+      ];
+      const selectedText = selectedScenarios().map(item => item.text).join('\\n');
+      const realDataFlow = /valid\s+(booking|reservation|check-?in|passenger|account|payment|order)|real\s+(booking|account|payment|user|passenger)|cannot\s+use\s+mock|no\s+mock/i.test(selectedText);
+      const fields = rules
+        .filter(rule => rule.pattern.test(selectedText))
+        .map(rule => ({ ...rule, key: sanitizeInputKeyClient(rule.key), required: realDataFlow || /booking|last\s*name|passport|password|payment/i.test(rule.label) }));
+      const unique = [];
+      const seen = new Set();
+      for (const field of fields) {
+        if (seen.has(field.key)) continue;
+        seen.add(field.key);
+        unique.push(field);
+      }
+      return unique;
+    }
+
+    function renderRequiredScenarioInputCard(fields) {
+      return \`
+        <div class="input-data-panel" style="margin: 10px 0;">
+          <strong>Real test data required</strong>
+          <div class="hint">The selected scenario needs data the agent should not guess. Enter safe review data that can be used for this test run.</div>
+          <div class="input-data-grid">
+            \${fields.map(field => \`
+              <label class="input-data-row">
+                <span>\${escapeHtmlClient(field.label)}</span>
+                <input data-required-input-key="\${escapeHtmlClient(field.key)}" type="text" value="\${escapeHtmlClient(requiredScenarioInputValues[field.key] || '')}" placeholder="\${escapeHtmlClient(field.placeholder)}">
+              </label>
+            \`).join('')}
+          </div>
+          <label class="row" style="margin-top: 6px;">
+            <input id="wizardCreateDataProviders" type="checkbox" \${createDataProviders.checked ? 'checked' : ''}>
+            Create 5 data-provider cases from these values
+          </label>
+        </div>
+      \`;
+    }
+
+    function renderWizardTestDataOptionsCard() {
+      const fieldRows = detectedInputFields.length
+        ? detectedInputFields.map(field => \`
+          <label class="input-data-row">
+            <span>\${escapeHtmlClient(field.label)}</span>
+            <input data-wizard-input-key="\${escapeHtmlClient(field.key)}" type="text" value="\${escapeHtmlClient(wizardDetectedInputValues[field.key] || '')}" placeholder="\${escapeHtmlClient(field.placeholder || 'Value to use in test')}">
+          </label>
+        \`).join('')
+        : '<div class="empty-state">No usable input fields were detected for this page. The agent will use safe fallback data only if needed.</div>';
+
+      return \`
+        <div class="input-data-panel" style="margin: 10px 0;">
+          <strong>Test data options</strong>
+          <div class="hint">Optional controls for detected input fields.</div>
+          <label class="row">
+            <input id="wizardUseCustomInputData" type="checkbox" \${useCustomInputData.checked ? 'checked' : ''}>
+            Ask me for input field data when fields are detected
+          </label>
+          <label class="row">
+            <input id="wizardOptionalDataProviders" type="checkbox" \${createDataProviders.checked ? 'checked' : ''} \${!useCustomInputData.checked && !requiredInputFieldsForSelectedScenarios().length ? 'disabled' : ''}>
+            Create data providers for each input field
+          </label>
+          <div class="input-data-grid" style="\${useCustomInputData.checked ? '' : 'display:none;'}">\${fieldRows}</div>
+          <div class="hint">When enabled, generated tests use your values. With data providers enabled, the test creates at least 5 data cases based on each value.</div>
+        </div>
+      \`;
+    }
+
+    function updateWizardGenerateButton() {
+      const button = document.getElementById('wizardGenerateTestsBtn');
+      if (!button) return;
+      const missingRequiredFields = requiredInputFieldsForSelectedScenarios()
+        .filter(field => !String(requiredScenarioInputValues[field.key] || '').trim());
+      button.disabled = generationInProgress || missingRequiredFields.length > 0;
     }
 
     function keyFromField(field, index) {
@@ -1320,12 +2498,32 @@ function pageHtml(initialScenario) {
         inputDataFields.querySelectorAll('[data-input-key]').forEach(input => {
           fields[input.dataset.inputKey] = input.value;
         });
+        for (const [key, value] of Object.entries(wizardDetectedInputValues)) {
+          if (String(value || '').trim()) fields[key] = value;
+        }
       }
+      for (const [key, value] of Object.entries(requiredScenarioInputValues)) {
+        if (String(value || '').trim()) fields[key] = value;
+      }
+      const hasRequiredScenarioData = Object.keys(requiredScenarioInputValues)
+        .some(key => String(requiredScenarioInputValues[key] || '').trim());
       return {
-        enabled: useCustomInputData.checked,
-        createDataProviders: useCustomInputData.checked && createDataProviders.checked,
+        enabled: useCustomInputData.checked || hasRequiredScenarioData,
+        createDataProviders: (useCustomInputData.checked || hasRequiredScenarioData) && createDataProviders.checked,
         fields
       };
+    }
+
+    let persistDraftTimer = null;
+    function persistScenarioDrafts() {
+      clearTimeout(persistDraftTimer);
+      persistDraftTimer = setTimeout(() => {
+        fetch('/api/scenario-drafts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scenarioDrafts: scenarios, discoveryInsight })
+        }).catch(() => {});
+      }, 300);
     }
 
     function displayScenarioStatus(item) {
@@ -1342,7 +2540,7 @@ function pageHtml(initialScenario) {
 
       if (live.status === 'running') return { label: 'Working...', kind: 'running' };
       if (live.status === 'passed') return { label: 'Test is Ready', kind: 'passed' };
-      if (live.status === 'failed') return { label: 'Needs Attention', kind: 'failed' };
+      if (live.status === 'failed' || live.status === 'needs_attention') return { label: 'Needs attention', kind: 'needs_attention' };
       return { label: 'Queued', kind: 'queued' };
     }
 
@@ -1352,7 +2550,7 @@ function pageHtml(initialScenario) {
       if (live.status === 'queued') return { label: 'Queued', kind: 'queued' };
       if (live.status === 'running') return { label: 'Working...', kind: 'running' };
       if (live.status === 'passed') return { label: 'Passed', kind: 'passed' };
-      if (live.status === 'failed') return { label: 'Failed', kind: 'failed' };
+      if (live.status === 'failed' || live.status === 'needs_attention') return { label: 'Needs attention', kind: 'needs_attention' };
       return { label: 'Completed', kind: 'completed' };
     }
 
@@ -1383,6 +2581,79 @@ function pageHtml(initialScenario) {
           renderGeneratedTests();
         });
       });
+    }
+
+    function renderFailureSummary(summary) {
+      if (!summary) {
+        failureSummary.className = 'failure-summary';
+        failureSummary.innerHTML = '';
+        return;
+      }
+
+      const screenshot = summary.screenshotUrl
+        ? '<div class="failure-item"><strong>Screenshot</strong><img alt="Failure screenshot" src="' + summary.screenshotUrl + '"></div>'
+        : '';
+      const report = summary.reportUrl
+        ? '<a href="' + location.origin + summary.reportUrl + '" target="_blank" rel="noreferrer">Open Playwright report</a>'
+        : '';
+
+      failureSummary.className = 'failure-summary visible';
+      failureSummary.innerHTML = \`
+        <h3>\${escapeHtmlClient(summary.title || 'Test failed')}</h3>
+        <div class="failure-grid">
+          <div class="failure-item"><strong>Which test failed</strong>\${escapeHtmlClient(summary.failedTest || 'Unknown test')}</div>
+          <div class="failure-item"><strong>Where it failed</strong>\${escapeHtmlClient(summary.failedStep || 'Unknown step')}</div>
+          <div class="failure-item"><strong>File and line</strong>\${escapeHtmlClient(summary.location || 'Not detected')}</div>
+          <div class="failure-item"><strong>Plain-English reason</strong>\${escapeHtmlClient(summary.plainReason || '')}</div>
+          <div class="failure-item"><strong>Suggested next action</strong>\${escapeHtmlClient(summary.nextAction || '')}<br>\${report}</div>
+          \${screenshot}
+        </div>
+        <div class="failure-item">
+          <strong>Technical error</strong>
+          <pre>\${escapeHtmlClient(summary.technicalError || '')}</pre>
+        </div>
+      \`;
+    }
+
+    function renderRunSummary(state) {
+      const scenarioStatuses = Array.isArray(state.scenarioStatuses) ? state.scenarioStatuses : [];
+      const testStatuses = Array.isArray(state.testStatuses) ? state.testStatuses : [];
+      const generatedCount = Array.isArray(state.generatedTests) ? state.generatedTests.length : generatedTests.length;
+      const passed = testStatuses.filter(item => item.status === 'passed').length + scenarioStatuses.filter(item => item.status === 'passed').length;
+      const failed = testStatuses.filter(item => item.status === 'failed' || item.status === 'needs_attention').length
+        + scenarioStatuses.filter(item => item.status === 'failed' || item.status === 'needs_attention').length;
+      const running = testStatuses.filter(item => item.status === 'running').length + scenarioStatuses.filter(item => item.status === 'running').length;
+      const coverage = scenarios.reduce((acc, item) => {
+        const key = item.category || 'SCENARIO';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+      const coverageText = Object.keys(coverage).length
+        ? Object.entries(coverage).map(([key, value]) => key + ': ' + value).join(', ')
+        : 'No scenario coverage yet';
+
+      if (!state.running && !state.reportUrl && !scenarioStatuses.length && !testStatuses.length) {
+        runSummary.className = 'run-summary';
+        runSummary.innerHTML = '';
+        return;
+      }
+
+      const report = state.reportUrl
+        ? '<a href="' + location.origin + state.reportUrl + '" target="_blank" rel="noreferrer">Open HTML Report</a>'
+        : '<span class="hint">Report appears after a generated test run completes.</span>';
+
+      runSummary.className = 'run-summary visible';
+      runSummary.innerHTML = \`
+        <h3>Review run summary</h3>
+        <div class="summary-grid">
+          <div class="summary-item"><strong>Generated test files</strong><span class="summary-number">\${generatedCount}</span></div>
+          <div class="summary-item"><strong>Passed</strong><span class="summary-number">\${passed}</span></div>
+          <div class="summary-item"><strong>Needs attention</strong><span class="summary-number">\${failed}</span></div>
+          <div class="summary-item"><strong>Currently running</strong><span class="summary-number">\${running}</span></div>
+          <div class="summary-item"><strong>Scenario coverage</strong>\${escapeHtmlClient(coverageText)}</div>
+          <div class="summary-item"><strong>Report</strong>\${report}</div>
+        </div>
+      \`;
     }
 
     async function loadGeneratedTests() {
@@ -1418,7 +2689,7 @@ function pageHtml(initialScenario) {
       siteInsight.textContent = discoveryInsight;
 
       if (!scenarios.length) {
-        scenarioList.innerHTML = '<div class="empty-state">No scenarios yet. Enter a URL and click Discover Scenarios, or reload scenario.txt.</div>';
+        scenarioList.innerHTML = '<div class="empty-state">No scenarios yet. Enter a URL and click Start Review, or reload scenario.txt.</div>';
         return;
       }
 
@@ -1451,6 +2722,7 @@ function pageHtml(initialScenario) {
         input.addEventListener('change', () => {
           const item = scenarios.find(s => s.id === input.dataset.scenarioSelect);
           if (item) item.selected = input.checked;
+          persistScenarioDrafts();
           renderScenarios();
         });
       });
@@ -1459,6 +2731,7 @@ function pageHtml(initialScenario) {
         textarea.addEventListener('input', () => {
           syncScenarioFromTextarea(textarea.dataset.scenarioText);
           scenarioMeta.textContent = selectedScenarios().length + ' selected of ' + scenarios.length;
+          persistScenarioDrafts();
         });
       });
 
@@ -1480,6 +2753,7 @@ function pageHtml(initialScenario) {
       scenarioList.querySelectorAll('[data-scenario-delete]').forEach(button => {
         button.addEventListener('click', () => {
           scenarios = scenarios.filter(s => s.id !== button.dataset.scenarioDelete);
+          persistScenarioDrafts();
           renderScenarios();
         });
       });
@@ -1488,6 +2762,7 @@ function pageHtml(initialScenario) {
         details.addEventListener('toggle', () => {
           const item = scenarios.find(s => s.id === details.dataset.scenarioId);
           if (item) item.open = details.open;
+          persistScenarioDrafts();
         });
       });
     }
@@ -1496,8 +2771,14 @@ function pageHtml(initialScenario) {
       const previousStatuses = JSON.stringify(lastScenarioStatuses || []);
       const previousTestStatuses = JSON.stringify(lastTestStatuses || []);
       const previousGeneratedTests = JSON.stringify(generatedTests.map(test => test.name));
+      if (!scenarios.length && Array.isArray(state.scenarioDrafts) && state.scenarioDrafts.length) {
+        scenarios = state.scenarioDrafts;
+        discoveryInsight = state.discoveryInsight || discoveryInsight;
+        renderScenarios();
+      }
       lastScenarioStatuses = Array.isArray(state.scenarioStatuses) ? state.scenarioStatuses : [];
       lastTestStatuses = Array.isArray(state.testStatuses) ? state.testStatuses : [];
+      agentRunInProgress = !!state.running;
       if (Array.isArray(state.generatedTests)) {
         generatedTests = state.generatedTests;
         generatedTests.forEach(test => {
@@ -1514,7 +2795,7 @@ function pageHtml(initialScenario) {
       } else if (state.status === 'passed') {
         setAgentWorkStatus('Test is Ready', 'ready');
       } else if (state.status === 'failed') {
-        setAgentWorkStatus('Needs Attention', 'failed');
+        setAgentWorkStatus('Needs attention', 'failed');
       } else if (scenarios.length) {
         setAgentWorkStatus('Scenarios Ready', 'ready');
       } else {
@@ -1522,12 +2803,39 @@ function pageHtml(initialScenario) {
       }
       runBtn.disabled = !!state.running;
       discoverBtn.disabled = !!state.running;
+      startClean.disabled = !!state.running;
       document.getElementById('runAllTestsBtn').disabled = !!state.running;
       document.getElementById('runSpecificTestsBtn').disabled = !!state.running;
       document.getElementById('refreshTestsBtn').disabled = !!state.running;
+      document.getElementById('runTestsInParallel').disabled = !!state.running;
       logs.textContent = cleanLogText((state.logs || []).join(''));
       if (state.reportUrl) {
         logs.textContent += '\\nReport: ' + location.origin + state.reportUrl + '\\n';
+      }
+      updatePreview(state.preview || {});
+      renderRunSummary(state);
+      renderFailureSummary(state.failureSummary || null);
+      if (generationInProgress && state.running) {
+        generationHasStartedRunning = true;
+      }
+      if (generationInProgress && generationHasStartedRunning && !state.running && (state.status === 'passed' || state.status === 'failed')) {
+        finishGenerationActivity(state.status === 'passed' || generatedTests.length > 0);
+      }
+      if (lastTestStatuses.length) {
+        if (state.running) {
+          testRunActivityState = 'running';
+        } else if (state.status === 'passed' || state.status === 'failed') {
+          finishTestRunActivity(state.status === 'passed');
+        }
+      }
+      updateWizardNavControls();
+      if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 3) {
+        renderTestRunActivity();
+        renderWizardProgress();
+      }
+      if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 4) {
+        renderWizardResults();
+        renderWizardProgress();
       }
       const aiStatus = Array.isArray(state.aiProviderStatus) ? state.aiProviderStatus : [];
       const latestAi = aiStatus[aiStatus.length - 1];
@@ -1547,12 +2855,62 @@ function pageHtml(initialScenario) {
       }
       if (JSON.stringify(generatedTests.map(test => test.name)) !== previousGeneratedTests) {
         renderGeneratedTests();
+        if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 2) {
+          renderWizardGeneratedFiles();
+          renderWizardProgress();
+        }
+        if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 3) {
+          renderWizardGeneratedTests();
+          renderTestRunActivity();
+          renderWizardProgress();
+        }
       }
     }
 
     async function refresh() {
       const res = await fetch('/api/status');
       setStatus(await res.json());
+      if (walkthroughModal.classList.contains('visible')) {
+        renderWizardProgress();
+        if (activeWalkthroughStep === 2) {
+          renderGenerationActivity(generationActivityState);
+          renderWizardGeneratedFiles();
+          updateWizardNavControls();
+        } else if (![0, 1].includes(activeWalkthroughStep)) {
+          renderWizardContent();
+        }
+      }
+    }
+
+    async function startCleanReviewIfNeeded() {
+      if (!startClean.checked) return true;
+      const confirmed = confirm('Start clean? This will delete previous scenario drafts, scenario.txt, and generated test files.');
+      if (!confirmed) return false;
+      const res = await fetch('/api/review-artifacts', { method: 'DELETE' });
+      if (!res.ok) {
+        alert((await res.json()).error || 'Failed to clean previous review artifacts');
+        return false;
+      }
+      scenarios = [];
+      discoveryInsight = '';
+      lastScenarioStatuses = [];
+      lastTestStatuses = [];
+      generatedTests = [];
+      requiredScenarioInputValues = {};
+      wizardDetectedInputValues = {};
+      testRunActivityState = 'idle';
+      generationInProgress = false;
+      generationHasStartedRunning = false;
+      generationActivityState = 'idle';
+      clearInterval(generationActivityTimer);
+      selectedGeneratedTests.clear();
+      renderScenarios();
+      renderGeneratedTests();
+      renderRunSummary({});
+      renderFailureSummary(null);
+      startClean.checked = false;
+      await refresh();
+      return true;
     }
 
     document.getElementById('runBtn').onclick = async () => {
@@ -1566,21 +2924,28 @@ function pageHtml(initialScenario) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           scenarioTexts: selected.map(item => item.text),
+          scenarioDrafts: scenarios,
           cleanupFirst: document.getElementById('cleanup').checked,
           inputDataOptions: collectInputDataOptions()
         })
       });
-      if (!res.ok) alert((await res.json()).error || 'Failed to start agent');
+      if (!res.ok) {
+        if (generationInProgress) finishGenerationActivity(false);
+        alert((await res.json()).error || 'Failed to start agent');
+      }
       await refresh();
     };
 
-    document.getElementById('discoverBtn').onclick = async () => {
+    async function runScenarioDiscovery() {
       const url = document.getElementById('siteUrl').value.trim();
-      const count = Math.max(1, Math.min(10, Number(document.getElementById('scenarioCount').value || 5)));
+      const count = Math.max(1, Math.min(10, Number(wizardScenarioCountValue || 5)));
       if (!url) return alert('Enter a URL first.');
+      discoveryInProgress = true;
+      updateWizardNavControls();
       discoverBtn.disabled = true;
       discoverBtn.textContent = 'Discovering...';
       setAgentWorkStatus('Discovering', 'working');
+      if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 0) startDiscoveryActivity();
       try {
         const res = await fetch('/api/discover-url', {
           method: 'POST',
@@ -1608,30 +2973,37 @@ function pageHtml(initialScenario) {
         }
         updateDetectedInputFields(data.snapshot);
         renderScenarios();
+        persistScenarioDrafts();
         setAgentWorkStatus('Scenarios Ready', 'ready');
+        finishDiscoveryActivity(true);
+        if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 0) {
+          renderWizardScenarioPreview(false);
+          renderWizardProgress();
+        }
       } catch (error) {
         setAgentWorkStatus('Discovery Failed', 'failed');
+        finishDiscoveryActivity(false);
         alert(error.message);
       } finally {
+        discoveryInProgress = false;
+        updateWizardNavControls();
         discoverBtn.disabled = false;
-        discoverBtn.textContent = 'Discover Scenarios';
+        discoverBtn.textContent = 'Start Review';
       }
-    };
+    }
 
-    document.getElementById('reloadBtn').onclick = async () => {
-      const res = await fetch('/api/scenario');
-      const text = (await res.json()).scenarioText || '';
-      scenarios = text.trim()
-        ? [{ id: 'scenario-1', title: readSubject(text) || 'Saved scenario', category: 'MANUAL', selected: true, open: true, text }]
-        : [];
-      discoveryInsight = text.trim() ? 'Loaded from scenario.txt.' : '';
-      renderScenarios();
+    document.getElementById('discoverBtn').onclick = async () => {
+      const url = document.getElementById('siteUrl').value.trim();
+      if (!url) return alert('Enter a URL first.');
+      if (!(await startCleanReviewIfNeeded())) return;
+      openWalkthrough(0);
     };
 
     document.getElementById('selectAllBtn').onclick = () => {
       const allSelected = scenarios.length > 0 && scenarios.every(item => item.selected);
       scenarios.forEach(item => item.selected = !allSelected);
       renderScenarios();
+      persistScenarioDrafts();
     };
 
     document.getElementById('deleteSelectedBtn').onclick = () => {
@@ -1640,6 +3012,7 @@ function pageHtml(initialScenario) {
       if (!confirm('Delete selected scenarios from the UI?')) return;
       scenarios = scenarios.filter(item => !item.selected);
       renderScenarios();
+      persistScenarioDrafts();
     };
 
     document.getElementById('cleanScenarioBtn').onclick = async () => {
@@ -1658,11 +3031,32 @@ function pageHtml(initialScenario) {
       await refresh();
     };
 
-    toggleConsoleBtn.onclick = () => {
-      const expanded = floatingConsole.classList.toggle('expanded');
-      toggleConsoleBtn.textContent = expanded ? 'Shrink' : 'Expand';
+    toggleReviewDrawerBtn.onclick = () => {
+      reviewSideDrawer.classList.add('open');
       logs.scrollTop = logs.scrollHeight;
     };
+
+    closeReviewDrawerBtn.onclick = () => {
+      reviewSideDrawer.classList.remove('open');
+    };
+
+    function updatePreview(preview) {
+      previewTitle.textContent = preview.title || 'No active test';
+      previewStatus.textContent = preview.status || 'idle';
+      if (preview.reportUrl) {
+        previewReport.style.display = 'inline';
+        previewReport.href = location.origin + preview.reportUrl;
+      } else {
+        previewReport.style.display = 'none';
+      }
+
+      if (preview.screenshotUrl && preview.screenshotUrl !== lastPreviewScreenshotUrl) {
+        lastPreviewScreenshotUrl = preview.screenshotUrl;
+        previewFrame.innerHTML = '<img alt="Latest Playwright screenshot" src="' + preview.screenshotUrl + '">';
+      } else if (!preview.screenshotUrl && !lastPreviewScreenshotUrl) {
+        previewFrame.innerHTML = '<span class="hint">Latest test screenshot will appear here when Playwright creates one.</span>';
+      }
+    }
 
     useCustomInputData.onchange = renderInputDataFields;
     createDataProviders.onchange = renderInputDataFields;
@@ -1677,7 +3071,10 @@ function pageHtml(initialScenario) {
       const res = await fetch('/api/run-tests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ all: true })
+        body: JSON.stringify({
+          all: true,
+          parallel: document.getElementById('runTestsInParallel').checked
+        })
       });
       if (!res.ok) return alert((await res.json()).error || 'Failed to run tests');
       await refresh();
@@ -1691,11 +3088,38 @@ function pageHtml(initialScenario) {
       const res = await fetch('/api/run-tests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ files })
+        body: JSON.stringify({
+          files,
+          parallel: document.getElementById('runTestsInParallel').checked
+        })
       });
       if (!res.ok) return alert((await res.json()).error || 'Failed to run selected tests');
       await refresh();
     };
+
+    document.getElementById('openWalkthroughBtn').onclick = () => openWalkthrough(0);
+    document.getElementById('closeWalkthroughBtn').onclick = closeWalkthrough;
+    walkthroughModal.addEventListener('click', event => {
+      if (event.target === walkthroughModal) event.stopPropagation();
+    });
+    document.querySelectorAll('[data-walkthrough-step]').forEach(button => {
+      button.addEventListener('click', () => openWalkthrough(button.dataset.walkthroughStep));
+    });
+    prevWalkthroughBtn.onclick = () => {
+      activeWalkthroughStep -= 1;
+      renderWalkthroughStep();
+    };
+    nextWalkthroughBtn.onclick = () => {
+      if (activeWalkthroughStep >= walkthroughSteps.length - 1) {
+        closeWalkthrough();
+        return;
+      }
+      activeWalkthroughStep += 1;
+      renderWalkthroughStep();
+    };
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && walkthroughModal.classList.contains('visible')) closeWalkthrough();
+    });
 
     setInterval(refresh, 1200);
     renderScenarios();
@@ -1754,18 +3178,25 @@ const server = http.createServer(async (req, res) => {
             return;
         }
 
+        if (req.method === "GET" && url.pathname.startsWith("/test-results")) {
+            const resultPath = url.pathname.replace(/^\/test-results\/?/, "");
+            serveStaticFile(res, testResultsDir, resultPath);
+            return;
+        }
+
         if (req.method === "GET" && url.pathname === "/") {
             const initialScenario = fs.existsSync(testsScenarioPath)
                 ? fs.readFileSync(testsScenarioPath, "utf8")
                 : "";
             res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-            res.end(pageHtml(initialScenario));
+            res.end(pageHtml(initialScenario, runState));
             return;
         }
 
         if (req.method === "GET" && url.pathname === "/api/status") {
             runState.aiProviderStatus = readAiProviderStatus();
-            sendJson(res, 200, runState);
+            runState.generatedTests = listGeneratedTests();
+            sendJson(res, 200, { ...runState, preview: currentPreviewState() });
             return;
         }
 
@@ -1789,7 +3220,26 @@ const server = http.createServer(async (req, res) => {
             }
             fs.mkdirSync(path.dirname(testsScenarioPath), { recursive: true });
             fs.writeFileSync(testsScenarioPath, String(payload.scenarioText), "utf8");
+            runState.scenarioDrafts = normalizeScenarioDrafts([{
+                id: "scenario-1",
+                title: scenarioSubject(payload.scenarioText, "Manual scenario"),
+                category: "MANUAL",
+                selected: true,
+                open: true,
+                text: payload.scenarioText
+            }]);
+            runState.discoveryInsight = "";
+            savePersistentUiState();
             pushLog("Scenario saved to scenario.txt.\n");
+            sendJson(res, 200, { ok: true });
+            return;
+        }
+
+        if (req.method === "POST" && url.pathname === "/api/scenario-drafts") {
+            const payload = JSON.parse(await readBody(req) || "{}");
+            runState.scenarioDrafts = normalizeScenarioDrafts(payload.scenarioDrafts);
+            runState.discoveryInsight = String(payload.discoveryInsight || "");
+            savePersistentUiState();
             sendJson(res, 200, { ok: true });
             return;
         }
@@ -1797,7 +3247,21 @@ const server = http.createServer(async (req, res) => {
         if (req.method === "DELETE" && url.pathname === "/api/scenario") {
             fs.mkdirSync(path.dirname(testsScenarioPath), { recursive: true });
             fs.writeFileSync(testsScenarioPath, "", "utf8");
+            runState.scenarioDrafts = [];
+            runState.discoveryInsight = "";
+            savePersistentUiState();
             pushLog("Scenario text cleared.\n");
+            sendJson(res, 200, { ok: true });
+            return;
+        }
+
+        if (req.method === "DELETE" && url.pathname === "/api/review-artifacts") {
+            if (runState.running) {
+                sendJson(res, 409, { error: "Agent is already running." });
+                return;
+            }
+            cleanReviewArtifacts();
+            pushLog("Previous scenarios and generated tests cleared.\n");
             sendJson(res, 200, { ok: true });
             return;
         }
@@ -1815,6 +3279,9 @@ const server = http.createServer(async (req, res) => {
                 return;
             }
             const result = await suggestScenariosFromUrl(payload.url, payload.count, payload.types);
+            runState.scenarioDrafts = normalizeScenarioDrafts(result.scenarios);
+            runState.discoveryInsight = discoveryInsightFromResult(result);
+            savePersistentUiState();
             sendJson(res, 200, result);
             return;
         }
@@ -1836,6 +3303,7 @@ const server = http.createServer(async (req, res) => {
             runManualPipeline({
                 scenarioText: singleScenarioText,
                 scenarioTexts,
+                scenarioDrafts: normalizeScenarioDrafts(payload.scenarioDrafts),
                 inputDataOptions: payload.inputDataOptions || { enabled: false, createDataProviders: false, fields: {} },
                 cleanupFirst: payload.cleanupFirst !== false
             });
@@ -1851,7 +3319,8 @@ const server = http.createServer(async (req, res) => {
             }
             runGeneratedTests({
                 all: payload.all === true,
-                files: payload.files
+                files: payload.files,
+                parallel: payload.parallel === true
             });
             sendJson(res, 202, { ok: true });
             return;

@@ -329,6 +329,76 @@ function applyDeterministicHealing(testFile, errorLog, attempt) {
         changes.push("Replaced strict main/role=main wait with body plus visible content fallback.");
     }
 
+    if (/unexpected token.*css selector|a:has-text|text=\/.*\/i/i.test(errorLog + "\n" + code)) {
+        code = code.replace(
+            /const\s+skipLink\s*=\s*page\.locator\(["']a\[href=['"]#main['"]\],\s*a:has-text\(['"]Skip to main content['"]\),\s*text=\/skip to main content\/i["']\);/g,
+            [
+                "const skipLink = page",
+                "      .locator('a[href=\"#main-content\"], a[href=\"#main\"]')",
+                "      .or(page.getByRole('link', { name: /skip to main content/i }))",
+                "      .or(page.locator('a[href*=\"main\"]'))",
+                "      .first();"
+            ].join("\n")
+        );
+        code = code.replace(
+            /const\s+skipLink\s*=\s*page\.locator\(["']([^"']*a:has-text[^"']*text=\/skip to main content\/i[^"']*)["']\);/g,
+            [
+                "const skipLink = page",
+                "      .locator('a[href=\"#main-content\"], a[href=\"#main\"]')",
+                "      .or(page.getByRole('link', { name: /skip to main content/i }))",
+                "      .or(page.locator('a[href*=\"main\"]'))",
+                "      .first();"
+            ].join("\n")
+        );
+        changes.push("Replaced invalid mixed CSS/text skip-link selector with Playwright locator chaining.");
+    }
+
+    if (/(whatsapp|wa\.me|api\.whatsapp\.com|whatsapp:\/\/|external application|protocol handler|net::err_aborted|frame was detached)/i.test(errorLog + "\n" + code)) {
+        const explicitWhatsAppUrl = code.match(/https:\/\/wa\.me\/\d+|https:\/\/api\.whatsapp\.com\/[^'"`\s)]+|whatsapp:\/\/[^'"`\s)]+/i)?.[0] || "";
+        const phoneNumber = explicitWhatsAppUrl.match(/\d{7,}/)?.[0] || code.match(/\b\d{7,}\b/)?.[0] || "";
+        const expectedPattern = phoneNumber
+            ? `/wa\\.me\\/${phoneNumber}|api\\.whatsapp\\.com|whatsapp:/i`
+            : `/wa\\.me|api\\.whatsapp\\.com|whatsapp:/i`;
+        const expectedContains = phoneNumber
+            ? `\n    expect(whatsAppHref || '').toContain('${phoneNumber}');`
+            : "";
+        const safeValidationBlock = [
+            "// Do not click WhatsApp links in automation.",
+            "    // They can trigger a native Windows/browser protocol prompt that Playwright cannot control.",
+            "    const whatsAppHref = await whatsAppLink.getAttribute('href');",
+            `    expect(whatsAppHref || '').toMatch(${expectedPattern});${expectedContains}`,
+            "    console.log(`✅ WhatsApp link target verified safely: ${whatsAppHref}`);"
+        ].join("\n");
+
+        code = code.replace(
+            /\/\/\s*(?:FIX:\s*)?The WhatsApp link opens[\s\S]*?await\s+newPage\.close\(\);\r?\n/g,
+            `${safeValidationBlock}\n`
+        );
+        code = code.replace(
+            /const\s+\[newPage\]\s*=\s*await\s+Promise\.all\(\[[\s\S]*?whatsAppLink\.click\(\)[\s\S]*?\]\);\s*[\s\S]*?await\s+newPage\.waitForURL\([\s\S]*?await\s+newPage\.close\(\);/g,
+            safeValidationBlock
+        );
+        code = code.replace(
+            /await\s+newPage\.waitForURL\([\s\S]*?\);\s*[\s\S]*?const\s+currentUrl\s*=\s*newPage\.url\(\);[\s\S]*?console\.log\([^;]*Verification completed[^;]*;\s*/g,
+            `${safeValidationBlock}\n    console.log('✅ Verification completed: WhatsApp chat link is configured correctly.');\n`
+        );
+
+        if (/whatsAppLink\.click\(\)|waitForEvent\(['"]page['"]\)|newPage\.waitForURL/.test(code)) {
+            code = code.replace(
+                /await\s+page\.waitForLoadState\(['"]networkidle['"]\);\s*console\.log\([^;]+before clicking WhatsApp link[^;]+;\s*/g,
+                ""
+            );
+            code = code.replace(
+                /await\s+whatsAppLink\.click\(\);\s*/g,
+                `${safeValidationBlock}\n`
+            );
+        }
+
+        if (code !== originalCode) {
+            changes.push("Replaced WhatsApp click/native protocol prompt flow with safe href validation.");
+        }
+    }
+
     if (code !== originalCode) {
         fs.writeFileSync(testFile, code, "utf8");
         console.log(`✅ Deterministic healing applied on attempt ${attempt}:`);

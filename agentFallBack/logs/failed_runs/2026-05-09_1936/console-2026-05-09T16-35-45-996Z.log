@@ -1,0 +1,11 @@
+[    3404ms] [WARNING] Error: iframe https://iport.travelport.com/ici/iz/he identified as dummy iframe
+    at c._listenLoadEvent (https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:47020)
+    at c.document (https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:46296)
+    at https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:48169
+    at Array.map (<anonymous>)
+    at u._detectAllFrames (https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:47806)
+    at u.detect (https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:47659)
+    at st._initializeCommunicationChannels (https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:625227)
+    at st.initialize (https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:621499)
+    at async n (https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:3:636196) @ https://portal.allyable.com/aweb?license=375176d80d6044adb0b60789edaf1b3a:2
+[    5190ms] [LOG] {ip: 89.139.252.240, hostname: 89-139-252-240.bb.netvision.net.il, city: Petaẖ Tiqva, region: Central District, country: IL} @ https://ipinfo.io/?callback=_zajQuery18208471121586118661_1778344550478&_=1778344550987:0

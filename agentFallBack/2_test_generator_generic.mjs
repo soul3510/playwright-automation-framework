@@ -164,9 +164,23 @@ function sanitizeDataKey(value, fallback = "primaryInput") {
     return /^[a-zA-Z_$]/.test(key) ? key : `input_${key}`;
 }
 
-function firstUserInputValue(inputData, fallback) {
+function firstUserInputValue(inputData, fallback, preferredKey = "") {
     if (!inputData?.enabled) return fallback;
-    const values = Object.values(inputData.fields || {}).map(value => String(value || "").trim()).filter(Boolean);
+    const fields = inputData.fields || {};
+    const exactKey = userInputAccessor(inputData, preferredKey);
+    if (exactKey) {
+        const directEntry = Object.entries(fields).find(([key]) => sanitizeDataKey(key).toLowerCase() === exactKey.toLowerCase());
+        const directValue = String(directEntry?.[1] || "").trim();
+        if (directValue) return directValue;
+    }
+    const normalizedPreferred = sanitizeDataKey(preferredKey).toLowerCase();
+    const fuzzyEntry = Object.entries(fields).find(([key]) => {
+        const normalizedKey = sanitizeDataKey(key).toLowerCase();
+        return normalizedPreferred && (normalizedKey.includes(normalizedPreferred) || normalizedPreferred.includes(normalizedKey));
+    });
+    const fuzzyValue = String(fuzzyEntry?.[1] || "").trim();
+    if (fuzzyValue) return fuzzyValue;
+    const values = Object.values(fields).map(value => String(value || "").trim()).filter(Boolean);
     return values[0] || fallback;
 }
 
@@ -431,7 +445,7 @@ test.describe('${testClassName}', () => {
             if (fieldMatch) {
                 const rawValue = extractQuotedValue(fieldMatch[1]) || fieldMatch[1].trim();
                 const field = fieldMatch[2].trim();
-                const value = escapeForSingleQuotedTs(firstUserInputValue(inputData, rawValue));
+                const value = escapeForSingleQuotedTs(firstUserInputValue(inputData, rawValue, field));
                 const dataKey = userInputAccessor(inputData, field);
                 code += `    console.log('⌨️ Preparing to fill field: ${escapeForSingleQuotedTs(field)}');\n`;
                 if (field.toLowerCase().includes('search')) {
@@ -444,18 +458,19 @@ test.describe('${testClassName}', () => {
                         code += `    await searchInput.fill('${value}');\n`;
                     }
                 } else {
-                    const selector = generateGenericSelector(field, 'fill', step);
-                    code += `    await expect(page.locator('${selector}')).toBeVisible();\n`;
+                    const fieldTermsRegex = regexLiteralFromTerms(field, "input");
+                    code += `    const fieldLocator${stepNumber} = page.getByLabel(/${fieldTermsRegex}/i).or(page.getByPlaceholder(/${fieldTermsRegex}/i)).or(page.locator('input:visible, textarea:visible')).first();\n`;
+                    code += `    await expect(fieldLocator${stepNumber}).toBeVisible({ timeout: 10000 });\n`;
                     if (providerEnabled && dataKey) {
                         code += `    const fieldValue${stepNumber} = String(inputData.${dataKey} ?? '${value}');\n`;
-                        code += `    await page.fill('${selector}', fieldValue${stepNumber});\n`;
+                        code += `    await fieldLocator${stepNumber}.fill(fieldValue${stepNumber});\n`;
                     } else {
-                        code += `    await page.fill('${selector}', '${value}');\n`;
+                        code += `    await fieldLocator${stepNumber}.fill('${value}');\n`;
                     }
                 }
                 code += `    console.log('✅ Field filled: ${escapeForSingleQuotedTs(field)}');\n`;
             } else if (step.toLowerCase().includes('primary visible form') || step.toLowerCase().includes('visible form')) {
-                const safeValue = firstUserInputValue(inputData, primaryQuery || "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+                const safeValue = firstUserInputValue(inputData, primaryQuery || "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "primaryInput");
                 const dataKey = userInputAccessor(inputData, "primaryInput");
                 code += `    console.log('⌨️ Filling the primary visible form with validation-safe data');\n`;
                 code += `    const primaryInput = page.locator('input:visible, textarea:visible').first();\n`;

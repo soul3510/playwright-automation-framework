@@ -1,35 +1,34 @@
-Subject: Verify location and map-related data endpoints align with Headquarters Location section
+Subject: Verify WhatsApp Contact Link Functionality
 User: no user
 Steps:
-1. On the profile page, identify API calls providing location data (addresses and coordinates for HQ)
-2. Validate response includes headquartersAddress, city, country, latitude, longitude
-3. Cross-check latitude/longitude values produce a plausible map point (e.g., within Netherlands for Leusden address) using a lightweight geo validation
+1. Navigate to page: https://solo.beatwish.live/
+2. Locate and click on a visible WhatsApp contact link (e.g., the one with 'aria-label="שליחת הודעה בוואטסאפ"' or 'href="https://wa.me/972508266273"').
 
 Expected:
-Location data contains a valid address and plausible coordinates; lat/long renderable by maps component
-Reason: Headquarters location is shown textually and may be tied to map coordinates; ensure location data is consistent across map/service endpoints.
+The browser should successfully initiate a WhatsApp chat with the specified phone number ('972508266273').
+The URL should change to 'https://wa.me/972508266273' or trigger the WhatsApp application/web client, indicating a successful redirection.
+Reason: WhatsApp is a primary and direct communication channel for potential customers to inquire about services. A non-functional or incorrect WhatsApp link directly hinders lead generation and customer engagement, impacting business significantly.
 
 Additional:
-Category: BE_API
+Category: QUALITY
 Discovered page signals:
-- Interruption handled before scan: safe button: Reject All
-- Heading: Gnn Holding B.V. Credit Report
-- Heading: Details
-- Heading: Headquarters Location
-- Heading: Industry Benchmark
-- Heading: Financial Data
-- Heading: Adverse payment profiles
-- Heading: Directors/Shareholders Summary
-- Heading: Current Directors
+- Heading: השכרת ציוד הגברה ותאורה לאירועים
+- Heading: זוג רמקולים מוגברים
+- Heading: עמדת דיג'יי
+- Heading: Pioneer DDJ-400
+- Heading: מיקסר Bluetooth
+- Heading: מיקרופונים אלחוטיים
+- Heading: סטנד תאורה ואפקטים
+- Heading: מכונת עשן
+- Element: a "דלגו לתוכן הראשי"
+- Element: a "ציוד, הגברה, תאורה ודי ג׳יי לאירועים"
+- Element: a "השכרת ציוד לארועים"
+- Element: a "DJ - SOLO"
+- Element: a "דברו איתי"
+- Element: a "שלחו הודעה בוואטסאפ"
+- Element: a "למחירון הציוד"
+- Element: a "איך להרים את המסיבה ולשמור על אנרגיה גבוהה"
+- Element: a "איך לבחור חבילת הגברה שמתאימה לגודל האירוע"
+- Element: a "תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר"
+- Element: a "לכל העדכונים"
 - Element: a
-- Element: input
-- Element: button
-- Element: a "Free Trial"
-- Element: a "Home >"
-- Element: a "Netherlands >"
-- Element: a "Science >"
-- Element: a
-- Element: a "Access full report"
-- Element: a #secondary-cta "View Example Report"
-- Element: a
-- Element: a "hidden.hidden.hidden.hidden.hidden"
