@@ -1,0 +1,104 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - img "Eyal Sooliman" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]: Eyal Sooliman
+        - text: Senior Automation Developer & QA Lead · דמו תשתית אוטומציה מלאה עם LLM ו־Agents
+    - generic [ref=e9]:
+      - generic [ref=e12]: מאובטח באמצעות Cloudflare Access
+      - button "Change language" [ref=e13] [cursor=pointer]:
+        - generic [ref=e14]: 🌐
+        - generic [ref=e15]: English
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - heading "דמו תשתית LLM ו־Agents לאוטומציית QA." [level=1] [ref=e18]
+      - paragraph [ref=e19]: "במקום רק לספר על הניסיון שלי, רציתי להראות אותו. הדמו הזה משקף את הדרך שבה אני עובד: לקחת רעיון, לבנות סביבו תשתית אוטומציה, להשתמש ב־AI Agents רק במקומות שבהם הם באמת מייצרים יעילות, ולחבר הכול לתהליך עבודה אמיתי שצוות יכול להשתמש בו."
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - strong [ref=e22]: תהליך עבודה עם AI Agents
+          - text: ממוצר חי לתסריטי בדיקה אוטומאטיים.
+        - generic [ref=e23]:
+          - strong [ref=e24]: הרצת Playwright
+          - text: ה- Scenarios שנוצרים מחוברים לאוטומציית דפדפן אמיתית.
+        - generic [ref=e25]:
+          - strong [ref=e26]: שילוב MCP וכלי עבודה
+          - text: MCP Servers וכלים תומכים יוצרים תהליך אוטומציה חכם ומחובר יותר.
+      - link "מה חשוב לראות" [ref=e28] [cursor=pointer]:
+        - /url: "#how-it-works"
+    - complementary [ref=e29]:
+      - generic [ref=e30]:
+        - heading "הוראות כניסה" [level=2] [ref=e31]
+        - paragraph [ref=e32]: הדמו מוגן כי מאחורי הקלעים רצות יכולות אוטומציה אמיתיות. הגישה ניתנת רק לאימיילים שאושרו מראש.
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: "1"
+            - generic [ref=e36]:
+              - strong [ref=e37]: שלח/י לי אימייל
+              - text: יש להשתמש בכתובת האימייל שאיתה תרצו להיכנס.
+          - generic [ref=e38]:
+            - generic [ref=e39]: "2"
+            - generic [ref=e40]:
+              - strong [ref=e41]: אני מאשר לכם גישה מאובטחת לדמו
+              - text: לאחר האישור, Cloudflare יזהה את כתובת האימייל שלכם.
+          - generic [ref=e42]:
+            - generic [ref=e43]: "3"
+            - generic [ref=e44]:
+              - strong [ref=e45]: נכנסים לדמו
+              - text: ליחצו על הכפתור, הזינו את האימייל שאושר, והשלימו את תהליך האימות של Cloudflare.
+        - link "כניסה לדמו המאובטח" [ref=e46] [cursor=pointer]:
+          - /url: https://qa-agent.work/
+  - article [ref=e48]:
+    - heading "קצת עליי" [level=2] [ref=e49]
+    - paragraph [ref=e50]: מבחינתי אוטומציה חזקה היא לא רק כתיבת טסטים. היא בניית מערכות שעוזרות לצוות הפיתוח לזוז מהר יותר, להבין סיכונים מוקדם יותר, ולשחרר גרסאות בביטחון גבוה יותר.
+    - text: "זו הגישה שאני מביא לתפקיד האוטומציה: בעלות מעשית, עומק טכני, והיכולת לחבר בין QA, פיתוח וצרכי מוצר לתהליך עבודה אחד שאפשר להרחיב."
+    - paragraph [ref=e51]: אני בונה כלים עובדים, מחבר טכנולוגיות, מאמת רעיונות מהר, והופך אוטומציה למשהו עובד ובעל ערך עבור הצוות.
+    - paragraph [ref=e52]: המטרה היא לעזור לצוות הפיתוח לתכנן טסטים טובים יותר, לצמצם עבודה חוזרת, למצוא פערים מהר יותר ולקבל החלטות QA חכמות יותר.
+    - link "in לפרופיל הלינקדאין שלי" [ref=e53] [cursor=pointer]:
+      - /url: https://www.linkedin.com/in/eyalsooliman/
+      - generic [ref=e54]: in
+      - generic [ref=e55]: לפרופיל הלינקדאין שלי
+  - generic [ref=e56]:
+    - generic [ref=e58]:
+      - heading "מה אני ממליץ לראות בזמן הדמו" [level=2] [ref=e59]
+      - paragraph [ref=e60]: "הממשק פשוט בכוונה. החלק החשוב הוא החשיבה ההנדסית מאחורי הזרימה: איך דרישות הופכות לsecnarios, איך secnarios הופכים להרצה, ואיך תוצאות הופכות לתובנה."
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e63]: שלב 01
+        - strong [ref=e64]: מתחילים בהזנת הדרישות של המערכת
+        - text: זה יכול להיות כתובת URL, דף CONFLUANCE, או רשימה של דרישות שכתובות ב - TXT
+      - generic [ref=e65]:
+        - generic [ref=e66]: שלב 02
+        - strong [ref=e67]: יוצרים כוונת בדיקה
+        - text: AI עוזר לבנות את SCENARIO, ההתנהגות הצפויה וכיוון האוטומציה.
+      - generic [ref=e68]:
+        - generic [ref=e69]: שלב 03
+        - strong [ref=e70]: מריצים עם Playwright
+        - text: ה-SCENARIO מחובר לאוטומציית דפדפן אמיתית .
+      - generic [ref=e71]:
+        - generic [ref=e72]: שלב 04
+        - strong [ref=e73]: תוצאות הריצה
+        - text: התוצאה נועדה לעזור להבין מה קרה ומה כדאי לשפר בהמשך.
+  - generic [ref=e74]:
+    - paragraph [ref=e77]: אלה הנושאים שאשמח להרחיב עליהם במהלך הראיון.
+    - generic [ref=e78]:
+      - generic [ref=e79]:
+        - generic [ref=e80]: ARCHITECTURE
+        - strong [ref=e81]: איך הייתי מרחיב את זה בחברה אמיתית
+        - text: מבנה repository, בעלות על טסטים, שילוב CI, לוגים, דוחות ותחזוקה לאורך זמן.
+      - generic [ref=e82]:
+        - generic [ref=e83]: TEAM IMPACT
+        - strong [ref=e84]: איך אני הופך אוטומציה לשימושית עבור מפתחים
+        - text: תבניות פשוטות, תיעוד ברור, helpers לשימוש חוזר ומנטורינג לצוותי BE ו־FE.
+      - generic [ref=e85]:
+        - generic [ref=e86]: AI STRATEGY
+        - strong [ref=e87]: איפה AI עוזר — ואיפה הוא לא אמור להחליט לבד
+        - text: שימוש ב־AI להאצה, תוך שמירה על שיקול דעת הנדסי, review ואמינות.
+      - generic [ref=e88]:
+        - generic [ref=e89]: QUALITY MINDSET
+        - strong [ref=e90]: איך אני מחבר איכות לביטחון בשחרור גרסאות
+        - text: נראות של סיכונים, חשיבה על coverage, feedback loops מהירים והחלטות QA מבוססות נתונים.
+  - paragraph [ref=e94]: "הדמו הזה הוא דוגמה ממוקדת לאופן שבו אני ניגש לעבודת אוטומציה: לזהות bottleneck אמיתי, לתכנן תשתית, להשתמש ב־AI כמאיץ פרקטי, ולבנות משהו שמקל על עבודת האיכות של כל הצוות."
+  - generic [ref=e95]:
+    - generic [ref=e96]: נוצר על ידי Eyal Sooliman לצורכי הדגמה בראיונות עבודה.
+    - generic [ref=e97]: הגישה ניתנת רק למראיינים שאושרו מראש.

@@ -1,0 +1,102 @@
+```ts
+/**
+ * ✅ AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Verify_main_content_presentation_and_navigation_to_secured_demo.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+test.describe('Verify_main_content_presentation_and_navigation_to_secured_demo', () => {
+
+  test.beforeEach(async ({ page }) => {
+    // Optional test meta
+    test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+    test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+    test.info().annotations.push({ type: 'Description', description: 'Verify main content presentation and navigation to secured demo' });
+  });
+
+  test('Verify main content presentation and navigation to secured demo', async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData: Record<string, any> = {};
+
+    // STEP 1: NAVIGATE TO PAGE
+    console.log('\n🚀 STEP 1: Navigate to page: https://automation-demo.beatwish.live/');
+
+    // Navigate with explicit waits and visibility checks
+    await page.goto('https://automation-demo.beatwish.live/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // Wait for body to be visible to ensure page loaded
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+
+    // Handle potential interruptions (cookie banners, modals, etc.)
+    await handlePageInterruptions(page);
+
+    console.log('✅ Navigation to URL completed');
+    console.log('✅ Step 1 completed');
+
+    // STEP 2: VERIFY MAIN HEADING IS VISIBLE (localized/ Hebrew in original)
+    // We'll look for any large heading as a robust indicator of main content
+    console.log('\n🚀 STEP 2: Verify main content is visible (primary heading present).');
+
+    // Handle interruptions again before assertions
+    await handlePageInterruptions(page);
+
+    // Prefer a robust heading search
+    const mainHeading = page.locator('h1, h2', { hasText: /(הוראות כניסה|welcome|dashboard|דמו|התחברות|כניסה)/i }).first();
+    await expect(mainHeading).toBeVisible({ timeout: 10000 }).catch(() => {
+      // Fallback: check for a generic main content section if heading not found
+      return expect(page.locator('section, main')).toBeVisible({ timeout: 10000 });
+    });
+
+    console.log('✅ Step 2 completed');
+
+    // STEP 3: VERIFY LOGIN INSTRUCTIONS SECTION IS PRESENT AND READABLE
+    console.log('\n🚀 STEP 3: Verify the login instructions section is present and readable.');
+
+    await handlePageInterruptions(page);
+
+    // Look for a section or heading that resembles login instructions
+    const loginInstrLocator = page.locator('text=/login instruction|הוראות כניסה|login instructions/i').first();
+    await expect(loginInstrLocator).toBeVisible({ timeout: 10000 }).catch(async () => {
+      // If not found, attempt a structural check
+      const section = page.locator('section:has-text("Login")').first();
+      await expect(section).toBeVisible({ timeout: 10000 });
+    });
+
+    console.log('✅ Step 3 completed');
+
+    // STEP 4: CLICK ON THE SECURED DEMO NAVIGATION LINK
+    console.log("\n🚀 STEP 4: Click on the 'כניסה לדמו המאובטח' (Entry to the secured demo) navigation link.");
+
+    await handlePageInterruptions(page);
+
+    // Use a robust, semantic locator with exact text match where possible, with fallback to partial match
+    const securedDemoLink = page.getByRole('link', { name: /כניסה לדמו המאובטח|Entry to the secured demo/i }).first();
+    await expect(securedDemoLink).toBeVisible({ timeout: 10000 });
+    await securedDemoLink.click();
+
+    console.log('✅ Clicked the secured demo navigation link.');
+    console.log('✅ Step 4 completed');
+
+    // POST-CLICK VERIFICATIONS
+    // Ensure navigation happened to an expected area (dashboard/home/welcome)
+    // Use a flexible URL assertion and a visible element on the destination
+    await expect(page).toHaveURL(/dashboard|home|welcome|secured-demo/);
+    const successElement = page.locator('text=/welcome|dashboard|logout/i').first();
+    await expect(successElement).toBeVisible({ timeout: 10000 });
+
+    console.log('✅ Post-navigation verifications passed');
+  });
+});
+
+export {}; // Make this a module
+```

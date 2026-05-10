@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-10T17:01:37.528Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. Navigate to page: https://automation-demo.beatwish.live/\n2. Inspect the '🌐 English' button element with `id='languageToggle'`.",
+        "Subject": "Verify language toggle button accessibility attributes",
+        "Expected": "The '🌐 English' button has an `aria-label` attribute set to 'Change language'.\nThe button is focusable via keyboard navigation (e.g., using Tab key).\nReason: The site is primarily in Hebrew but offers an English toggle. Ensuring the language toggle is accessible (e.g., for screen readers) is important for international users or users with disabilities, demonstrating inclusive design.",
+        "Details": "Subject: Verify language toggle button accessibility attributes\nUser: no user\nSteps:\n1. Navigate to page: https://automation-demo.beatwish.live/\n2. Inspect the '🌐 English' button element with `id='languageToggle'`.\n\nExpected:\nThe '🌐 English' button has an `aria-label` attribute set to 'Change language'.\nThe button is focusable via keyboard navigation (e.g., using Tab key).\nReason: The site is primarily in Hebrew but offers an English toggle. Ensuring the language toggle is accessible (e.g., for screen readers) is important for international users or users with disabilities, demonstrating inclusive design.\n\nAdditional:\nCategory: ACCESSIBILITY\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\"\n\nADDITIONAL DATA:\nCategory: ACCESSIBILITY\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\"",
+        "Additional": "Category: ACCESSIBILITY\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

@@ -1,0 +1,191 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Verify_main_content_presentation_and_navigation_to_secured_demo.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_main_content_presentation_and_navigation_to_secured_demo.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Verify_main_content_presentation_and_navigation_to_secured_demo.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+
+test.describe('Verify_main_content_presentation_and_navigation_to_secured_demo', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify main content presentation and navigation to secured demo' });
+  });
+
+  test('Verify main content presentation and navigation to secured demo', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData = {};
+    // =========================================
+    // STEP 1: NAVIGATE TO PAGE: HTTPS://AUTOMATION-DEMO.BEATWISH.LIVE/
+    // =========================================
+    console.log('\n🚀 STEP 1: Navigate to page: https://automation-demo.beatwish.live/');
+
+    console.log('📍 Navigating to URL: https://automation-demo.beatwish.live/');
+    await page.goto('https://automation-demo.beatwish.live/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    await handlePageInterruptions(page);
+    console.log('✅ Navigation completed successfully');
+    console.log('✅ Step 1 completed');
+
+    // =========================================
+    // STEP 2: VERIFY THE MAIN HEADING 'דמו תשתית LLM ו־AGENTS לאוטומציית QA.' IS VISIBLE.
+    // =========================================
+    console.log('\n🚀 STEP 2: Verify the main heading 'דמו תשתית LLM ו־Agents לאוטומציית QA.' is visible.');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 2: Pattern not recognized - Verify the main heading 'דמו תשתית LLM ו־Agents לאוטומציית QA.' is visible.');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 2 completed');
+
+    // =========================================
+    // STEP 3: VERIFY THE 'הוראות כניסה' (LOGIN INSTRUCTIONS) SECTION IS PRESENT AND READABLE.
+    // =========================================
+    console.log('\n🚀 STEP 3: Verify the 'הוראות כניסה' (Login instructions) section is present and readable.');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 3: Pattern not recognized - Verify the 'הוראות כניסה' (Login instructions) section is present and readable.');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 3 completed');
+
+    // =========================================
+    // STEP 4: CLICK ON THE 'כניסה לדמו המאובטח' (ENTRY TO THE SECURED DEMO) NAVIGATION LINK.
+    // =========================================
+    console.log('\n🚀 STEP 4: Click on the 'כניסה לדמו המאובטח' (Entry to the secured demo) navigation link.');
+
+    await handlePageInterruptions(page);
+
+    console.log('🖱️ Preparing to click element: כניסה לדמו המאובטח\' (Entry to the secured demo) navigation link.');
+    console.log('⚠️ Generic click action for: כניסה לדמו המאובטח\' (Entry to the secured demo) navigation link.');
+    // Generic click action - add custom method as needed
+    const element4 = page.getByText('כניסה לדמו המאובטח\' (Entry to the secured demo) navigation link.', { exact: false }).first();
+    await expect(element4).toBeVisible({ timeout: 10000 });
+    await element4.click();
+    console.log('✅ Clicked element: כניסה לדמו המאובטח\' (Entry to the secured demo) navigation link.');
+    console.log('✅ Step 4 completed');
+
+    // Verification: The main heading and login instructions section are clearly visible and readable.
+    // Verification: The browser successfully navigates to 'https://qa-agent.work/'.
+    // Verification: Reason: It's crucial for primary users (recruiters, hiring managers) to quickly understand the site's purpose and find the entry point to the actual demo. This validates the core user journey and ensures key information is accessible.
+    await expect(page).toHaveURL(/dashboard|home|welcome/);
+    const successElement = await page.locator('text=welcome, dashboard, logout').first();
+    await expect(successElement).toBeVisible();
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+- Keep `handlePageInterruptions(page)` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If `inputDataProviders` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require `main` or `[role="main"]` for generic page-load verification unless the snapshot proves it exists. Prefer `body` plus visible content such as headings, nav, article, section, or body.
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.

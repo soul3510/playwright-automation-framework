@@ -1,26 +1,10 @@
 {
-  "currentAgent": "healer",
-  "status": "PASSED",
+  "currentAgent": "web-ui",
+  "status": "RUNNING",
   "source": "manual",
-  "startedAt": "2026-05-10T13:47:14.862Z",
-  "logs": [
-    {
-      "agent": "healer",
-      "timestamp": "2026-05-10T13:48:00.518Z",
-      "message": "Test PASSED after 2 attempt(s): SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts"
-    }
-  ],
+  "startedAt": "2026-05-10T17:01:37.283Z",
+  "logs": [],
   "bugReport": {
     "detectedBugs": []
-  },
-  "healer": {
-    "targetFilePath": "C:\\My_VSC_Projects\\justVSC\\playwright-automation-framework\\tests\\generated-from-agentFallBack\\SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts",
-    "targetFileName": "SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts",
-    "pageId": "manual",
-    "lastRunStatus": "PASSED",
-    "healingAttempts": 2,
-    "maxRetries": 15,
-    "completed": true,
-    "completedAt": "2026-05-10T13:48:00.518Z"
   }
 }

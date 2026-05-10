@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-10T16:52:51.770Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. Navigate to page: https://automation-demo.beatwish.live/\n2. Verify the main heading 'דמו תשתית LLM ו־Agents לאוטומציית QA.' is visible.\n3. Verify the 'הוראות כניסה' (Login instructions) section is present and readable.\n4. Click on the 'כניסה לדמו המאובטח' (Entry to the secured demo) navigation link.",
+        "Subject": "Verify main content presentation and navigation to secured demo",
+        "Expected": "The main heading and login instructions section are clearly visible and readable.\nThe browser successfully navigates to 'https://qa-agent.work/'.\nReason: It's crucial for primary users (recruiters, hiring managers) to quickly understand the site's purpose and find the entry point to the actual demo. This validates the core user journey and ensures key information is accessible.",
+        "Details": "Subject: Verify main content presentation and navigation to secured demo\nUser: no user\nSteps:\n1. Navigate to page: https://automation-demo.beatwish.live/\n2. Verify the main heading 'דמו תשתית LLM ו־Agents לאוטומציית QA.' is visible.\n3. Verify the 'הוראות כניסה' (Login instructions) section is present and readable.\n4. Click on the 'כניסה לדמו המאובטח' (Entry to the secured demo) navigation link.\n\nExpected:\nThe main heading and login instructions section are clearly visible and readable.\nThe browser successfully navigates to 'https://qa-agent.work/'.\nReason: It's crucial for primary users (recruiters, hiring managers) to quickly understand the site's purpose and find the entry point to the actual demo. This validates the core user journey and ensures key information is accessible.\n\nAdditional:\nCategory: UI_E2E\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\"\n\nADDITIONAL DATA:\nCategory: UI_E2E\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\"",
+        "Additional": "Category: UI_E2E\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\""
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

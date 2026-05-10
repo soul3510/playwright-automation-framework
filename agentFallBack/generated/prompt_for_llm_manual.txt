@@ -1,0 +1,165 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Verify_language_toggle_button_accessibility_attributes.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_language_toggle_button_accessibility_attributes.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Verify_language_toggle_button_accessibility_attributes.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+
+test.describe('Verify_language_toggle_button_accessibility_attributes', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify language toggle button accessibility attributes' });
+  });
+
+  test('Verify language toggle button accessibility attributes', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData = {};
+    // =========================================
+    // STEP 1: NAVIGATE TO PAGE: HTTPS://AUTOMATION-DEMO.BEATWISH.LIVE/
+    // =========================================
+    console.log('\n🚀 STEP 1: Navigate to page: https://automation-demo.beatwish.live/');
+
+    console.log('📍 Navigating to URL: https://automation-demo.beatwish.live/');
+    await page.goto('https://automation-demo.beatwish.live/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    await handlePageInterruptions(page);
+    console.log('✅ Navigation completed successfully');
+    console.log('✅ Step 1 completed');
+
+    // =========================================
+    // STEP 2: INSPECT THE '🌐 ENGLISH' BUTTON ELEMENT WITH `ID='LANGUAGETOGGLE'`.
+    // =========================================
+    console.log('\n🚀 STEP 2: Inspect the '🌐 English' button element with `id='languageToggle'`.');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 2: Pattern not recognized - Inspect the '🌐 English' button element with `id='languageToggle'`.');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 2 completed');
+
+    // Verification: The '🌐 English' button has an `aria-label` attribute set to 'Change language'.
+    // Verification: The button is focusable via keyboard navigation (e.g., using Tab key).
+    // Verification: Reason: The site is primarily in Hebrew but offers an English toggle. Ensuring the language toggle is accessible (e.g., for screen readers) is important for international users or users with disabilities, demonstrating inclusive design.
+    // Custom verification for: The '🌐 English' button has an `aria-label` attribute set to 'Change language'.
+    // The button is focusable via keyboard navigation (e.g., using Tab key).
+    // Reason: The site is primarily in Hebrew but offers an English toggle. Ensuring the language toggle is accessible (e.g., for screen readers) is important for international users or users with disabilities, demonstrating inclusive design.
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    console.log('Custom verification completed with generic page visibility check');
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+- Keep `handlePageInterruptions(page)` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If `inputDataProviders` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require `main` or `[role="main"]` for generic page-load verification unless the snapshot proves it exists. Prefer `body` plus visible content such as headings, nav, article, section, or body.
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.
