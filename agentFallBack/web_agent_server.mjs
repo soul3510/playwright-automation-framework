@@ -117,6 +117,15 @@ function sendJson(res, status, body) {
     res.end(JSON.stringify(body));
 }
 
+function serializeJsonForInlineScript(value) {
+    return JSON.stringify(value)
+        .replace(/</g, "\\u003C")
+        .replace(/>/g, "\\u003E")
+        .replace(/&/g, "\\u0026")
+        .replace(/\u2028/g, "\\u2028")
+        .replace(/\u2029/g, "\\u2029");
+}
+
 async function readBody(req) {
     let body = "";
     for await (const chunk of req) body += chunk;
@@ -2062,10 +2071,10 @@ function pageHtml(initialScenario, initialUiState = {}) {
     </aside>
   </main>
   <script>
-    const initialScenarioText = ${JSON.stringify(initialScenario || "")};
-    const initialScenarioDrafts = ${JSON.stringify(normalizeScenarioDrafts(initialUiState.scenarioDrafts))};
-    const initialDiscoveryInsight = ${JSON.stringify(initialUiState.discoveryInsight || "")};
-    const initialDeepSearchPages = ${JSON.stringify(normalizeDeepSearchPages(initialUiState.deepSearchPages))};
+    const initialScenarioText = ${serializeJsonForInlineScript(initialScenario || "")};
+    const initialScenarioDrafts = ${serializeJsonForInlineScript(normalizeScenarioDrafts(initialUiState.scenarioDrafts))};
+    const initialDiscoveryInsight = ${serializeJsonForInlineScript(initialUiState.discoveryInsight || "")};
+    const initialDeepSearchPages = ${serializeJsonForInlineScript(normalizeDeepSearchPages(initialUiState.deepSearchPages))};
     let scenarios = initialScenarioDrafts.length
       ? initialScenarioDrafts
       : initialScenarioText.trim()
