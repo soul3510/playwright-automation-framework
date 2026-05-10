@@ -1,19 +1,26 @@
 {
-  "currentAgent": "web-ui",
-  "status": "RUNNING",
+  "currentAgent": "healer",
+  "status": "PASSED",
   "source": "manual",
-  "startedAt": "2026-05-10T12:53:41.402Z",
-  "logs": [],
+  "startedAt": "2026-05-10T13:47:14.862Z",
+  "logs": [
+    {
+      "agent": "healer",
+      "timestamp": "2026-05-10T13:48:00.518Z",
+      "message": "Test PASSED after 2 attempt(s): SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts"
+    }
+  ],
   "bugReport": {
     "detectedBugs": []
   },
   "healer": {
-    "lessonsLearned": [
-      {
-        "locator": "page.getByRole('link', { name: languageUiText, exact: true })",
-        "fix": "page.locator('#searchLanguage').selectOption({ label: languageUiText })",
-        "reason": "The original locator was attempting to click a direct link for language selection. However, the MCP snapshot and common Wikipedia UI show that language selection for search is done via a combobox (dropdown) with ID 'searchLanguage', where 'עברית' is an option. The fix changes the interaction to correctly select the option from the dropdown, which then triggers the expected navigation."
-      }
-    ]
+    "targetFilePath": "C:\\My_VSC_Projects\\justVSC\\playwright-automation-framework\\tests\\generated-from-agentFallBack\\SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts",
+    "targetFileName": "SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts",
+    "pageId": "manual",
+    "lastRunStatus": "PASSED",
+    "healingAttempts": 2,
+    "maxRetries": 15,
+    "completed": true,
+    "completedAt": "2026-05-10T13:48:00.518Z"
   }
 }

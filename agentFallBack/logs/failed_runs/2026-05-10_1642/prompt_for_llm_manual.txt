@@ -1,0 +1,167 @@
+You are a QA Engineer reviewing the following Playwright test.
+
+CONTEXT:
+- This is a GENERIC MODE test - no specific Page Objects required
+- Use standard Playwright best practices
+- Focus on robust selectors and clear test logic
+
+TEST FILE: Verify_Presence_of_Essential_HTTP_Security_Headers.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_Presence_of_Essential_HTTP_Security_Headers.test.ts
+
+CODE:
+/**
+ * 🤖 AI AGENT HANDOVER NOTE
+ * CONTEXT:
+ * - Page ID: manual
+ * - Jira Key: N/A
+ * - Report: agent/generation_report_manual.json
+ * - Mode: Generic (Universal) with Page Objects
+ * 
+ * 🎬 HEADED MODE: This test will run with visible browser
+ * Run with: npx playwright test Verify_Presence_of_Essential_HTTP_Security_Headers.test.ts --headed
+ */
+
+import { test, expect } from '@playwright/test';
+import { LandingPage } from '../../page-objects/LandingPage';
+import { handlePageInterruptions } from '../../utils/pageInterruptions';
+
+
+test.describe('Verify_Presence_of_Essential_HTTP_Security_Headers', () => {
+  
+  test.beforeEach(async () => {
+      test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
+      test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify Presence of Essential HTTP Security Headers' });
+  });
+
+  test('Verify Presence of Essential HTTP Security Headers', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+    // Initialize page object
+    const landingPage = new LandingPage(page);
+    const inputData = {};
+    // =========================================
+    // STEP 1: NAVIGATE TO THE HOMEPAGE: HTTPS://SOLO.BEATWISH.LIVE/
+    // =========================================
+    console.log('\n🚀 STEP 1: Navigate to the homepage: https://solo.beatwish.live/');
+
+    console.log('📍 Navigating to URL: https://solo.beatwish.live/');
+    await page.goto('https://solo.beatwish.live/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    await handlePageInterruptions(page);
+    console.log('✅ Navigation completed successfully');
+    console.log('✅ Step 1 completed');
+
+    // =========================================
+    // STEP 2: INSPECT THE HTTP RESPONSE HEADERS USING BROWSER DEVELOPER TOOLS (NETWORK TAB) OR A PROXY TOOL.
+    // =========================================
+    console.log('\n🚀 STEP 2: Inspect the HTTP response headers using browser developer tools (Network tab) or a proxy tool.');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 2: Pattern not recognized - Inspect the HTTP response headers using browser developer tools (Network tab) or a proxy tool.');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 2 completed');
+
+    // Verification: The `X-Content-Type-Options` header should be present with a value of `nosniff`.
+    // Verification: The `X-Frame-Options` header should be present with a value of `DENY` or `SAMEORIGIN` to prevent clickjacking.
+    // Verification: A `Content-Security-Policy` (CSP) header should be present and configured to restrict script sources and other content, minimizing XSS risks.
+    // Verification: Reason: Critical security headers like X-Content-Type-Options, X-Frame-Options, and Content-Security-Policy help mitigate common web vulnerabilities such as MIME-sniffing, clickjacking, and cross-site scripting, enhancing the overall security posture of the website.
+    // Custom verification for: The `X-Content-Type-Options` header should be present with a value of `nosniff`.
+    // The `X-Frame-Options` header should be present with a value of `DENY` or `SAMEORIGIN` to prevent clickjacking.
+    // A `Content-Security-Policy` (CSP) header should be present and configured to restrict script sources and other content, minimizing XSS risks.
+    // Reason: Critical security headers like X-Content-Type-Options, X-Frame-Options, and Content-Security-Policy help mitigate common web vulnerabilities such as MIME-sniffing, clickjacking, and cross-site scripting, enhancing the overall security posture of the website.
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
+    console.log('Custom verification completed with generic page visibility check');
+
+  });
+});
+
+export {}; // Make this a module
+
+
+TASKS:
+1. Review the test for clarity and correctness
+2. Improve selectors to be more robust
+3. Add proper waits and assertions
+4. Ensure test follows Playwright best practices
+5. Preserve or add the page interruption handler after navigation and before major scenario actions
+6. Add any missing error handling
+7. Return the complete, improved test code
+
+GENERIC MODE GUIDELINES:
+- Prefer semantic selectors: getByRole, getByLabel, getByText
+- Use data-testid attributes when available
+- Add proper waits for dynamic content
+- Include meaningful assertions
+- Structure tests for readability and maintenance
+- Keep `handlePageInterruptions(page)` for cookie banners, privacy prompts, announcement modals, newsletter popups, overlays, and interstitials
+- If `inputDataProviders` exists in the test, preserve it and use those values when filling form/input fields
+- Do not require `main` or `[role="main"]` for generic page-load verification unless the snapshot proves it exists. Prefer `body` plus visible content such as headings, nav, article, section, or body.
+
+UNIVERSAL SELECTORS TO USE:
+{
+  "login": {
+    "username": [
+      "input[type='text']",
+      "input[name='username']",
+      "input[placeholder*='username']",
+      "#username"
+    ],
+    "password": [
+      "input[type='password']",
+      "input[name='password']",
+      "input[placeholder*='password']",
+      "#password"
+    ],
+    "submit": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button:has-text('Login')",
+      ".login-button"
+    ]
+  },
+  "navigation": {
+    "menu": [
+      "nav",
+      ".nav",
+      "[role='navigation']",
+      ".menu"
+    ],
+    "links": [
+      "a[href]",
+      "button:has-text('')",
+      ".link"
+    ],
+    "dropdown": [
+      "select",
+      ".dropdown",
+      "[role='combobox']"
+    ]
+  },
+  "common": {
+    "button": [
+      "button",
+      "input[type='button']",
+      ".btn",
+      "[role='button']"
+    ],
+    "input": [
+      "input",
+      "textarea",
+      "[contenteditable='true']"
+    ],
+    "text": [
+      "p",
+      "span",
+      "div",
+      "h1, h2, h3, h4, h5, h6"
+    ],
+    "form": [
+      "form",
+      ".form",
+      "[role='form']"
+    ]
+  }
+}
+
+Return only the complete TypeScript test code wrapped in triple backticks.

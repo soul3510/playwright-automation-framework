@@ -2,37 +2,119 @@
   "scenarioDrafts": [
     {
       "id": "scenario-1",
-      "title": "Verify Search Functionality and Language-Specific Redirection",
-      "category": "QUALITY",
+      "title": "Reflected XSS via URL Path on 404 Page",
+      "category": "SECURITY",
       "selected": true,
       "open": true,
-      "text": "Subject: Verify Search Functionality and Language-Specific Redirection\nUser: no user\nSteps:\n1. Navigate to page: https://www.wikipedia.org/\n2. Type 'Artificial Intelligence' into the search input field (id: 'searchInput').\n3. Select 'Deutsch' from the language dropdown (id: 'searchLanguage').\n4. Click the 'Search' button.\n\nExpected:\nThe browser navigates to 'https://de.wikipedia.org/wiki/Spezial:Suche?search=Artificial+Intelligence' (or a similar German search results URL).\nThe search results page in German is displayed, showing articles related to 'Artificial Intelligence' (e.g., 'Künstliche Intelligenz').\nReason: The primary function of the Wikipedia portal is to enable users to search for information across its vast multilingual encyclopedia. Ensuring that searches correctly redirect to the appropriate language Wikipedia and display relevant results is critical for user satisfaction and data integrity.\n\nAdditional:\nCategory: QUALITY\nDiscovered page signals:\n- Heading: Wikipedia The Free Encyclopedia\n- Heading: 1,000,000+ articles\n- Heading: 100,000+ articles\n- Heading: 10,000+ articles\n- Heading: 1,000+ articles\n- Heading: 100+ articles\n- Element: a #js-link-box-en \"English 7,177,000+ articles\"\n- Element: a #js-link-box-ja \"日本語 1,500,000+ 記事\"\n- Element: a #js-link-box-de \"Deutsch 3.118.000+ Artikel\"\n- Element: a #js-link-box-zh \"中文 1,533,000+ 条目 / 條目\"\n- Element: a #js-link-box-ru \"Русский 2 098 000+ статей\"\n- Element: a #js-link-box-fr \"Français 2 755 000+ articles\"\n- Element: a #js-link-box-es \"Español 2.110.000+ artículos\"\n- Element: a #js-link-box-it \"Italiano 1.967.000+ voci\"\n- Element: a #js-link-box-pt \"Português 1.170.000+ artigos\"\n- Element: a #js-link-box-pl \"Polski 1 693 000+ haseł\"\n- Element: div [role=\"search\"] \"Search Wikipedia EN Afrikaans Shqip العربية Asturianu Azərbaycanca Български 閩南語 / Bân-lâm-gú বাংলা Беларуская Català Če\"\n- Element: input #searchInput [name=\"search\"]"
+      "text": "Subject: Reflected XSS via URL Path on 404 Page\nUser: no user\nSteps:\n1. Navigate to a crafted URL: https://solo.beatwish.live/updates/%3Cscript%3Ealert('XSS')%3C/script%3E\n2. Observe the browser's behavior (e.g., check for an alert box) and the page source for the injected script.\n\nExpected:\nThe script `alert('XSS')` should not execute.\nThe injected string `<script>alert('XSS')</script>` should be properly escaped or encoded in the HTML response, preventing script execution.\nReason: Malicious scripts injected into the URL path that are reflected unescaped on a 404 error page could lead to client-side attacks, potentially compromising user sessions, defacing the page, or redirecting users to malicious sites.\n\nAdditional:\nCategory: SECURITY\nSource page: https://solo.beatwish.live/updates/undefined\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a"
     },
     {
       "id": "scenario-2",
-      "title": "Validate Language Portal Navigation and Article Count Display Consistency",
-      "category": "QUALITY",
-      "selected": false,
+      "title": "Verify Presence of Essential HTTP Security Headers",
+      "category": "SECURITY",
+      "selected": true,
       "open": false,
-      "text": "Subject: Validate Language Portal Navigation and Article Count Display Consistency\nUser: no user\nSteps:\n1. Navigate to page: https://www.wikipedia.org/\n2. Click on the 'Français 2 755 000+ articles' link (href: '//fr.wikipedia.org/').\n\nExpected:\nThe browser navigates to 'https://fr.wikipedia.org/'.\nThe French Wikipedia homepage loads successfully.\nThe page displays information indicating it is the French Wikipedia, and a current article count or similar metric is visible, confirming the scale suggested on the main portal.\nReason: The homepage prominently displays links to various language Wikipedias with their respective article counts. It's crucial that these links accurately direct users to the correct language portal and that the article counts, while not real-time, are generally consistent with the scale of content on the target site, providing a reliable first impression.\n\nAdditional:\nCategory: QUALITY\nDiscovered page signals:\n- Heading: Wikipedia The Free Encyclopedia\n- Heading: 1,000,000+ articles\n- Heading: 100,000+ articles\n- Heading: 10,000+ articles\n- Heading: 1,000+ articles\n- Heading: 100+ articles\n- Element: a #js-link-box-en \"English 7,177,000+ articles\"\n- Element: a #js-link-box-ja \"日本語 1,500,000+ 記事\"\n- Element: a #js-link-box-de \"Deutsch 3.118.000+ Artikel\"\n- Element: a #js-link-box-zh \"中文 1,533,000+ 条目 / 條目\"\n- Element: a #js-link-box-ru \"Русский 2 098 000+ статей\"\n- Element: a #js-link-box-fr \"Français 2 755 000+ articles\"\n- Element: a #js-link-box-es \"Español 2.110.000+ artículos\"\n- Element: a #js-link-box-it \"Italiano 1.967.000+ voci\"\n- Element: a #js-link-box-pt \"Português 1.170.000+ artigos\"\n- Element: a #js-link-box-pl \"Polski 1 693 000+ haseł\"\n- Element: div [role=\"search\"] \"Search Wikipedia EN Afrikaans Shqip العربية Asturianu Azərbaycanca Български 閩南語 / Bân-lâm-gú বাংলা Беларуская Català Če\"\n- Element: input #searchInput [name=\"search\"]"
+      "text": "Subject: Verify Presence of Essential HTTP Security Headers\nUser: no user\nSteps:\n1. Navigate to the homepage: https://solo.beatwish.live/\n2. Inspect the HTTP response headers using browser developer tools (Network tab) or a proxy tool.\n\nExpected:\nThe `X-Content-Type-Options` header should be present with a value of `nosniff`.\nThe `X-Frame-Options` header should be present with a value of `DENY` or `SAMEORIGIN` to prevent clickjacking.\nA `Content-Security-Policy` (CSP) header should be present and configured to restrict script sources and other content, minimizing XSS risks.\nReason: Critical security headers like X-Content-Type-Options, X-Frame-Options, and Content-Security-Policy help mitigate common web vulnerabilities such as MIME-sniffing, clickjacking, and cross-site scripting, enhancing the overall security posture of the website.\n\nAdditional:\nCategory: SECURITY\nSource page: https://solo.beatwish.live/\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a"
     },
     {
       "id": "scenario-3",
-      "title": "Verify Default Search Language Behavior When No Language is Explicitly Selected",
-      "category": "QUALITY",
-      "selected": false,
-      "open": true,
-      "text": "Subject: Verify Default Search Language Behavior When No Language is Explicitly Selected\nUser: no user\nSteps:\n1. Navigate to page: https://www.wikipedia.org/\n2. Type 'Quantum Physics' into the search input field (id: 'searchInput').\n3. Do NOT select any language from the dropdown (id: 'searchLanguage').\n4. Click the 'Search' button.\n\nExpected:\nThe browser navigates to 'https://en.wikipedia.org/wiki/Special:Search?search=Quantum+Physics' (or a similar English search results URL).\nThe search results page in English is displayed, showing articles related to 'Quantum Physics'.\nReason: Users may not always explicitly select a language when searching. The system should have a sensible default behavior, likely defaulting to English given the site's primary language setting, to ensure a smooth user experience and prevent confusion or empty results.\n\nAdditional:\nCategory: QUALITY\nDiscovered page signals:\n- Heading: Wikipedia The Free Encyclopedia\n- Heading: 1,000,000+ articles\n- Heading: 100,000+ articles\n- Heading: 10,000+ articles\n- Heading: 1,000+ articles\n- Heading: 100+ articles\n- Element: a #js-link-box-en \"English 7,177,000+ articles\"\n- Element: a #js-link-box-ja \"日本語 1,500,000+ 記事\"\n- Element: a #js-link-box-de \"Deutsch 3.118.000+ Artikel\"\n- Element: a #js-link-box-zh \"中文 1,533,000+ 条目 / 條目\"\n- Element: a #js-link-box-ru \"Русский 2 098 000+ статей\"\n- Element: a #js-link-box-fr \"Français 2 755 000+ articles\"\n- Element: a #js-link-box-es \"Español 2.110.000+ artículos\"\n- Element: a #js-link-box-it \"Italiano 1.967.000+ voci\"\n- Element: a #js-link-box-pt \"Português 1.170.000+ artigos\"\n- Element: a #js-link-box-pl \"Polski 1 693 000+ haseł\"\n- Element: div [role=\"search\"] \"Search Wikipedia EN Afrikaans Shqip العربية Asturianu Azərbaycanca Български 閩南語 / Bân-lâm-gú বাংলা Беларуская Català Če\"\n- Element: input #searchInput [name=\"search\"]"
+      "title": "Test for Exposed Directory Listings",
+      "category": "SECURITY",
+      "selected": true,
+      "open": false,
+      "text": "Subject: Test for Exposed Directory Listings\nUser: no user\nSteps:\n1. Attempt to access common directory paths such as: https://solo.beatwish.live/assets/\n2. Attempt to access common directory paths such as: https://solo.beatwish.live/js/\n3. Attempt to access common directory paths such as: https://solo.beatwish.live/css/\n4. Observe the server's response for each attempt.\n\nExpected:\nFor all attempted directory paths, the server should return a `403 Forbidden` or `404 Not Found` status code.\nNo directory contents should be listed or browsable.\nReason: Exposed directory listings can reveal sensitive information about the server's file structure, unindexed files, or backup files, which attackers can exploit to find vulnerabilities or gain unauthorized access to resources.\n\nAdditional:\nCategory: SECURITY\nSource page: https://solo.beatwish.live/\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a"
+    },
+    {
+      "id": "scenario-4",
+      "title": "Verify Secure Referrer-Policy for External Links (WhatsApp)",
+      "category": "SECURITY",
+      "selected": true,
+      "open": false,
+      "text": "Subject: Verify Secure Referrer-Policy for External Links (WhatsApp)\nUser: no user\nSteps:\n1. Navigate to the homepage: https://solo.beatwish.live/\n2. Inspect the HTTP response headers for the `Referrer-Policy` header.\n3. Click on an external WhatsApp link (e.g., 'שלחו הודעה בוואטסאפ' or 'צרו קשר עכשיו').\n4. Using browser developer tools or a network proxy, observe the referrer information sent to `wa.me`.\n\nExpected:\nThe `Referrer-Policy` header should be set to a secure value like `no-referrer`, `same-origin`, or `strict-origin-when-cross-origin`.\nNo sensitive or unnecessary referrer information should be transmitted to the external WhatsApp domain.\nReason: While WhatsApp links are external, ensuring that the `Referrer-Policy` header is correctly configured prevents the site from leaking sensitive internal page paths or query parameters to external services, enhancing user privacy and preventing potential information disclosure.\n\nAdditional:\nCategory: SECURITY\nSource page: https://solo.beatwish.live/\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a"
+    },
+    {
+      "id": "scenario-5",
+      "title": "SSL/TLS Configuration and Mixed Content Check",
+      "category": "SECURITY",
+      "selected": true,
+      "open": false,
+      "text": "Subject: SSL/TLS Configuration and Mixed Content Check\nUser: no user\nSteps:\n1. Navigate to the homepage: https://solo.beatwish.live/\n2. Check the browser's security indicator (e.g., padlock icon in the address bar).\n3. Open browser developer tools (Console tab) and check for any mixed content warnings or errors.\n4. Inspect the SSL certificate details (validity period, issuer, encryption strength) by clicking on the padlock icon.\n\nExpected:\nThe site should load entirely over HTTPS with a valid, trusted SSL certificate.\nThe browser's security indicator should show a secure connection (e.g., green padlock).\nNo mixed content warnings or errors (e.g., HTTP resources loaded on an HTTPS page) should be present in the browser console.\nThe SSL certificate should be up-to-date, issued by a reputable Certificate Authority, and use strong encryption.\nReason: Proper HTTPS implementation is fundamental for data integrity and confidentiality. Mixed content (loading HTTP resources on an HTTPS page) can degrade security, expose users to eavesdropping, or allow content injection, undermining trust in the site.\n\nAdditional:\nCategory: SECURITY\nSource page: https://solo.beatwish.live/\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a"
     }
   ],
-  "discoveryInsight": "Semantic discovery: The Wikipedia portal serves as a global gateway to the free online encyclopedia, enabling users to discover and access Wikipedia in various languages, and to search for information across its vast collection of articles. Users: Information seekers/researchers, Users looking for Wikipedia in their native language, Casual browsers exploring knowledge. Goals: Find information on a specific topic, Navigate to Wikipedia in a preferred language, Discover the breadth of content available across different languages.",
+  "discoveryInsight": "Semantic discovery: The website 'DJ SOLO | ממלכת הסאונד' serves as an online platform for DJ SOLO to offer sound and lighting equipment rental services for various events (private and business), provide DJ services, and share event planning tips. Its primary goal is to attract potential clients and facilitate inquiries for bookings and equipment rentals. Users: Individuals planning private events (e.g., weddings, parties), Businesses organizing corporate events, Event planners seeking equipment or DJ services. Goals: Browse available sound and lighting equipment for rent, Learn about DJ SOLO's DJ services and event packages, Read articles and tips related to event planning and music. Deep Search scanned 5 internal page(s).",
+  "deepSearchPages": [
+    {
+      "index": 0,
+      "url": "https://solo.beatwish.live/",
+      "title": "DJ SOLO | ממלכת הסאונד",
+      "status": "scanned",
+      "reason": "",
+      "usedForScenarios": true
+    },
+    {
+      "index": 1,
+      "url": "https://solo.beatwish.live/dj-solo/",
+      "title": "DJ SOLO",
+      "status": "scanned",
+      "reason": "",
+      "usedForScenarios": true
+    },
+    {
+      "index": 2,
+      "url": "https://solo.beatwish.live/updates/undefined",
+      "title": "This Page Does Not Exist",
+      "status": "scanned",
+      "reason": "",
+      "usedForScenarios": true
+    },
+    {
+      "index": 3,
+      "url": "https://solo.beatwish.live/updates/",
+      "title": "עדכונים וטיפים לאירועים | ממלכת הסאונד",
+      "status": "scanned",
+      "reason": "",
+      "usedForScenarios": true
+    },
+    {
+      "index": 4,
+      "url": "https://solo.beatwish.live/accessibility-statement/",
+      "title": "הצהרת נגישות | ממלכת הסאונד",
+      "status": "scanned",
+      "reason": "",
+      "usedForScenarios": true
+    }
+  ],
   "generatedTests": [
     {
-      "name": "Verify_Search_Functionality_and_Language_Specific_Redirection.test.ts",
-      "relativePath": "tests/generated-from-agentFallBack/Verify_Search_Functionality_and_Language_Specific_Redirection.test.ts",
-      "size": 9869,
-      "lastModified": "2026-05-10T12:54:28.756Z"
+      "name": "Reflected_XSS_via_URL_Path_on_404_Page.test.ts",
+      "relativePath": "tests/generated-from-agentFallBack/Reflected_XSS_via_URL_Path_on_404_Page.test.ts",
+      "size": 7771,
+      "lastModified": "2026-05-10T13:36:39.125Z"
+    },
+    {
+      "name": "SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts",
+      "relativePath": "tests/generated-from-agentFallBack/SSL_TLS_Configuration_and_Mixed_Content_Check.test.ts",
+      "size": 7564,
+      "lastModified": "2026-05-10T13:47:51.500Z"
+    },
+    {
+      "name": "Test_for_Exposed_Directory_Listings.test.ts",
+      "relativePath": "tests/generated-from-agentFallBack/Test_for_Exposed_Directory_Listings.test.ts",
+      "size": 4984,
+      "lastModified": "2026-05-10T13:43:50.754Z"
+    },
+    {
+      "name": "Verify_Presence_of_Essential_HTTP_Security_Headers.test.ts",
+      "relativePath": "tests/generated-from-agentFallBack/Verify_Presence_of_Essential_HTTP_Security_Headers.test.ts",
+      "size": 7431,
+      "lastModified": "2026-05-10T13:42:30.770Z"
+    },
+    {
+      "name": "Verify_Secure_Referrer_Policy_for_External_Links_WhatsApp_.test.ts",
+      "relativePath": "tests/generated-from-agentFallBack/Verify_Secure_Referrer_Policy_for_External_Links_WhatsApp_.test.ts",
+      "size": 5098,
+      "lastModified": "2026-05-10T13:46:43.972Z"
     }
   ],
-  "updatedAt": "2026-05-10T12:54:28.765Z"
+  "updatedAt": "2026-05-10T13:49:57.401Z"
 }

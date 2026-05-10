@@ -1,17 +1,14 @@
-Subject: SSL/TLS Configuration and Mixed Content Check
+Subject: Verify Presence of Essential HTTP Security Headers
 User: no user
 Steps:
 1. Navigate to the homepage: https://solo.beatwish.live/
-2. Check the browser's security indicator (e.g., padlock icon in the address bar).
-3. Open browser developer tools (Console tab) and check for any mixed content warnings or errors.
-4. Inspect the SSL certificate details (validity period, issuer, encryption strength) by clicking on the padlock icon.
+2. Inspect the HTTP response headers using browser developer tools (Network tab) or a proxy tool.
 
 Expected:
-The site should load entirely over HTTPS with a valid, trusted SSL certificate.
-The browser's security indicator should show a secure connection (e.g., green padlock).
-No mixed content warnings or errors (e.g., HTTP resources loaded on an HTTPS page) should be present in the browser console.
-The SSL certificate should be up-to-date, issued by a reputable Certificate Authority, and use strong encryption.
-Reason: Proper HTTPS implementation is fundamental for data integrity and confidentiality. Mixed content (loading HTTP resources on an HTTPS page) can degrade security, expose users to eavesdropping, or allow content injection, undermining trust in the site.
+The `X-Content-Type-Options` header should be present with a value of `nosniff`.
+The `X-Frame-Options` header should be present with a value of `DENY` or `SAMEORIGIN` to prevent clickjacking.
+A `Content-Security-Policy` (CSP) header should be present and configured to restrict script sources and other content, minimizing XSS risks.
+Reason: Critical security headers like X-Content-Type-Options, X-Frame-Options, and Content-Security-Policy help mitigate common web vulnerabilities such as MIME-sniffing, clickjacking, and cross-site scripting, enhancing the overall security posture of the website.
 
 Additional:
 Category: SECURITY

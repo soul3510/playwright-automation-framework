@@ -1,0 +1,25 @@
+{
+  "pageId": "manual",
+  "extractedAt": "2026-05-10T13:36:46.378Z",
+  "scenarios": [
+    {
+      "source": {
+        "from": "manual_input"
+      },
+      "row": {
+        "Epic": null,
+        "Scenario": "1. Navigate to the homepage: https://solo.beatwish.live/\n2. Inspect the HTTP response headers using browser developer tools (Network tab) or a proxy tool.",
+        "Subject": "Verify Presence of Essential HTTP Security Headers",
+        "Expected": "The `X-Content-Type-Options` header should be present with a value of `nosniff`.\nThe `X-Frame-Options` header should be present with a value of `DENY` or `SAMEORIGIN` to prevent clickjacking.\nA `Content-Security-Policy` (CSP) header should be present and configured to restrict script sources and other content, minimizing XSS risks.\nReason: Critical security headers like X-Content-Type-Options, X-Frame-Options, and Content-Security-Policy help mitigate common web vulnerabilities such as MIME-sniffing, clickjacking, and cross-site scripting, enhancing the overall security posture of the website.",
+        "Details": "Subject: Verify Presence of Essential HTTP Security Headers\nUser: no user\nSteps:\n1. Navigate to the homepage: https://solo.beatwish.live/\n2. Inspect the HTTP response headers using browser developer tools (Network tab) or a proxy tool.\n\nExpected:\nThe `X-Content-Type-Options` header should be present with a value of `nosniff`.\nThe `X-Frame-Options` header should be present with a value of `DENY` or `SAMEORIGIN` to prevent clickjacking.\nA `Content-Security-Policy` (CSP) header should be present and configured to restrict script sources and other content, minimizing XSS risks.\nReason: Critical security headers like X-Content-Type-Options, X-Frame-Options, and Content-Security-Policy help mitigate common web vulnerabilities such as MIME-sniffing, clickjacking, and cross-site scripting, enhancing the overall security posture of the website.\n\nAdditional:\nCategory: SECURITY\nSource page: https://solo.beatwish.live/\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a\n\nADDITIONAL DATA:\nCategory: SECURITY\nSource page: https://solo.beatwish.live/\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a",
+        "Additional": "Category: SECURITY\nSource page: https://solo.beatwish.live/\nDiscovered page signals:\n- Heading: השכרת ציוד הגברה ותאורה לאירועים\n- Heading: זוג רמקולים מוגברים\n- Heading: עמדת דיג'יי\n- Heading: Pioneer DDJ-400\n- Heading: מיקסר Bluetooth\n- Heading: מיקרופונים אלחוטיים\n- Heading: סטנד תאורה ואפקטים\n- Heading: מכונת עשן\n- Element: a \"דלגו לתוכן הראשי\"\n- Element: a \"ציוד, הגברה, תאורה ודי ג׳יי לאירועים\"\n- Element: a \"השכרת ציוד לארועים\"\n- Element: a \"DJ - SOLO\"\n- Element: a \"דברו איתי\"\n- Element: a \"שלחו הודעה בוואטסאפ\"\n- Element: a \"למחירון הציוד\"\n- Element: a \"איך להרים את המסיבה ולשמור על אנרגיה גבוהה\"\n- Element: a \"איך לבחור חבילת הגברה שמתאימה לגודל האירוע\"\n- Element: a \"תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר\"\n- Element: a \"לכל העדכונים\"\n- Element: a"
+      },
+      "tags": [
+        "manual"
+      ]
+    }
+  ],
+  "counts": {
+    "scenarios": 1
+  }
+}

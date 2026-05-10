@@ -15,15 +15,19 @@ const testResultsDir = path.join(repoRoot, "test-results");
 const aiProviderStatusPath = path.join(generatedDir, "ai_provider_status.jsonl");
 const uiStatePath = path.join(generatedDir, "ui_state.json");
 const PORT = Number(process.env.AGENT_UI_PORT || 3789);
+const activeChildren = new Set();
+const activeBrowsers = new Set();
 
 const persistedUiState = loadPersistentUiState();
 let runState = {
     running: false,
+    cancelRequested: false,
     status: "idle",
     scenarioStatuses: [],
     testStatuses: [],
     scenarioDrafts: persistedUiState.scenarioDrafts,
     discoveryInsight: persistedUiState.discoveryInsight,
+    deepSearchPages: persistedUiState.deepSearchPages,
     generatedTests: listGeneratedTests(),
     failureSummary: null,
     aiProviderStatus: [],
@@ -33,6 +37,45 @@ let runState = {
     finishedAt: null,
     exitCode: null
 };
+
+function trackChild(child) {
+    activeChildren.add(child);
+    const cleanup = () => activeChildren.delete(child);
+    child.once("close", cleanup);
+    child.once("error", cleanup);
+    return child;
+}
+
+function requestStopActiveWork(reason = "User requested stop") {
+    runState.cancelRequested = true;
+    runState.status = "stopping";
+    pushLog(`\nStop requested: ${reason}\n`);
+
+    for (const child of [...activeChildren]) {
+        try {
+            if (process.platform === "win32" && child.pid) {
+                spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], {
+                    shell: false,
+                    windowsHide: true
+                });
+            } else if (!child.killed) {
+                child.kill("SIGTERM");
+            }
+        } catch (error) {
+            pushLog(`Could not stop child process: ${error.message}\n`);
+        }
+    }
+
+    for (const browser of [...activeBrowsers]) {
+        browser.close().catch(error => pushLog(`Could not close discovery browser: ${error.message}\n`));
+    }
+}
+
+function assertNotStopped() {
+    if (runState.cancelRequested) {
+        throw new Error("Stopped by user.");
+    }
+}
 
 function pushLog(message) {
     const line = sanitizeLogText(message);
@@ -85,11 +128,11 @@ function runCommand(command, args, label, cwd = agentDir) {
         pushLog(`\n=== ${label} ===\n`);
         let child;
         try {
-            child = spawn(command, args, {
+            child = trackChild(spawn(command, args, {
                 cwd,
                 shell: false,
                 env: { ...process.env }
-            });
+            }));
         } catch (error) {
             pushLog(`Command failed to start: ${error.message}\n`);
             resolve(1);
@@ -104,7 +147,7 @@ function runCommand(command, args, label, cwd = agentDir) {
         });
         child.on("close", code => {
             pushLog(`\n=== ${label} exited with ${code} ===\n`);
-            resolve(code ?? 1);
+            resolve(runState.cancelRequested ? 130 : (code ?? 1));
         });
     });
 }
@@ -115,11 +158,11 @@ function runCommandCapture(command, args, label, cwd = agentDir) {
         let child;
         let output = "";
         try {
-            child = spawn(command, args, {
+            child = trackChild(spawn(command, args, {
                 cwd,
                 shell: false,
                 env: { ...process.env }
-            });
+            }));
         } catch (error) {
             const message = `Command failed to start: ${error.message}\n`;
             pushLog(message);
@@ -147,7 +190,7 @@ function runCommandCapture(command, args, label, cwd = agentDir) {
             const message = `\n=== ${label} exited with ${code} ===\n`;
             output += message;
             pushLog(message);
-            resolve({ code: code ?? 1, output });
+            resolve({ code: runState.cancelRequested ? 130 : (code ?? 1), output });
         });
     });
 }
@@ -157,11 +200,11 @@ function runGeminiPrompt(prompt, label = "Gemini semantic discovery") {
         pushLog(`${label}...\n`);
         let child;
         try {
-            child = spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
+            child = trackChild(spawn(process.execPath, [path.join(agentDir, "gemini-cli.js")], {
                 cwd: agentDir,
                 shell: false,
                 env: { ...process.env }
-            });
+            }));
         } catch (error) {
             pushLog(`${label} failed to start: ${error.message}\n`);
             resolve("");
@@ -189,6 +232,11 @@ function runGeminiPrompt(prompt, label = "Gemini semantic discovery") {
         });
         child.on("close", code => {
             if (settled) return;
+            if (runState.cancelRequested) {
+                pushLog(`${label} stopped by user.\n`);
+                finish("");
+                return;
+            }
             if (code !== 0) {
                 const friendly = friendlyGeminiLog(errorOutput);
                 if (friendly) {
@@ -474,7 +522,8 @@ function loadPersistentUiState() {
         const scenarioDrafts = scenarioDraftsFromGeneratedTests();
         return {
             scenarioDrafts,
-            discoveryInsight: scenarioDrafts.length ? "Restored from generated test files." : ""
+            discoveryInsight: scenarioDrafts.length ? "Restored from generated test files." : "",
+            deepSearchPages: []
         };
     }
 
@@ -484,13 +533,15 @@ function loadPersistentUiState() {
         const scenarioDrafts = hasSavedDrafts ? normalizeScenarioDrafts(parsed.scenarioDrafts) : scenarioDraftsFromGeneratedTests();
         return {
             scenarioDrafts,
-            discoveryInsight: String(parsed.discoveryInsight || (!hasSavedDrafts && scenarioDrafts.length ? "Restored from generated test files." : ""))
+            discoveryInsight: String(parsed.discoveryInsight || (!hasSavedDrafts && scenarioDrafts.length ? "Restored from generated test files." : "")),
+            deepSearchPages: normalizeDeepSearchPages(parsed.deepSearchPages)
         };
     } catch {
         const scenarioDrafts = scenarioDraftsFromGeneratedTests();
         return {
             scenarioDrafts,
-            discoveryInsight: scenarioDrafts.length ? "Restored from generated test files." : ""
+            discoveryInsight: scenarioDrafts.length ? "Restored from generated test files." : "",
+            deepSearchPages: []
         };
     }
 }
@@ -501,12 +552,27 @@ function savePersistentUiState() {
         fs.writeFileSync(uiStatePath, JSON.stringify({
             scenarioDrafts: normalizeScenarioDrafts(runState.scenarioDrafts),
             discoveryInsight: runState.discoveryInsight || "",
+            deepSearchPages: normalizeDeepSearchPages(runState.deepSearchPages),
             generatedTests: listGeneratedTests(),
             updatedAt: new Date().toISOString()
         }, null, 2), "utf8");
     } catch (error) {
         pushLog(`Could not save UI state: ${error.message}\n`);
     }
+}
+
+function normalizeDeepSearchPages(pages) {
+    return (Array.isArray(pages) ? pages : [])
+        .slice(0, 25)
+        .map((page, index) => ({
+            index,
+            url: String(page?.url || "").trim(),
+            title: String(page?.title || page?.url || `Page ${index + 1}`).trim(),
+            status: String(page?.status || "scanned").trim(),
+            reason: String(page?.reason || "").trim(),
+            usedForScenarios: page?.usedForScenarios !== false
+        }))
+        .filter(page => page.url);
 }
 
 function normalizeScenarioDrafts(drafts) {
@@ -585,6 +651,7 @@ function cleanReviewArtifacts() {
 
     runState.scenarioDrafts = [];
     runState.discoveryInsight = "";
+    runState.deepSearchPages = [];
     runState.scenarioStatuses = [];
     runState.testStatuses = [];
     runState.generatedTests = [];
@@ -596,6 +663,9 @@ function cleanReviewArtifacts() {
 }
 
 function discoveryInsightFromResult(result) {
+    const deepCount = Array.isArray(result?.deepSearchPages) && result.deepSearchPages.length
+        ? ` Deep Search scanned ${result.deepSearchPages.filter(page => page.status === "scanned").length} internal page(s).`
+        : "";
     if (result?.sitePurpose) {
         const users = Array.isArray(result.primaryUsers) && result.primaryUsers.length
             ? ` Users: ${result.primaryUsers.slice(0, 3).join(", ")}.`
@@ -603,11 +673,11 @@ function discoveryInsightFromResult(result) {
         const goals = Array.isArray(result.mainUserGoals) && result.mainUserGoals.length
             ? ` Goals: ${result.mainUserGoals.slice(0, 3).join(", ")}.`
             : "";
-        return `Semantic discovery: ${result.sitePurpose}${users}${goals}`;
+        return `Semantic discovery: ${result.sitePurpose}${users}${goals}${deepCount}`;
     }
 
     return result?.generationMode === "rule-based-fallback"
-        ? "Rule-based fallback discovery was used."
+        ? `Rule-based fallback discovery was used.${deepCount}`
         : "";
 }
 
@@ -624,9 +694,11 @@ async function runGeneratedTests({ files, all = false, parallel = false }) {
 
     const preservedScenarioDrafts = normalizeScenarioDrafts(runState.scenarioDrafts);
     const preservedDiscoveryInsight = runState.discoveryInsight || "";
+    const preservedDeepSearchPages = normalizeDeepSearchPages(runState.deepSearchPages);
 
     runState = {
         running: true,
+        cancelRequested: false,
         status: "running",
         scenarioStatuses: [],
         testStatuses: selectedNames.map((name, index) => ({
@@ -638,6 +710,7 @@ async function runGeneratedTests({ files, all = false, parallel = false }) {
         })),
         scenarioDrafts: preservedScenarioDrafts,
         discoveryInsight: preservedDiscoveryInsight,
+        deepSearchPages: preservedDeepSearchPages,
         generatedTests: tests,
         failureSummary: null,
         reportUrl: null,
@@ -649,6 +722,7 @@ async function runGeneratedTests({ files, all = false, parallel = false }) {
     savePersistentUiState();
 
     try {
+        assertNotStopped();
         pushLog(`Running ${selectedNames.length} generated test file(s)${parallel ? " in parallel" : ""}.\n`);
         runState.testStatuses.forEach(test => {
             test.status = "running";
@@ -675,6 +749,7 @@ async function runGeneratedTests({ files, all = false, parallel = false }) {
             all ? "Run all generated tests" : "Run selected generated tests",
             repoRoot
         );
+        assertNotStopped();
         const exitCode = result.code;
 
         runState.testStatuses.forEach(test => {
@@ -689,28 +764,32 @@ async function runGeneratedTests({ files, all = false, parallel = false }) {
         savePersistentUiState();
         pushLog(`\nPlaywright report: http://localhost:${PORT}${runState.reportUrl}\n`);
     } catch (error) {
-        pushLog(`\nGenerated test run error: ${error.message}\n`);
+        const stopped = runState.cancelRequested || /stopped by user/i.test(error.message);
+        pushLog(stopped ? "\nGenerated test run stopped by user.\n" : `\nGenerated test run error: ${error.message}\n`);
         runState.testStatuses.forEach(test => {
             if (test.status === "running" || test.status === "queued") {
-                test.status = "failed";
+                test.status = stopped ? "stopped" : "failed";
                 test.finishedAt = new Date().toISOString();
             }
         });
-        runState.status = "failed";
-        runState.exitCode = 1;
-        runState.failureSummary = {
-            title: "The test runner could not complete",
-            failedTest: "Generated test run",
-            failedStep: "Starting or running Playwright",
-            location: "UI generated test runner",
-            plainReason: "The test command failed before a normal Playwright result could be created.",
-            technicalError: error.message,
-            nextAction: "Check that Playwright is installed and restart the UI server, then try running the test again.",
-            screenshotUrl: "",
-            reportUrl: runState.reportUrl || ""
-        };
+        runState.status = stopped ? "stopped" : "failed";
+        runState.exitCode = stopped ? 130 : 1;
+        if (!stopped) {
+            runState.failureSummary = {
+                title: "The test runner could not complete",
+                failedTest: "Generated test run",
+                failedStep: "Starting or running Playwright",
+                location: "UI generated test runner",
+                plainReason: "The test command failed before a normal Playwright result could be created.",
+                technicalError: error.message,
+                nextAction: "Check that Playwright is installed and restart the UI server, then try running the test again.",
+                screenshotUrl: "",
+                reportUrl: runState.reportUrl || ""
+            };
+        }
     } finally {
         runState.running = false;
+        runState.cancelRequested = false;
         runState.finishedAt = new Date().toISOString();
     }
 }
@@ -722,13 +801,16 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
 
     const preservedScenarioDrafts = normalizeScenarioDrafts(scenarioDrafts?.length ? scenarioDrafts : runState.scenarioDrafts);
     const preservedDiscoveryInsight = runState.discoveryInsight || "";
+    const preservedDeepSearchPages = normalizeDeepSearchPages(runState.deepSearchPages);
 
     runState = {
         running: true,
+        cancelRequested: false,
         status: "running",
         scenarioStatuses: [],
         scenarioDrafts: preservedScenarioDrafts,
         discoveryInsight: preservedDiscoveryInsight,
+        deepSearchPages: preservedDeepSearchPages,
         generatedTests: listGeneratedTests(),
         aiProviderStatus: readAiProviderStatus(),
         logs: [],
@@ -739,6 +821,7 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
     savePersistentUiState();
 
     try {
+        assertNotStopped();
         fs.mkdirSync(generatedDir, { recursive: true });
         fs.mkdirSync(path.dirname(testsScenarioPath), { recursive: true });
 
@@ -774,6 +857,7 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
         let finalCode = 0;
 
         for (let i = 0; i < selectedScenarios.length; i++) {
+            assertNotStopped();
             const currentScenario = selectedScenarios[i];
             const scenarioLabel = selectedScenarios.length > 1
                 ? `Scenario ${i + 1}/${selectedScenarios.length}`
@@ -786,6 +870,7 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
 
             if (cleanupFirst) {
                 const cleanupCode = await runCommand(process.execPath, ["cleanup_generated.mjs"], `${scenarioLabel}: Cleanup generated metadata`);
+                assertNotStopped();
                 if (cleanupCode !== 0) throw new Error("Cleanup failed.");
             }
 
@@ -807,12 +892,14 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
 
             let pipelineCode = 0;
             for (const [script, args, label] of steps) {
+                assertNotStopped();
                 pipelineCode = await runCommand(process.execPath, [script, ...args], label);
                 runState.generatedTests = listGeneratedTests();
                 savePersistentUiState();
                 if (pipelineCode !== 0) break;
             }
 
+            assertNotStopped();
             await runCommand(process.execPath, ["7_reporter.mjs"], `${scenarioLabel}: Final report`);
             runState.generatedTests = listGeneratedTests();
             savePersistentUiState();
@@ -836,17 +923,19 @@ async function runManualPipeline({ scenarioText, scenarioTexts, cleanupFirst, in
         runState.status = finalCode === 0 ? "passed" : "failed";
         runState.exitCode = finalCode;
     } catch (error) {
-        pushLog(`\nAgent pipeline error: ${error.message}\n`);
+        const stopped = runState.cancelRequested || /stopped by user/i.test(error.message);
+        pushLog(stopped ? "\nAgent pipeline stopped by user.\n" : `\nAgent pipeline error: ${error.message}\n`);
         const runningScenario = runState.scenarioStatuses.find(item => item.status === "running");
         if (runningScenario) {
-            runningScenario.status = "failed";
+            runningScenario.status = stopped ? "stopped" : "failed";
             runningScenario.finishedAt = new Date().toISOString();
-            runningScenario.exitCode = 1;
+            runningScenario.exitCode = stopped ? 130 : 1;
         }
-        runState.status = "failed";
-        runState.exitCode = 1;
+        runState.status = stopped ? "stopped" : "failed";
+        runState.exitCode = stopped ? 130 : 1;
     } finally {
         runState.running = false;
+        runState.cancelRequested = false;
         runState.finishedAt = new Date().toISOString();
     }
 }
@@ -954,7 +1043,8 @@ async function dismissPageInterruptions(page) {
     return actions;
 }
 
-async function discoverPage(url) {
+async function discoverPage(url, options = {}) {
+    const timeoutMs = Math.max(5000, Math.min(60000, Number(options.timeoutMs || 60000)));
     let chromium;
     try {
         ({ chromium } = require("playwright"));
@@ -963,7 +1053,9 @@ async function discoverPage(url) {
     }
 
     const browser = await chromium.launch({ headless: true });
+    activeBrowsers.add(browser);
     try {
+        assertNotStopped();
         const page = await browser.newPage();
         const networkRequests = [];
         page.on("response", response => {
@@ -977,9 +1069,12 @@ async function discoverPage(url) {
                 type
             });
         });
-        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs });
+        assertNotStopped();
         const interruptions = await dismissPageInterruptions(page);
+        assertNotStopped();
         await page.waitForTimeout(1500);
+        assertNotStopped();
         const snapshot = await page.evaluate(() => {
             const textOf = el => (el.innerText || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 120);
             const pickAttrs = el => {
@@ -1049,8 +1144,173 @@ async function discoverPage(url) {
         snapshot.networkRequests = networkRequests.slice(0, 40);
         return snapshot;
     } finally {
+        activeBrowsers.delete(browser);
         await browser.close().catch(() => {});
     }
+}
+
+function stripTrackingParams(urlObj) {
+    for (const key of [...urlObj.searchParams.keys()]) {
+        if (/^utm_|^fbclid$|^gclid$|^msclkid$|^yclid$/i.test(key)) {
+            urlObj.searchParams.delete(key);
+        }
+    }
+    urlObj.hash = "";
+    return urlObj;
+}
+
+function normalizeDiscoveredUrl(rawHref, baseUrl, rootOrigin) {
+    const href = String(rawHref || "").trim();
+    if (!href || href.startsWith("#")) return null;
+    if (/^(mailto|tel|sms|whatsapp|javascript|data|blob):/i.test(href)) return null;
+
+    let parsed;
+    try {
+        parsed = new URL(href, baseUrl);
+    } catch {
+        return null;
+    }
+
+    if (!/^https?:$/i.test(parsed.protocol)) return null;
+    if (parsed.origin !== rootOrigin) return null;
+    let text = `${parsed.pathname}${parsed.search}`.toLowerCase();
+    try {
+        text = decodeURIComponent(text);
+    } catch {
+        // Keep the encoded text if the site uses malformed percent escapes.
+    }
+    if (/logout|signout|delete|remove|checkout|payment|cart|download|whatsapp|mailto|tel:|privacy-policy|terms|cookie/.test(text)) return null;
+
+    return stripTrackingParams(parsed).toString();
+}
+
+function linkCandidatesFromSnapshot(snapshot, rootOrigin) {
+    const candidates = [];
+    const add = (href, text = "") => {
+        const url = normalizeDiscoveredUrl(href, snapshot.url, rootOrigin);
+        if (!url) return;
+        candidates.push({ url, text: simplifyLinkText(text || href) });
+    };
+
+    (snapshot.navigationLinks || []).forEach(link => add(link.href, link.text));
+    (snapshot.elements || [])
+        .filter(element => element.tag === "a" && element.attrs?.href)
+        .forEach(element => add(element.attrs.href, element.text || element.attrs.title || element.attrs.href));
+
+    return candidates;
+}
+
+function simplifyLinkText(value) {
+    return String(value || "").replace(/\s+/g, " ").trim().slice(0, 90);
+}
+
+function mergeSiteSnapshots(primarySnapshot, scannedPages) {
+    const snapshots = scannedPages.map(page => page.snapshot).filter(Boolean);
+    const combined = {
+        ...primarySnapshot,
+        headings: [],
+        navigationLinks: [],
+        forms: [],
+        dataRegions: [],
+        visibleTextBlocks: [],
+        elements: [],
+        networkRequests: [],
+        interruptions: primarySnapshot.interruptions || [],
+        scannedPages: scannedPages.map(page => ({
+            url: page.url,
+            title: page.title,
+            status: page.status,
+            reason: page.reason || "",
+            headings: page.snapshot?.headings?.slice(0, 6) || [],
+            forms: page.snapshot?.forms?.slice(0, 3) || [],
+            elements: (page.snapshot?.elements || []).slice(0, 12)
+        }))
+    };
+
+    for (const snapshot of snapshots) {
+        combined.headings.push(...(snapshot.headings || []));
+        combined.navigationLinks.push(...(snapshot.navigationLinks || []));
+        combined.forms.push(...(snapshot.forms || []));
+        combined.dataRegions.push(...(snapshot.dataRegions || []));
+        combined.visibleTextBlocks.push(...(snapshot.visibleTextBlocks || []));
+        combined.elements.push(...(snapshot.elements || []));
+        combined.networkRequests.push(...(snapshot.networkRequests || []));
+    }
+
+    combined.headings = [...new Set(combined.headings)].slice(0, 40);
+    combined.navigationLinks = combined.navigationLinks.slice(0, 40);
+    combined.forms = combined.forms.slice(0, 14);
+    combined.dataRegions = combined.dataRegions.slice(0, 18);
+    combined.visibleTextBlocks = [...new Set(combined.visibleTextBlocks)].slice(0, 30);
+    combined.elements = combined.elements.slice(0, 90);
+    combined.networkRequests = combined.networkRequests.slice(0, 50);
+    return combined;
+}
+
+async function discoverSitePages(rootUrl, options = {}) {
+    const enabled = options.enabled === true;
+    const maxPages = enabled ? Math.max(1, Math.min(10, Number(options.pages || 3))) : 1;
+    const maxDepth = enabled ? Math.max(1, Math.min(2, Number(options.depth || 1))) : 1;
+    const rootOrigin = new URL(rootUrl).origin;
+    const scannedPages = [];
+    const seen = new Set();
+    const queue = [{ url: rootUrl, depth: 0, text: "Start URL" }];
+
+    while (queue.length && scannedPages.filter(page => page.status === "scanned").length < maxPages) {
+        assertNotStopped();
+        const candidate = queue.shift();
+        const normalized = normalizeDiscoveredUrl(candidate.url, rootUrl, rootOrigin) || candidate.url;
+        if (seen.has(normalized)) continue;
+        seen.add(normalized);
+
+        pushLog(`Deep search scanning: ${normalized}\n`);
+        try {
+            const snapshot = await discoverPage(normalized, { timeoutMs: enabled ? 15000 : 60000 });
+            const pageRecord = {
+                url: snapshot.url || normalized,
+                title: snapshot.title || candidate.text || normalized,
+                status: "scanned",
+                depth: candidate.depth,
+                sourceText: candidate.text || "",
+                usedForScenarios: true,
+                snapshot
+            };
+            scannedPages.push(pageRecord);
+            if (enabled) {
+                runState.deepSearchPages = normalizeDeepSearchPages(scannedPages);
+                savePersistentUiState();
+            }
+
+            if (enabled && candidate.depth < maxDepth) {
+                for (const link of linkCandidatesFromSnapshot(snapshot, rootOrigin)) {
+                    const nextUrl = normalizeDiscoveredUrl(link.url, snapshot.url, rootOrigin);
+                    if (!nextUrl || seen.has(nextUrl) || queue.some(item => item.url === nextUrl)) continue;
+                    queue.push({ url: nextUrl, depth: candidate.depth + 1, text: link.text });
+                    if (queue.length > maxPages * 4) break;
+                }
+            }
+        } catch (error) {
+            scannedPages.push({
+                url: normalized,
+                title: candidate.text || normalized,
+                status: "failed",
+                depth: candidate.depth,
+                reason: error.message,
+                usedForScenarios: false
+            });
+            if (enabled) {
+                runState.deepSearchPages = normalizeDeepSearchPages(scannedPages);
+                savePersistentUiState();
+            }
+            pushLog(`Deep search skipped ${normalized}: ${error.message}\n`);
+        }
+    }
+
+    assertNotStopped();
+    return {
+        primarySnapshot: scannedPages.find(page => page.snapshot)?.snapshot || await discoverPage(rootUrl, { timeoutMs: 15000 }),
+        scannedPages
+    };
 }
 
 function clampScenarioCount(value) {
@@ -1074,7 +1334,7 @@ function scenarioTypeMatches(category, selectedTypes) {
     return false;
 }
 
-function buildScenario({ title, category, steps, expected, snapshot, elements }) {
+function buildScenario({ title, category, steps, expected, snapshot, elements, sourceUrl }) {
     return [
         `Subject: ${title}`,
         "User: no user",
@@ -1086,6 +1346,7 @@ function buildScenario({ title, category, steps, expected, snapshot, elements })
         "",
         "Additional:",
         `Category: ${category}`,
+        ...(sourceUrl ? [`Source page: ${sourceUrl}`] : []),
         "Discovered page signals:",
         ...(snapshot.interruptions?.length ? snapshot.interruptions.map(action => `- Interruption handled before scan: ${action}`) : []),
         ...snapshot.headings.slice(0, 8).map(h => `- Heading: ${h}`),
@@ -1109,7 +1370,8 @@ function compactSnapshotForAi(snapshot) {
         visibleTextBlocks: (snapshot.visibleTextBlocks || []).slice(0, 20),
         elements: (snapshot.elements || []).slice(0, 50),
         networkRequests: (snapshot.networkRequests || []).slice(0, 30),
-        interruptions: snapshot.interruptions || []
+        interruptions: snapshot.interruptions || [],
+        scannedPages: (snapshot.scannedPages || []).slice(0, 10)
     };
 }
 
@@ -1123,6 +1385,7 @@ function normalizeAiScenario(aiScenario, index, snapshot, elements) {
         ? aiScenario.expected.map(item => String(item || "").trim()).filter(Boolean)
         : [];
     const reason = String(aiScenario?.reason || "").trim();
+    const sourceUrl = String(aiScenario?.sourceUrl || "").trim();
 
     const finalSteps = steps.length >= 2
         ? steps
@@ -1141,6 +1404,7 @@ function normalizeAiScenario(aiScenario, index, snapshot, elements) {
         category,
         steps: finalSteps,
         expected: reason ? [...finalExpected, `Reason: ${reason}`] : finalExpected,
+        sourceUrl,
         snapshot,
         elements
     });
@@ -1181,6 +1445,7 @@ JSON shape:
   "scenarios": [
     {
       "category": "UI_E2E | BE_API | PERFORMANCE | SECURITY | ACCESSIBILITY | SEO | RESPONSIVE | QUALITY",
+      "sourceUrl": "the scanned page URL this scenario is based on",
       "title": "specific scenario title",
       "reason": "why this matters for this exact site",
       "steps": [
@@ -1198,6 +1463,8 @@ JSON shape:
 Rules:
 - Generate exactly ${requestedCount} scenarios.
 - Generate only these selected test types: ${selectedTypes.join(", ")}.
+- If SITE SNAPSHOT includes scannedPages, distribute scenarios across the most meaningful scanned pages instead of only the start URL.
+- Include sourceUrl for each scenario so reviewers know which discovered page inspired it.
 - Make the UI_E2E scenarios match the site's actual purpose and primary user goals.
 - Use visible headings, forms, navigation, lists/tables/cards, and URL path meaning.
 - Include BE_API, performance, security, accessibility, SEO, responsive, or quality scenarios only when useful.
@@ -1230,13 +1497,19 @@ Rules:
     };
 }
 
-async function suggestScenariosFromUrl(url, requestedCount = 3, requestedTypes = []) {
-    const snapshot = await discoverPage(url);
+async function suggestScenariosFromUrl(url, requestedCount = 3, requestedTypes = [], deepSearch = {}) {
+    assertNotStopped();
+    const discovery = await discoverSitePages(url, deepSearch);
+    assertNotStopped();
+    const snapshot = deepSearch?.enabled
+        ? mergeSiteSnapshots(discovery.primarySnapshot, discovery.scannedPages)
+        : discovery.primarySnapshot;
     const count = clampScenarioCount(requestedCount);
     const selectedTypes = normalizeScenarioTypes(requestedTypes);
     const elements = snapshot.elements.map(summarizeElement).slice(0, 40);
 
     const semanticResult = await analyzeSitePurposeWithGemini(snapshot, count, elements, selectedTypes);
+    assertNotStopped();
     if (semanticResult?.scenarios?.length) {
         return {
             scenario: semanticResult.scenarios[0]?.text || "",
@@ -1245,6 +1518,7 @@ async function suggestScenariosFromUrl(url, requestedCount = 3, requestedTypes =
             sitePurpose: semanticResult.sitePurpose,
             primaryUsers: semanticResult.primaryUsers,
             mainUserGoals: semanticResult.mainUserGoals,
+            deepSearchPages: normalizeDeepSearchPages(deepSearch?.enabled ? discovery.scannedPages : []),
             generationMode: "semantic-gemini"
         };
     }
@@ -1429,10 +1703,16 @@ async function suggestScenariosFromUrl(url, requestedCount = 3, requestedTypes =
         title: candidate.title,
         category: candidate.category,
         selected: index === 0,
-        text: buildScenario({ ...candidate, snapshot, elements })
+        text: buildScenario({ ...candidate, snapshot, elements, sourceUrl: snapshot.url })
     }));
 
-    return { scenario: scenarios[0]?.text || "", scenarios, snapshot, generationMode: "rule-based-fallback" };
+    return {
+        scenario: scenarios[0]?.text || "",
+        scenarios,
+        snapshot,
+        deepSearchPages: normalizeDeepSearchPages(deepSearch?.enabled ? discovery.scannedPages : []),
+        generationMode: "rule-based-fallback"
+    };
 }
 
 function pageHtml(initialScenario, initialUiState = {}) {
@@ -1441,7 +1721,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QA Agent Review Console</title>
+  <title>AI Playwright Test Studio</title>
   <style>
     :root { color-scheme: light; --ink:#202124; --muted:#5f6368; --line:#d8dde6; --panel:#ffffff; --accent:#0b57d0; --ok:#147a3c; --warn:#b06000; --bg:#f5f7fb; }
     * { box-sizing: border-box; }
@@ -1479,8 +1759,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
     .flow-step strong { display: block; color: var(--ink); font-size: 13px; margin-bottom: 2px; }
     .review-modal-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 10px; }
     .review-modal-head h2 { margin: 0; }
-    .flow-step { text-align: left; font-weight: 500; }
-    .flow-step:hover { border-color: #9bb7e4; background: #f8fafd; }
+    .flow-step { text-align: left; font-weight: 500; cursor: default; }
     .review-flow .flow-step:not(:last-child)::after { content: "->"; right: -17px; font-size: 15px; }
     .walkthrough-backdrop { position: fixed; inset: 0; z-index: 80; background: rgba(16, 32, 51, .45); display: none; align-items: center; justify-content: center; padding: 18px; }
     .walkthrough-backdrop.visible { display: flex; }
@@ -1542,6 +1821,14 @@ function pageHtml(initialScenario, initialUiState = {}) {
     .input-data-row span { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
     .insight-frame { border: 1px solid var(--line); border-radius: 8px; background: #fbfcff; padding: 10px 12px; margin: 10px 0 12px; color: #3c4960; }
     .insight-frame:empty { display: none; }
+    .deep-search-options { border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-top: 12px; background: #fbfcff; }
+    .deep-search-options select { max-width: 160px; }
+    .discovered-pages { border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin: 12px 0; background: #fbfcff; }
+    .discovered-pages h4 { margin: 0 0 8px; font-size: 14px; }
+    .discovered-page-list { display: grid; gap: 6px; }
+    .discovered-page { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; border: 1px solid #e1e7f0; border-radius: 6px; padding: 8px; background: white; }
+    .discovered-page-title { font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .discovered-page-url { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     details.scenario-card { border: 1px solid var(--line); border-radius: 8px; background: #fff; overflow: hidden; }
     details.scenario-card[open] { border-color: #9bb7e4; }
     summary { cursor: pointer; list-style: none; padding: 10px 12px; background: #f8fafd; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
@@ -1603,8 +1890,8 @@ function pageHtml(initialScenario, initialUiState = {}) {
 </head>
 <body>
   <header>
-    <h1>QA Agent Review Console</h1>
-    <p>Private review demo</p>
+    <h1>AI Playwright Test Studio</h1>
+    <p>Private review demo · Created by Eyal Sooliman</p>
   </header>
   <main>
     <section>
@@ -1612,14 +1899,14 @@ function pageHtml(initialScenario, initialUiState = {}) {
         <div class="review-modal">
           <div class="review-modal-head">
             <h2>Review Steps</h2>
-            <button class="secondary" id="openWalkthroughBtn" type="button">Open Walkthrough</button>
+            <button class="secondary" id="openWalkthroughBtn" type="button">Start Wizard Process</button>
           </div>
           <div class="review-flow" aria-label="Review flow">
-            <button class="flow-step" type="button" data-walkthrough-step="0"><strong>1. Create scenarios</strong>Choose a count and create drafts.</button>
-            <button class="flow-step" type="button" data-walkthrough-step="1"><strong>2. Select, edit, or remove scenarios</strong>Edit or remove drafts.</button>
-            <button class="flow-step" type="button" data-walkthrough-step="2"><strong>3. Generate tests</strong>Create Playwright artifacts.</button>
-            <button class="flow-step" type="button" data-walkthrough-step="3"><strong>4. Run tests</strong>Choose generated tests to execute.</button>
-            <button class="flow-step" type="button" data-walkthrough-step="4"><strong>5. Review results</strong>Open report or failure summary.</button>
+            <div class="flow-step"><strong>1. Create scenarios</strong>Choose a count and create drafts.</div>
+            <div class="flow-step"><strong>2. Select, edit, or remove scenarios</strong>Edit or remove drafts.</div>
+            <div class="flow-step"><strong>3. Generate tests</strong>Create Playwright artifacts.</div>
+            <div class="flow-step"><strong>4. Run tests</strong>Choose generated tests to execute.</div>
+            <div class="flow-step"><strong>5. Review results</strong>Open report or failure summary.</div>
           </div>
         </div>
         <div>
@@ -1628,18 +1915,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
           <div class="row">
             <input id="siteUrl" type="url" placeholder="https://example.com">
           </div>
-          <div class="row" style="margin-top: 10px;">
-            <input id="startClean" type="checkbox">
-            <label for="startClean">Start Clean? Clear previous scenarios and generated tests before this review</label>
-          </div>
-          <div class="row" style="margin-top: 10px;">
-            <button class="secondary" id="discoverBtn" type="button">Start Review</button>
-          </div>
-          <div class="hint">Start the guided review to choose scenario count, create drafts, generate tests, run them, and review results.</div>
-        </div>
-        <div>
-          <div class="section-heading"><h3>B. Coverage Types</h3><span class="hint">Choose what the agent should look for.</span></div>
-          <label>Test types to generate</label>
+          <label style="margin-top: 16px;">Test types to generate</label>
           <div class="type-grid" id="testTypeGrid">
             <label><input type="checkbox" value="UI_E2E" checked> UI E2E</label>
             <label><input type="checkbox" value="BE_API" checked> BE API</label>
@@ -1650,16 +1926,44 @@ function pageHtml(initialScenario, initialUiState = {}) {
             <label><input type="checkbox" value="RESPONSIVE" checked> Responsive</label>
             <label><input type="checkbox" value="QUALITY" checked> Quality</label>
           </div>
-          <div class="hint">Discovery will focus on the selected types only.</div>
+          <div class="deep-search-options">
+            <div class="row">
+              <input id="deepSearchEnabled" type="checkbox">
+              <label for="deepSearchEnabled">Deep Search: scan internal pages before creating scenarios</label>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+              <label for="deepSearchPages">Pages to scan</label>
+              <select id="deepSearchPages">
+                <option value="3">3 pages</option>
+                <option value="5">5 pages</option>
+                <option value="10">10 pages</option>
+              </select>
+              <label for="deepSearchDepth">Search depth</label>
+              <select id="deepSearchDepth">
+                <option value="1">1 level</option>
+                <option value="2">2 levels</option>
+              </select>
+            </div>
+          </div>
+          <div class="row" style="margin-top: 10px;">
+            <input id="startClean" type="checkbox">
+            <label for="startClean">Start Clean? Clear previous scenarios and generated tests before this review</label>
+          </div>
+          <div class="row" style="margin-top: 10px;">
+            <button class="secondary" id="discoverBtn" type="button">Generate Test Scenarios</button>
+            <button class="danger" id="stopDiscoveryBtn" type="button" style="display:none;">Stop</button>
+          </div>
+          <div class="hint">Start the guided review to choose scenario count, create drafts, generate tests, run them, and review results.</div>
         </div>
         <div>
           <div class="row toolbar">
-            <div class="section-heading"><h3>C. Review scenario drafts</h3><span class="hint" id="scenarioMeta">0 selected</span></div>
+            <div class="section-heading"><h3>B. Review scenario drafts</h3><span class="hint" id="scenarioMeta">0 selected</span></div>
             <div class="row">
               <span class="agent-work-status" id="agentWorkStatus">Ready</span>
             </div>
           </div>
           <div class="insight-frame" id="siteInsight"></div>
+          <div id="discoveredPagesPanel"></div>
           <div id="scenarioList" class="scenario-list"></div>
         </div>
         <input id="cleanup" type="hidden" checked value="on">
@@ -1684,7 +1988,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
         </div>
         <div>
           <div class="row toolbar">
-            <label>E. Generated test artifacts</label>
+            <label>C. Generated test artifacts</label>
             <span class="hint" id="testMeta">0 tests</span>
           </div>
           <div id="generatedTestList" class="test-list"></div>
@@ -1692,6 +1996,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
             <button class="secondary" id="refreshTestsBtn" type="button">Refresh Tests</button>
             <button id="runAllTestsBtn" type="button">Run All Generated Tests</button>
             <button class="secondary" id="runSpecificTestsBtn" type="button">Run Selected Generated Tests</button>
+            <button class="danger" id="stopRunBtn" type="button" style="display:none;">Stop</button>
           </div>
           <div class="row" style="margin-top: 10px;">
             <input id="runTestsInParallel" type="checkbox">
@@ -1760,12 +2065,14 @@ function pageHtml(initialScenario, initialUiState = {}) {
     const initialScenarioText = ${JSON.stringify(initialScenario || "")};
     const initialScenarioDrafts = ${JSON.stringify(normalizeScenarioDrafts(initialUiState.scenarioDrafts))};
     const initialDiscoveryInsight = ${JSON.stringify(initialUiState.discoveryInsight || "")};
+    const initialDeepSearchPages = ${JSON.stringify(normalizeDeepSearchPages(initialUiState.deepSearchPages))};
     let scenarios = initialScenarioDrafts.length
       ? initialScenarioDrafts
       : initialScenarioText.trim()
       ? [{ id: 'scenario-1', title: readSubject(initialScenarioText) || 'Manual scenario', category: 'MANUAL', selected: true, open: true, text: initialScenarioText }]
       : [];
     let discoveryInsight = initialDiscoveryInsight;
+    let deepSearchPages = initialDeepSearchPages;
     let lastScenarioStatuses = [];
     let generatedTests = [];
     let selectedGeneratedTests = new Set();
@@ -1789,6 +2096,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
     const scenarioList = document.getElementById('scenarioList');
     const scenarioMeta = document.getElementById('scenarioMeta');
     const siteInsight = document.getElementById('siteInsight');
+    const discoveredPagesPanel = document.getElementById('discoveredPagesPanel');
     const agentWorkStatus = document.getElementById('agentWorkStatus');
     const generatedTestList = document.getElementById('generatedTestList');
     const testMeta = document.getElementById('testMeta');
@@ -1799,6 +2107,11 @@ function pageHtml(initialScenario, initialUiState = {}) {
     const statusEl = document.getElementById('status');
     const runBtn = document.getElementById('runBtn');
     const discoverBtn = document.getElementById('discoverBtn');
+    const deepSearchEnabled = document.getElementById('deepSearchEnabled');
+    const deepSearchPagesSelect = document.getElementById('deepSearchPages');
+    const deepSearchDepth = document.getElementById('deepSearchDepth');
+    const stopDiscoveryBtn = document.getElementById('stopDiscoveryBtn');
+    const stopRunBtn = document.getElementById('stopRunBtn');
     const startClean = document.getElementById('startClean');
     const floatingConsole = document.getElementById('floatingConsole');
     const floatingPreview = document.getElementById('floatingPreview');
@@ -1861,6 +2174,45 @@ function pageHtml(initialScenario, initialUiState = {}) {
       document.querySelectorAll('#testTypeGrid input[type="checkbox"]').forEach(input => {
         input.checked = selected.has(input.value);
       });
+    }
+
+    function selectedDeepSearchOptions() {
+      return {
+        enabled: !!deepSearchEnabled.checked,
+        pages: Math.max(1, Math.min(10, Number(deepSearchPagesSelect.value || 3))),
+        depth: Math.max(1, Math.min(2, Number(deepSearchDepth.value || 1)))
+      };
+    }
+
+    function setDeepSearchOptions(options = {}) {
+      deepSearchEnabled.checked = options.enabled === true;
+      deepSearchPagesSelect.value = String(options.pages || deepSearchPagesSelect.value || 3);
+      deepSearchDepth.value = String(options.depth || deepSearchDepth.value || 1);
+    }
+
+    function renderDiscoveredPages(container = discoveredPagesPanel) {
+      if (!container) return;
+      if (!deepSearchPages.length) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = \`
+        <div class="discovered-pages">
+          <h4>Discovered pages</h4>
+          <div class="discovered-page-list">
+            \${deepSearchPages.map((page, index) => \`
+              <div class="discovered-page">
+                <div>
+                  <div class="discovered-page-title">\${index + 1}. \${escapeHtmlClient(page.title || page.url)}</div>
+                  <div class="discovered-page-url" title="\${escapeHtmlClient(page.url)}">\${escapeHtmlClient(truncateMiddle(page.url, 130))}</div>
+                  \${page.reason ? '<div class="hint">' + escapeHtmlClient(page.reason) + '</div>' : ''}
+                </div>
+                <span class="badge">\${escapeHtmlClient(page.status || 'scanned')}</span>
+              </div>
+            \`).join('')}
+          </div>
+        </div>
+      \`;
     }
 
     function renderWalkthroughStep() {
@@ -1994,7 +2346,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
         return;
       }
       const failed = state === 'failed' || lastTestStatuses.some(item => item.status === 'failed' || item.status === 'needs_attention');
-      const doneAll = state === 'done' || (lastTestStatuses.length && lastTestStatuses.every(item => ['passed', 'completed', 'failed', 'needs_attention'].includes(item.status)));
+      const doneAll = state === 'done' || (lastTestStatuses.length && lastTestStatuses.every(item => ['passed', 'completed', 'failed', 'needs_attention', 'stopped'].includes(item.status)));
       const activeIndex = testRunStepIndex();
       container.innerHTML = '<div class="activity-feed">' + testRunActivitySteps.map((label, index) => {
         let cls = '';
@@ -2041,6 +2393,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
             </div>
             <div class="hint url-preview" title="\${escapeHtmlClient(rawReviewUrl)}">URL: \${escapeHtmlClient(reviewUrlLabel)}</div>
             <div id="wizardDiscoveryActivity"></div>
+            <button class="danger" id="wizardStopDiscoveryBtn" type="button" style="\${discoveryInProgress ? '' : 'display:none;'}">Stop</button>
           </div>
           <div class="walkthrough-card">
             <strong>Coverage types</strong>
@@ -2059,17 +2412,44 @@ function pageHtml(initialScenario, initialUiState = {}) {
             <div class="hint">The agent will create scenario drafts only for selected coverage types.</div>
           </div>
           <div class="walkthrough-card">
+            <strong>Deep Search</strong>
+            <div class="row">
+              <input id="wizardDeepSearchEnabled" type="checkbox" \${deepSearchEnabled.checked ? 'checked' : ''}>
+              <label for="wizardDeepSearchEnabled">Scan internal pages before creating scenarios</label>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+              <label for="wizardDeepSearchPages">Pages to scan</label>
+              <select id="wizardDeepSearchPages">
+                \${[3,5,10].map(n => '<option value="' + n + '" ' + (String(n) === String(deepSearchPagesSelect.value) ? 'selected' : '') + '>' + n + ' pages</option>').join('')}
+              </select>
+              <label for="wizardDeepSearchDepth">Search depth</label>
+              <select id="wizardDeepSearchDepth">
+                \${[1,2].map(n => '<option value="' + n + '" ' + (String(n) === String(deepSearchDepth.value) ? 'selected' : '') + '>' + n + ' level' + (n > 1 ? 's' : '') + '</option>').join('')}
+              </select>
+            </div>
+          </div>
+          <div class="walkthrough-card">
             <strong>Generated scenarios</strong>
+            <div id="wizardDiscoveredPages"></div>
             <div id="wizardScenarioPreview" class="wizard-list"></div>
           </div>
         \`;
         document.getElementById('wizardCreateScenariosBtn').onclick = async () => {
           wizardScenarioCountValue = document.getElementById('wizardScenarioCount').value;
           setSelectedTestTypes(Array.from(document.querySelectorAll('#wizardTestTypeGrid input[type="checkbox"]:checked')).map(input => input.value));
+          setDeepSearchOptions({
+            enabled: document.getElementById('wizardDeepSearchEnabled').checked,
+            pages: document.getElementById('wizardDeepSearchPages').value,
+            depth: document.getElementById('wizardDeepSearchDepth').value
+          });
           await runScenarioDiscovery();
+          renderDiscoveredPages(document.getElementById('wizardDiscoveredPages'));
           renderWizardScenarioPreview(false);
           renderWizardProgress();
         };
+        const wizardStopDiscoveryBtn = document.getElementById('wizardStopDiscoveryBtn');
+        if (wizardStopDiscoveryBtn) wizardStopDiscoveryBtn.onclick = stopAgentWork;
+        renderDiscoveredPages(document.getElementById('wizardDiscoveredPages'));
         renderWizardScenarioPreview(false);
         return;
       }
@@ -2095,6 +2475,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
             \${requiredFields.length ? renderRequiredScenarioInputCard(requiredFields) : ''}
             \${renderWizardTestDataOptionsCard()}
             <button id="wizardGenerateTestsBtn" type="button" \${generationInProgress || missingRequiredFields.length ? 'disabled' : ''}>\${generationInProgress ? 'Generating...' : 'Generate Tests'}</button>
+            <button class="danger" id="wizardStopGenerationBtn" type="button" style="\${generationInProgress || agentRunInProgress ? '' : 'display:none;'}">Stop</button>
             \${missingRequiredFields.length ? '<div class="hint">Provide the required data above before generating tests.</div>' : ''}
             <div id="wizardGenerationActivity"></div>
           </div>
@@ -2137,6 +2518,8 @@ function pageHtml(initialScenario, initialUiState = {}) {
           renderWalkthroughStep();
           updateWizardNavControls();
         };
+        const wizardStopGenerationBtn = document.getElementById('wizardStopGenerationBtn');
+        if (wizardStopGenerationBtn) wizardStopGenerationBtn.onclick = stopAgentWork;
         if (generationActivityState !== 'idle') renderGenerationActivity(generationActivityState);
         else if (generatedTests.length) renderGenerationActivity('done');
         renderWizardGeneratedFiles();
@@ -2155,6 +2538,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
             <div class="row" style="margin-top:10px;">
               <button id="wizardRunAllBtn" type="button" \${agentRunInProgress ? 'disabled' : ''}>Run All Tests</button>
               <button class="secondary" id="wizardRunSelectedBtn" type="button" \${agentRunInProgress ? 'disabled' : ''}>Run Selected Tests</button>
+              <button class="danger" id="wizardStopRunBtn" type="button" style="\${agentRunInProgress || testRunActivityState === 'running' ? '' : 'display:none;'}">Stop</button>
             </div>
             <div id="wizardTestRunActivity"></div>
           </div>
@@ -2172,6 +2556,8 @@ function pageHtml(initialScenario, initialUiState = {}) {
           startTestRunActivity();
           document.getElementById('runSpecificTestsBtn').click();
         };
+        const wizardStopRunBtn = document.getElementById('wizardStopRunBtn');
+        if (wizardStopRunBtn) wizardStopRunBtn.onclick = stopAgentWork;
         return;
       }
 
@@ -2521,7 +2907,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
         fetch('/api/scenario-drafts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ scenarioDrafts: scenarios, discoveryInsight })
+          body: JSON.stringify({ scenarioDrafts: scenarios, discoveryInsight, deepSearchPages })
         }).catch(() => {});
       }, 300);
     }
@@ -2687,9 +3073,12 @@ function pageHtml(initialScenario, initialUiState = {}) {
       const selectedCount = selectedScenarios().length;
       scenarioMeta.textContent = scenarios.length ? selectedCount + ' selected of ' + scenarios.length : '0 selected';
       siteInsight.textContent = discoveryInsight;
+      renderDiscoveredPages();
 
       if (!scenarios.length) {
-        scenarioList.innerHTML = '<div class="empty-state">No scenarios yet. Enter a URL and click Start Review, or reload scenario.txt.</div>';
+        scenarioList.innerHTML = discoveryInProgress
+          ? '<div class="empty-state">Discovering pages and drafting scenarios...</div>'
+          : '<div class="empty-state">No scenarios yet. Enter a URL and click Generate Test Scenarios.</div>';
         return;
       }
 
@@ -2774,7 +3163,15 @@ function pageHtml(initialScenario, initialUiState = {}) {
       if (!scenarios.length && Array.isArray(state.scenarioDrafts) && state.scenarioDrafts.length) {
         scenarios = state.scenarioDrafts;
         discoveryInsight = state.discoveryInsight || discoveryInsight;
+        deepSearchPages = Array.isArray(state.deepSearchPages) ? state.deepSearchPages : deepSearchPages;
         renderScenarios();
+      }
+      if (Array.isArray(state.deepSearchPages) && JSON.stringify(state.deepSearchPages) !== JSON.stringify(deepSearchPages)) {
+        deepSearchPages = state.deepSearchPages;
+        renderDiscoveredPages();
+        if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 0) {
+          renderDiscoveredPages(document.getElementById('wizardDiscoveredPages'));
+        }
       }
       lastScenarioStatuses = Array.isArray(state.scenarioStatuses) ? state.scenarioStatuses : [];
       lastTestStatuses = Array.isArray(state.testStatuses) ? state.testStatuses : [];
@@ -2796,6 +3193,8 @@ function pageHtml(initialScenario, initialUiState = {}) {
         setAgentWorkStatus('Test is Ready', 'ready');
       } else if (state.status === 'failed') {
         setAgentWorkStatus('Needs attention', 'failed');
+      } else if (state.status === 'stopped') {
+        setAgentWorkStatus('Stopped', 'idle');
       } else if (scenarios.length) {
         setAgentWorkStatus('Scenarios Ready', 'ready');
       } else {
@@ -2808,6 +3207,9 @@ function pageHtml(initialScenario, initialUiState = {}) {
       document.getElementById('runSpecificTestsBtn').disabled = !!state.running;
       document.getElementById('refreshTestsBtn').disabled = !!state.running;
       document.getElementById('runTestsInParallel').disabled = !!state.running;
+      const isDiscoveryRun = state.status === 'discovering' || discoveryInProgress;
+      stopDiscoveryBtn.style.display = state.running && isDiscoveryRun ? 'inline-flex' : 'none';
+      stopRunBtn.style.display = state.running && !isDiscoveryRun ? 'inline-flex' : 'none';
       logs.textContent = cleanLogText((state.logs || []).join(''));
       if (state.reportUrl) {
         logs.textContent += '\\nReport: ' + location.origin + state.reportUrl + '\\n';
@@ -2818,13 +3220,13 @@ function pageHtml(initialScenario, initialUiState = {}) {
       if (generationInProgress && state.running) {
         generationHasStartedRunning = true;
       }
-      if (generationInProgress && generationHasStartedRunning && !state.running && (state.status === 'passed' || state.status === 'failed')) {
+      if (generationInProgress && generationHasStartedRunning && !state.running && (state.status === 'passed' || state.status === 'failed' || state.status === 'stopped')) {
         finishGenerationActivity(state.status === 'passed' || generatedTests.length > 0);
       }
       if (lastTestStatuses.length) {
         if (state.running) {
           testRunActivityState = 'running';
-        } else if (state.status === 'passed' || state.status === 'failed') {
+        } else if (state.status === 'passed' || state.status === 'failed' || state.status === 'stopped') {
           finishTestRunActivity(state.status === 'passed');
         }
       }
@@ -2893,6 +3295,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
       }
       scenarios = [];
       discoveryInsight = '';
+      deepSearchPages = [];
       lastScenarioStatuses = [];
       lastTestStatuses = [];
       generatedTests = [];
@@ -2941,6 +3344,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
       const count = Math.max(1, Math.min(10, Number(wizardScenarioCountValue || 5)));
       if (!url) return alert('Enter a URL first.');
       discoveryInProgress = true;
+      renderScenarios();
       updateWizardNavControls();
       discoverBtn.disabled = true;
       discoverBtn.textContent = 'Discovering...';
@@ -2950,10 +3354,11 @@ function pageHtml(initialScenario, initialUiState = {}) {
         const res = await fetch('/api/discover-url', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, count, types: selectedTestTypes() })
+          body: JSON.stringify({ url, count, types: selectedTestTypes(), deepSearch: selectedDeepSearchOptions() })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Discovery failed');
+        deepSearchPages = Array.isArray(data.deepSearchPages) ? data.deepSearchPages : [];
         scenarios = (data.scenarios || []).map((item, index) => ({
           id: item.id || ('scenario-' + (Date.now() + index)),
           title: item.title || readSubject(item.text) || ('Scenario ' + (index + 1)),
@@ -2965,10 +3370,12 @@ function pageHtml(initialScenario, initialUiState = {}) {
         if (data.sitePurpose) {
           const users = Array.isArray(data.primaryUsers) && data.primaryUsers.length ? ' Users: ' + data.primaryUsers.slice(0, 3).join(', ') + '.' : '';
           const goals = Array.isArray(data.mainUserGoals) && data.mainUserGoals.length ? ' Goals: ' + data.mainUserGoals.slice(0, 3).join(', ') + '.' : '';
-          discoveryInsight = 'Semantic discovery: ' + data.sitePurpose + users + goals;
+          const deepCount = deepSearchPages.length ? ' Deep Search scanned ' + deepSearchPages.filter(page => page.status === 'scanned').length + ' internal page(s).' : '';
+          discoveryInsight = 'Semantic discovery: ' + data.sitePurpose + users + goals + deepCount;
         } else {
+          const deepCount = deepSearchPages.length ? ' Deep Search scanned ' + deepSearchPages.filter(page => page.status === 'scanned').length + ' internal page(s).' : '';
           discoveryInsight = data.generationMode === 'rule-based-fallback'
-            ? 'Rule-based fallback discovery was used.'
+            ? 'Rule-based fallback discovery was used.' + deepCount
             : '';
         }
         updateDetectedInputFields(data.snapshot);
@@ -2977,18 +3384,20 @@ function pageHtml(initialScenario, initialUiState = {}) {
         setAgentWorkStatus('Scenarios Ready', 'ready');
         finishDiscoveryActivity(true);
         if (walkthroughModal.classList.contains('visible') && activeWalkthroughStep === 0) {
+          renderDiscoveredPages(document.getElementById('wizardDiscoveredPages'));
           renderWizardScenarioPreview(false);
           renderWizardProgress();
         }
       } catch (error) {
         setAgentWorkStatus('Discovery Failed', 'failed');
         finishDiscoveryActivity(false);
-        alert(error.message);
+        if (!/stopped by user/i.test(error.message)) alert(error.message);
       } finally {
         discoveryInProgress = false;
+        renderScenarios();
         updateWizardNavControls();
         discoverBtn.disabled = false;
-        discoverBtn.textContent = 'Start Review';
+        discoverBtn.textContent = 'Generate Test Scenarios';
       }
     }
 
@@ -2996,7 +3405,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
       const url = document.getElementById('siteUrl').value.trim();
       if (!url) return alert('Enter a URL first.');
       if (!(await startCleanReviewIfNeeded())) return;
-      openWalkthrough(0);
+      await runScenarioDiscovery();
     };
 
     document.getElementById('selectAllBtn').onclick = () => {
@@ -3030,6 +3439,30 @@ function pageHtml(initialScenario, initialUiState = {}) {
       if (!res.ok) return alert((await res.json()).error || 'Failed to clear logs');
       await refresh();
     };
+
+    async function stopAgentWork() {
+      stopDiscoveryBtn.disabled = true;
+      stopRunBtn.disabled = true;
+      setAgentWorkStatus('Stopping', 'working');
+      try {
+        const res = await fetch('/api/stop', { method: 'POST' });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          alert(data.error || 'Failed to stop the running agent process.');
+        }
+      } finally {
+        discoveryInProgress = false;
+        finishDiscoveryActivity(false);
+        if (generationInProgress) finishGenerationActivity(false);
+        if (testRunActivityState === 'running') finishTestRunActivity(false);
+        stopDiscoveryBtn.disabled = false;
+        stopRunBtn.disabled = false;
+        await refresh();
+      }
+    }
+
+    stopDiscoveryBtn.onclick = stopAgentWork;
+    stopRunBtn.onclick = stopAgentWork;
 
     toggleReviewDrawerBtn.onclick = () => {
       reviewSideDrawer.classList.add('open');
@@ -3101,9 +3534,6 @@ function pageHtml(initialScenario, initialUiState = {}) {
     document.getElementById('closeWalkthroughBtn').onclick = closeWalkthrough;
     walkthroughModal.addEventListener('click', event => {
       if (event.target === walkthroughModal) event.stopPropagation();
-    });
-    document.querySelectorAll('[data-walkthrough-step]').forEach(button => {
-      button.addEventListener('click', () => openWalkthrough(button.dataset.walkthroughStep));
     });
     prevWalkthroughBtn.onclick = () => {
       activeWalkthroughStep -= 1;
@@ -3239,6 +3669,7 @@ const server = http.createServer(async (req, res) => {
             const payload = JSON.parse(await readBody(req) || "{}");
             runState.scenarioDrafts = normalizeScenarioDrafts(payload.scenarioDrafts);
             runState.discoveryInsight = String(payload.discoveryInsight || "");
+            runState.deepSearchPages = normalizeDeepSearchPages(payload.deepSearchPages);
             savePersistentUiState();
             sendJson(res, 200, { ok: true });
             return;
@@ -3249,6 +3680,7 @@ const server = http.createServer(async (req, res) => {
             fs.writeFileSync(testsScenarioPath, "", "utf8");
             runState.scenarioDrafts = [];
             runState.discoveryInsight = "";
+            runState.deepSearchPages = [];
             savePersistentUiState();
             pushLog("Scenario text cleared.\n");
             sendJson(res, 200, { ok: true });
@@ -3278,11 +3710,44 @@ const server = http.createServer(async (req, res) => {
                 sendJson(res, 400, { error: "Enter a valid http(s) URL." });
                 return;
             }
-            const result = await suggestScenariosFromUrl(payload.url, payload.count, payload.types);
-            runState.scenarioDrafts = normalizeScenarioDrafts(result.scenarios);
-            runState.discoveryInsight = discoveryInsightFromResult(result);
-            savePersistentUiState();
-            sendJson(res, 200, result);
+            if (runState.running) {
+                sendJson(res, 409, { error: "Agent is already running." });
+                return;
+            }
+            runState.running = true;
+            runState.cancelRequested = false;
+            runState.status = "discovering";
+            runState.deepSearchPages = [];
+            runState.startedAt = new Date().toISOString();
+            runState.finishedAt = null;
+            try {
+                const result = await suggestScenariosFromUrl(payload.url, payload.count, payload.types, payload.deepSearch || {});
+                runState.scenarioDrafts = normalizeScenarioDrafts(result.scenarios);
+                runState.discoveryInsight = discoveryInsightFromResult(result);
+                runState.deepSearchPages = normalizeDeepSearchPages(result.deepSearchPages);
+                runState.status = "idle";
+                savePersistentUiState();
+                sendJson(res, 200, result);
+            } catch (error) {
+                const stopped = runState.cancelRequested || /stopped by user/i.test(error.message);
+                runState.status = stopped ? "stopped" : "failed";
+                pushLog(stopped ? "Scenario discovery stopped by user.\n" : `Scenario discovery failed: ${error.message}\n`);
+                sendJson(res, stopped ? 499 : 500, { error: stopped ? "Scenario discovery stopped by user." : error.message });
+            } finally {
+                runState.running = false;
+                runState.cancelRequested = false;
+                runState.finishedAt = new Date().toISOString();
+            }
+            return;
+        }
+
+        if (req.method === "POST" && url.pathname === "/api/stop") {
+            if (!runState.running && activeChildren.size === 0) {
+                sendJson(res, 200, { ok: true, stopped: false });
+                return;
+            }
+            requestStopActiveWork("Stopped from UI");
+            sendJson(res, 202, { ok: true, stopped: true });
             return;
         }
 

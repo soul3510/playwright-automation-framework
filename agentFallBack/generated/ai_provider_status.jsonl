@@ -249,3 +249,113 @@
 {"timestamp":"2026-05-10T12:54:28.663Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
 {"timestamp":"2026-05-10T12:55:23.865Z","provider":"gemini","model":"gemini-2.5-flash","status":"started"}
 {"timestamp":"2026-05-10T12:55:49.373Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:28:01.315Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":31508}
+{"timestamp":"2026-05-10T13:28:20.770Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:33:24.004Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":28303}
+{"timestamp":"2026-05-10T13:33:47.384Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:34:16.253Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":8196}
+{"timestamp":"2026-05-10T13:34:40.841Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:35:02.992Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":198692}
+{"timestamp":"2026-05-10T13:35:30.433Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:35:39.687Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":199677}
+{"timestamp":"2026-05-10T13:35:55.651Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:36:05.151Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":204810}
+{"timestamp":"2026-05-10T13:36:39.015Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:36:46.698Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":8916}
+{"timestamp":"2026-05-10T13:37:04.746Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:37:13.620Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":201785}
+{"timestamp":"2026-05-10T13:37:14.304Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:37:14.305Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":201785}
+{"timestamp":"2026-05-10T13:37:26.222Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:37:33.472Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":201884}
+{"timestamp":"2026-05-10T13:37:34.146Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:37:34.148Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":201884}
+{"timestamp":"2026-05-10T13:37:45.097Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:37:52.902Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202427}
+{"timestamp":"2026-05-10T13:37:53.455Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:37:53.457Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202427}
+{"timestamp":"2026-05-10T13:38:03.930Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:38:11.542Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202445}
+{"timestamp":"2026-05-10T13:38:12.221Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:38:12.222Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202445}
+{"timestamp":"2026-05-10T13:38:29.385Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:38:37.824Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202544}
+{"timestamp":"2026-05-10T13:38:38.354Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:38:38.355Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202544}
+{"timestamp":"2026-05-10T13:38:47.756Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:38:58.878Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202745}
+{"timestamp":"2026-05-10T13:38:59.499Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:38:59.501Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202745}
+{"timestamp":"2026-05-10T13:39:10.401Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:39:21.438Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202842}
+{"timestamp":"2026-05-10T13:39:22.072Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:39:22.075Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202842}
+{"timestamp":"2026-05-10T13:39:33.719Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:39:42.394Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":203002}
+{"timestamp":"2026-05-10T13:40:15.474Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:40:24.610Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":203799}
+{"timestamp":"2026-05-10T13:40:25.276Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:40:25.278Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":203799}
+{"timestamp":"2026-05-10T13:40:37.947Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:40:47.129Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":204133}
+{"timestamp":"2026-05-10T13:40:47.815Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:40:47.817Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":204133}
+{"timestamp":"2026-05-10T13:40:59.625Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:41:09.793Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":204011}
+{"timestamp":"2026-05-10T13:41:10.310Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:41:10.312Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":204011}
+{"timestamp":"2026-05-10T13:41:23.437Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:41:33.441Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":204101}
+{"timestamp":"2026-05-10T13:41:34.122Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:41:34.124Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":204101}
+{"timestamp":"2026-05-10T13:41:44.265Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:41:53.281Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":204019}
+{"timestamp":"2026-05-10T13:41:53.889Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:41:53.890Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":204019}
+{"timestamp":"2026-05-10T13:42:05.925Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:42:15.112Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":204019}
+{"timestamp":"2026-05-10T13:42:15.752Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:42:15.754Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":204019}
+{"timestamp":"2026-05-10T13:42:30.701Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:42:38.567Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":5354}
+{"timestamp":"2026-05-10T13:42:38.966Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:42:38.968Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":5354}
+{"timestamp":"2026-05-10T13:42:42.611Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:42:46.288Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":9520}
+{"timestamp":"2026-05-10T13:42:46.646Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:42:46.647Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":9520}
+{"timestamp":"2026-05-10T13:42:55.836Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:43:03.857Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":196091}
+{"timestamp":"2026-05-10T13:43:04.424Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:43:04.425Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":196091}
+{"timestamp":"2026-05-10T13:43:15.099Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:43:21.905Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":196015}
+{"timestamp":"2026-05-10T13:43:50.664Z","provider":"gemini","model":"gemini-2.5-flash","status":"success"}
+{"timestamp":"2026-05-10T13:44:01.802Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":10476}
+{"timestamp":"2026-05-10T13:44:02.231Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:44:02.232Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":10476}
+{"timestamp":"2026-05-10T13:44:09.630Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:44:34.782Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":203204}
+{"timestamp":"2026-05-10T13:44:35.410Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:44:35.412Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":203204}
+{"timestamp":"2026-05-10T13:44:43.981Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:45:08.644Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202156}
+{"timestamp":"2026-05-10T13:45:09.226Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:45:09.228Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202156}
+{"timestamp":"2026-05-10T13:45:19.335Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:45:49.698Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202200}
+{"timestamp":"2026-05-10T13:45:50.284Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:45:50.286Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202200}
+{"timestamp":"2026-05-10T13:46:00.339Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:46:30.455Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":202142}
+{"timestamp":"2026-05-10T13:46:31.024Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:46:31.027Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":202142}
+{"timestamp":"2026-05-10T13:46:43.910Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:47:15.224Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":10404}
+{"timestamp":"2026-05-10T13:47:15.595Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:47:15.596Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":10404}
+{"timestamp":"2026-05-10T13:47:26.791Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
+{"timestamp":"2026-05-10T13:47:35.702Z","provider":"gemini","model":"gemini-2.5-flash","status":"started","promptChars":205833}
+{"timestamp":"2026-05-10T13:47:36.321Z","provider":"gemini","model":"gemini-2.5-flash","status":"failed","errorCode":"GEMINI_QUOTA_EXHAUSTED","error":"Gemini API limit reached for this API key. The agent cannot use Gemini right now because the key has reached its quota/rate/token limit. Wait for the quota window to reset, switch to another key, or use a billing-enabled Gemini project/key. Model used: gemini-2.5-flash"}
+{"timestamp":"2026-05-10T13:47:36.324Z","provider":"openai","model":"gpt-5-nano","status":"started","reason":"gemini_quota_exhausted_fallback","promptChars":205833}
+{"timestamp":"2026-05-10T13:47:51.470Z","provider":"openai","model":"gpt-5-nano","status":"success","reason":"gemini_quota_exhausted_fallback"}
