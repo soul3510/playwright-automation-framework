@@ -43,6 +43,23 @@ function normalizeText(x) {
     return String(x ?? "").replace(/\s+/g, " ").trim();
 }
 
+function compactRepoKnowledgeForPrompt(knowledge) {
+    if (!knowledge || typeof knowledge !== "object") return {};
+
+    return {
+        conventions: knowledge.conventions || {},
+        login: knowledge.login || {},
+        pageObjectUsage: knowledge.pageObjectUsage || {},
+        poShortcuts: knowledge.poShortcuts || {},
+        goldenPatterns: Array.isArray(knowledge.goldenPatterns)
+            ? knowledge.goldenPatterns.slice(0, 10)
+            : knowledge.goldenPatterns || {},
+        selectors: Array.isArray(knowledge.selectors)
+            ? knowledge.selectors.slice(0, 120)
+            : knowledge.selectors || undefined
+    };
+}
+
 function isLikelyMetadataRow(row) {
     const text = normalizeText(Object.values(row || {}).join(" ")).toLowerCase();
     return (
@@ -716,7 +733,7 @@ ELEMENT MAPPER:
 ${elementMapperContent}
 
 REPO KNOWLEDGE:
-${JSON.stringify(repoKnowledge, null, 2)}
+${JSON.stringify(compactRepoKnowledgeForPrompt(repoKnowledge), null, 2)}
 
 DATA INPUTS:
 - DATA_INPUTS are loaded from agent/test_data_${effectivePageId}.json

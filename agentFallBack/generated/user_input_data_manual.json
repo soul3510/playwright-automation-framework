@@ -2,6 +2,7 @@
   "enabled": true,
   "createDataProviders": true,
   "fields": {
-    "phone": "876586758"
+    "search": "war in iran",
+    "language": "Hebrew"
   }
 }

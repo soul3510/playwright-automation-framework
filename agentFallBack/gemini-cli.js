@@ -58,7 +58,8 @@ async function callOpenAiFallback(prompt) {
         provider: 'openai',
         model: modelName,
         status: 'started',
-        reason: 'gemini_quota_exhausted_fallback'
+        reason: 'gemini_quota_exhausted_fallback',
+        promptChars: String(prompt || '').length
     });
 
     const response = await fetch('https://api.openai.com/v1/responses', {
@@ -217,7 +218,8 @@ async function main() {
         recordAiStatus({
             provider: 'gemini',
             model: modelName,
-            status: 'started'
+            status: 'started',
+            promptChars: input.length
         });
         const result = await model.generateContent(input);
         const response = result.response.text();

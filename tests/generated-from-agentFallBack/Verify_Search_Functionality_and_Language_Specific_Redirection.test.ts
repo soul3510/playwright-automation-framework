@@ -1,4 +1,3 @@
-```typescript
 /**
  * 🤖 AI AGENT HANDOVER NOTE
  * CONTEXT:
@@ -54,6 +53,8 @@ const getLanguageDetails = (inputLang: string) => {
 
   switch (baseLanguage.toLowerCase()) {
     case 'hebrew':
+      // For Hebrew, the UI text in the dropdown is 'עברית' and the langCode is 'he'.
+      // The searchPagePath is for the search results page.
       return { uiText: 'עברית', langCode: 'he', searchPagePath: '(Spezial:Suche|מיוחד:חיפוש|Special:Search)' };
     case 'deutsch':
       return { uiText: 'Deutsch', langCode: 'de', searchPagePath: '(Spezial:Suche|מיוחד:חיפוש|Special:Search)' };
@@ -98,21 +99,24 @@ test.describe('Verify_Search_Functionality_and_Language_Specific_Redirection', (
       console.log('✅ Step 1 completed');
 
       // =========================================
-      // STEP 2 (REVISED): SELECT LANGUAGE LINK BASED ON INPUT DATA.
-      // The original Step 3 ("SELECT 'DEUTSCH' FROM THE LANGUAGE DROPDOWN (ID: 'SEARCHLANGUAGE')")
-      // was incorrect for the landing page. This step is re-interpreted to click a language link
-      // on the main page to navigate to the language-specific Wikipedia portal.
-      // This step is also re-ordered to occur before typing the search term.
+      // STEP 2 (REVISED): SELECT LANGUAGE FROM THE DROPDOWN ON THE MAIN PAGE.
+      // The original Step 2 was attempting to click a direct link, but the snapshot shows
+      // 'עברית' as an option within a combobox (dropdown) for language selection.
+      // This step is now revised to interact with that dropdown, which will trigger
+      // navigation to the language-specific Wikipedia portal.
       // =========================================
-      console.log(`\n🚀 STEP 2: Select language link for "${languageUiText}" (from input: "${inputData.language}").`);
+      console.log(`\n🚀 STEP 2: Select language "${languageUiText}" from the dropdown.`);
 
-      await handlePageInterruptions(page); // Handle any interruptions before interacting with language links
+      await handlePageInterruptions(page); // Handle any interruptions before interacting with language dropdown
 
-      console.log(`🖱️ Preparing to click language link: "${languageUiText}".`);
-      // Use getByRole with exact text match for robustness
-      const languageLink = page.getByRole('link', { name: languageUiText, exact: true });
-      await expect(languageLink).toBeVisible({ timeout: 10000 });
-      await languageLink.click();
+      console.log(`🖱️ Preparing to select language: "${languageUiText}".`);
+      // The language dropdown is typically an <select> element or a combobox.
+      // Based on the snapshot and common Wikipedia structure, it has an ID 'searchLanguage'.
+      const languageDropdown = page.locator('#searchLanguage');
+      await expect(languageDropdown).toBeVisible({ timeout: 10000 });
+      
+      // Select the option by its visible text. This action will trigger navigation.
+      await languageDropdown.selectOption({ label: languageUiText });
       
       // Wait for navigation to the language-specific Wikipedia domain
       await page.waitForURL(new RegExp(`^https://${langCode}\\.wikipedia\\.org/`), { timeout: 15000 });
@@ -193,4 +197,3 @@ test.describe('Verify_Search_Functionality_and_Language_Specific_Redirection', (
 });
 
 export {}; // Make this a module
-```

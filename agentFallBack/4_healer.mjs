@@ -80,6 +80,90 @@ function simplifyText(value, max = 120) {
     return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
 }
 
+function compactLongText(value, maxChars = 18000) {
+    const text = String(value || "");
+    if (text.length <= maxChars) return text;
+
+    const headSize = Math.min(3500, Math.floor(maxChars * 0.25));
+    const tailSize = maxChars - headSize;
+    return [
+        text.slice(0, headSize),
+        `\n\n... [${text.length - maxChars} characters omitted to reduce AI token usage] ...\n\n`,
+        text.slice(-tailSize)
+    ].join("");
+}
+
+function extractFailureLine(errorLog) {
+    const match = String(errorLog || "").match(/\(([^()]+\.(?:ts|js|mjs)):(\d+):(\d+)\)|\bat\s+([^()\n]+\.(?:ts|js|mjs)):(\d+):(\d+)|([A-Z]:\\[^\n:]+\.(?:ts|js|mjs)):(\d+):(\d+)/i);
+    if (!match) return null;
+
+    const line = Number(match[2] || match[5] || match[8]);
+    return Number.isFinite(line) ? line : null;
+}
+
+function compactTestCodeForPrompt(code, errorLog, maxChars = 26000) {
+    const text = String(code || "");
+    if (text.length <= maxChars) return text;
+
+    const lines = text.split(/\r?\n/);
+    const failureLine = extractFailureLine(errorLog);
+    if (!failureLine) return compactLongText(text, maxChars);
+
+    const importLines = lines
+        .slice(0, 80)
+        .filter(line => /^\s*import\s/.test(line) || /^\s*const\s+\w+\s*=\s*require\(/.test(line));
+    const start = Math.max(0, failureLine - 90);
+    const end = Math.min(lines.length, failureLine + 90);
+    const focusedLines = lines.slice(start, end).map((line, index) => {
+        const lineNo = start + index + 1;
+        return `${lineNo}: ${line}`;
+    });
+
+    return [
+        "// Compact code context. Imports plus lines around the failing location.",
+        ...importLines,
+        "",
+        `// Focused failing region: lines ${start + 1}-${end} of ${lines.length}`,
+        ...focusedLines
+    ].join("\n");
+}
+
+function compactErrorLogForPrompt(errorLog, maxChars = 16000) {
+    const text = String(errorLog || "");
+    if (text.length <= maxChars) return text;
+
+    const usefulPatterns = [
+        /Test timeout[\s\S]*?(?=\n\n|\r\n\r\n|$)/i,
+        /Error:[\s\S]*?(?=\n\n|\r\n\r\n|$)/i,
+        /\d+\)\s+\[[\s\S]*?(?=\n\s*\d+\s+failed|\n\s*\d+\s+passed|$)/i
+    ];
+
+    const focused = usefulPatterns
+        .map(pattern => text.match(pattern)?.[0])
+        .filter(Boolean)
+        .join("\n\n");
+
+    const combined = focused
+        ? `${focused}\n\nLAST LOG LINES:\n${text.slice(-Math.floor(maxChars * 0.45))}`
+        : text;
+
+    return compactLongText(combined, maxChars);
+}
+
+function compactRepoKnowledgeForHealing(knowledge) {
+    if (!knowledge || typeof knowledge !== "object") return {};
+
+    return {
+        conventions: knowledge.conventions || {},
+        login: knowledge.login || {},
+        pageObjectUsage: knowledge.pageObjectUsage || {},
+        poShortcuts: knowledge.poShortcuts || {},
+        selectors: Array.isArray(knowledge.selectors)
+            ? knowledge.selectors.slice(0, 80)
+            : knowledge.selectors || undefined
+    };
+}
+
 function stringifyMcpContent(result) {
     const content = Array.isArray(result?.content) ? result.content : [];
     return content
@@ -814,7 +898,16 @@ async function heal(testFile, errorLog, attempt) {
     }
 
     const currentCode = fs.readFileSync(testFile, "utf8");
-    const liveMcpContextSection = await collectPlaywrightMcpContext(testFile, currentCode, errorLog, attempt);
+    const liveMcpContextSectionRaw = await collectPlaywrightMcpContext(testFile, currentCode, errorLog, attempt);
+    const compactCurrentCode = compactTestCodeForPrompt(currentCode, errorLog);
+    const compactErrorLog = compactErrorLogForPrompt(errorLog);
+    const compactRepoKnowledge = compactRepoKnowledgeForHealing(repoKnowledge);
+    const liveMcpContextSection = compactLongText(liveMcpContextSectionRaw, 18000);
+    const originalPromptChars = currentCode.length + String(errorLog || "").length + JSON.stringify(repoKnowledge || {}).length + String(liveMcpContextSectionRaw || "").length;
+    const compactPromptChars = compactCurrentCode.length + compactErrorLog.length + JSON.stringify(compactRepoKnowledge || {}).length + liveMcpContextSection.length;
+    if (originalPromptChars > compactPromptChars + 1000) {
+        logHealingProgress(`Compacted AI healing context from ${originalPromptChars} to ${compactPromptChars} characters.`, attempt);
+    }
     const interruptionInstructions = `
 PAGE INTERRUPTION HANDLING:
 - Before changing business selectors, check whether the flow is blocked by a cookie/privacy banner, consent dialog, newsletter popup, announcement modal, ad overlay, notification prompt, location prompt, or interstitial.
@@ -898,7 +991,13 @@ ${JSON.stringify({ page: uiMetadata.name, elements: focusedElements }, null, 2)}
     if (repoKnowledge && repoKnowledge.goldenPatterns) {
         goldenPatternsSection = `
 GOLDEN PATTERNS (SUCCESSFUL USAGE EXAMPLES):
-${JSON.stringify(repoKnowledge.goldenPatterns, null, 2)}
+${JSON.stringify(
+    Array.isArray(repoKnowledge.goldenPatterns)
+        ? repoKnowledge.goldenPatterns.slice(0, 8)
+        : repoKnowledge.goldenPatterns,
+    null,
+    2
+)}
 `;
     }
 
@@ -950,16 +1049,16 @@ FILE: ${path.basename(testFile)}
 
 CURRENT CODE:
 \`\`\`typescript
-${currentCode}
+${compactCurrentCode}
 \`\`\`
 
 ERROR LOG:
 \`\`\`
-${errorLog}
+${compactErrorLog}
 \`\`\`
 
 REPO KNOWLEDGE (SELECTORS & CONVENTIONS):
-${JSON.stringify(repoKnowledge, null, 2)}
+${JSON.stringify(compactRepoKnowledge, null, 2)}
 ${metadataSection}
 ${goldenPatternsSection}
 

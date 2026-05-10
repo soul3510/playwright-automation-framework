@@ -5,8 +5,8 @@ CONTEXT:
 - Use standard Playwright best practices
 - Focus on robust selectors and clear test logic
 
-TEST FILE: Verify_WhatsApp_Contact_Link_Functionality.test.ts
-PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_WhatsApp_Contact_Link_Functionality.test.ts
+TEST FILE: Verify_Search_Functionality_and_Language_Specific_Redirection.test.ts
+PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_Search_Functionality_and_Language_Specific_Redirection.test.ts
 
 CODE:
 /**
@@ -18,7 +18,7 @@ CODE:
  * - Mode: Generic (Universal) with Page Objects
  * 
  * 🎬 HEADED MODE: This test will run with visible browser
- * Run with: npx playwright test Verify_WhatsApp_Contact_Link_Functionality.test.ts --headed
+ * Run with: npx playwright test Verify_Search_Functionality_and_Language_Specific_Redirection.test.ts --headed
  */
 
 import { test, expect } from '@playwright/test';
@@ -28,73 +28,109 @@ import { handlePageInterruptions } from '../../utils/pageInterruptions';
 const inputDataProviders = [
   {
     "caseName": "case_1",
-    "phone": "876586758"
+    "search": "war in iran",
+    "language": "Hebrew"
   },
   {
     "caseName": "case_2",
-    "phone": "876586759"
+    "search": "war in iran valid",
+    "language": "Hebrew valid"
   },
   {
     "caseName": "case_3",
-    "phone": "876586757"
+    "search": "war in iran 123",
+    "language": "Hebrew 123"
   },
   {
     "caseName": "case_4",
-    "phone": "8765867580"
+    "search": "war in iran edge case",
+    "language": "Hebrew edge case"
   },
   {
     "caseName": "case_5",
-    "phone": "999999"
+    "search": "war in iran long value for validation",
+    "language": "Hebrew long value for validation"
   }
 ];
 
 
-test.describe('Verify_WhatsApp_Contact_Link_Functionality', () => {
+test.describe('Verify_Search_Functionality_and_Language_Specific_Redirection', () => {
   
   test.beforeEach(async () => {
       test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
       test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
-      test.info().annotations.push({ type: 'Description', description: 'Verify WhatsApp Contact Link Functionality' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify Search Functionality and Language-Specific Redirection' });
   });
 
-  test('Verify WhatsApp Contact Link Functionality', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+  test('Verify Search Functionality and Language-Specific Redirection', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
     // Initialize page object
     const landingPage = new LandingPage(page);
     const inputData = inputDataProviders[0];
     // =========================================
-    // STEP 1: NAVIGATE TO PAGE: HTTPS://SOLO.BEATWISH.LIVE/
+    // STEP 1: NAVIGATE TO PAGE: HTTPS://WWW.WIKIPEDIA.ORG/
     // =========================================
-    console.log('\n🚀 STEP 1: Navigate to page: https://solo.beatwish.live/');
+    console.log('\n🚀 STEP 1: Navigate to page: https://www.wikipedia.org/');
 
-    console.log('📍 Navigating to URL: https://solo.beatwish.live/');
-    await page.goto('https://solo.beatwish.live/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    console.log('📍 Navigating to URL: https://www.wikipedia.org/');
+    await page.goto('https://www.wikipedia.org/', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
     await handlePageInterruptions(page);
     console.log('✅ Navigation completed successfully');
     console.log('✅ Step 1 completed');
 
     // =========================================
-    // STEP 2: LOCATE AND CLICK ON A VISIBLE WHATSAPP CONTACT LINK (E.G., THE ONE WITH 'ARIA-LABEL="שליחת הודעה בוואטסאפ"' OR 'HREF="HTTPS://WA.ME/972508266273"').
+    // STEP 2: TYPE 'ARTIFICIAL INTELLIGENCE' INTO THE SEARCH INPUT FIELD (ID: 'SEARCHINPUT').
     // =========================================
-    console.log('\n🚀 STEP 2: Locate and click on a visible WhatsApp contact link (e.g., the one with 'aria-label="שליחת הודעה בוואטסאפ"' or 'href="https://wa.me/972508266273"').');
+    console.log('\n🚀 STEP 2: Type 'Artificial Intelligence' into the search input field (id: 'searchInput').');
 
     await handlePageInterruptions(page);
 
-    console.log('🖱️ Preparing to click element: a visible WhatsApp contact link (e.g., the one with \'aria-label="שליחת הודעה בוואטסאפ"\' or \'href="https://wa.me/972508266273"\').');
-    console.log('⚠️ Generic click action for: a visible WhatsApp contact link (e.g., the one with \'aria-label="שליחת הודעה בוואטסאפ"\' or \'href="https://wa.me/972508266273"\').');
-    // Generic click action - add custom method as needed
-    const element2 = page.getByText('a visible WhatsApp contact link (e.g., the one with \'aria-label="שליחת הודעה בוואטסאפ"\' or \'href="https://wa.me/972508266273"\').', { exact: false }).first();
-    await expect(element2).toBeVisible({ timeout: 10000 });
-    await element2.click();
-    console.log('✅ Clicked element: a visible WhatsApp contact link (e.g., the one with \'aria-label="שליחת הודעה בוואטסאפ"\' or \'href="https://wa.me/972508266273"\').');
+    console.log('⌨️ Preparing to fill field: the search input field (id: \'searchInput\').');
+    const searchInput = page.getByRole('searchbox').or(page.locator('input[type="search"], input[name="search"], input[name="searchInput"], #searchInput')).first();
+    await expect(searchInput).toBeVisible({ timeout: 10000 });
+    const searchValue = String(inputData.search ?? 'war in iran');
+    await searchInput.fill(searchValue);
+    console.log('✅ Field filled: the search input field (id: \'searchInput\').');
     console.log('✅ Step 2 completed');
 
-    // Verification: The browser should successfully initiate a WhatsApp chat with the specified phone number ('972508266273').
-    // Verification: The URL should change to 'https://wa.me/972508266273' or trigger the WhatsApp application/web client, indicating a successful redirection.
-    // Verification: Reason: WhatsApp is a primary and direct communication channel for potential customers to inquire about services. A non-functional or incorrect WhatsApp link directly hinders lead generation and customer engagement, impacting business significantly.
-    await page.waitForLoadState('networkidle');
-    const currentUrl = page.url();
-    expect(currentUrl).not.toBe('https://www.calm.com/'); // Should have redirected
+    // =========================================
+    // STEP 3: SELECT 'DEUTSCH' FROM THE LANGUAGE DROPDOWN (ID: 'SEARCHLANGUAGE').
+    // =========================================
+    console.log('\n🚀 STEP 3: Select 'Deutsch' from the language dropdown (id: 'searchLanguage').');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 3: Pattern not recognized - Select 'Deutsch' from the language dropdown (id: 'searchLanguage').');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 3 completed');
+
+    // =========================================
+    // STEP 4: CLICK THE 'SEARCH' BUTTON.
+    // =========================================
+    console.log('\n🚀 STEP 4: Click the 'Search' button.');
+
+    await handlePageInterruptions(page);
+
+    console.log('🖱️ Preparing to click element: Search\' button.');
+    console.log('🎯 Submitting search');
+    const searchButton = page.getByRole('button', { name: /search/i }).first();
+    if (await searchButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await searchButton.click();
+    } else {
+      await page.keyboard.press('Enter');
+    }
+    await page.waitForLoadState('domcontentloaded');
+    console.log('✅ Search submitted successfully');
+    console.log('✅ Step 4 completed');
+
+    // Verification: The browser navigates to 'https://de.wikipedia.org/wiki/Spezial:Suche?search=Artificial+Intelligence' (or a similar German search results URL).
+    // Verification: The search results page in German is displayed, showing articles related to 'Artificial Intelligence' (e.g., 'Künstliche Intelligenz').
+    // Verification: Reason: The primary function of the Wikipedia portal is to enable users to search for information across its vast multilingual encyclopedia. Ensuring that searches correctly redirect to the appropriate language Wikipedia and display relevant results is critical for user satisfaction and data integrity.
+    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator('body')).toContainText(/Artificial|Intelligence/i);
+    const finalTitle = await page.title();
+    expect(finalTitle.length).toBeGreaterThan(0);
 
   });
 });

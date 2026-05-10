@@ -2,7 +2,7 @@
   "currentAgent": "web-ui",
   "status": "RUNNING",
   "source": "manual",
-  "startedAt": "2026-05-10T12:33:33.039Z",
+  "startedAt": "2026-05-10T12:53:41.402Z",
   "logs": [],
   "bugReport": {
     "detectedBugs": []
@@ -10,29 +10,9 @@
   "healer": {
     "lessonsLearned": [
       {
-        "locator": "page.getByRole('link', { href: 'https://wa.me/972508266273' })",
-        "fix": "page.getByRole('link', { name: 'שלחו הודעה בוואטסאפ', exact: true })",
-        "reason": "The original locator caused a 'strict mode violation' because multiple links on the page had the same 'href' attribute. By adding the 'name' (visible text) attribute with 'exact: true', the locator now uniquely identifies the intended WhatsApp contact link, resolving the ambiguity and strict mode error."
-      },
-      {
-        "locator": "page.waitForURL('**/wa.me/972508266273**')",
-        "fix": "Replaced with `page.context().waitForEvent('page')` to capture the new tab/window opened by the WhatsApp link, then used `newPage.waitForURL` and `newPage.url()` on the captured page.",
-        "reason": "The original `page.waitForURL` failed with `net::ERR_ABORTED; maybe frame was detached?` because the WhatsApp link initiates navigation in a new browser context (new tab/window or external application), causing the original page's navigation to be 'aborted' from its perspective. Listening for a new page event is the correct Playwright pattern for this scenario."
-      },
-      {
-        "locator": "page.context().waitForEvent('page')",
-        "fix": "Increased timeout from 20000ms to 30000ms",
-        "reason": "The 'TimeoutError' indicated that the new page event was not registered within the default 20-second timeout. External navigations, especially to services like WhatsApp, can sometimes take longer to initiate a new browser context or tab due to redirects or system-level prompts. Increasing the timeout provides more robustness for such scenarios."
-      },
-      {
-        "locator": "page.context().waitForEvent('page')",
-        "fix": "Increased timeout to 60000ms and added `page.waitForLoadState('networkidle')` before the click, along with `toBeEnabled` assertion.",
-        "reason": "The `TimeoutError` on `waitForEvent('page')` indicates a race condition or a delay in the new page opening. Increasing the timeout provides more buffer, and waiting for `networkidle` ensures the page is fully loaded and stable before the click, reducing flakiness. Explicitly checking `toBeEnabled` ensures the element is interactive."
-      },
-      {
-        "locator": "newPage.waitForURL('**/wa.me/972508266273**')",
-        "fix": "Increased timeout to 30000ms.",
-        "reason": "External navigations, especially to third-party services like WhatsApp, can sometimes take longer to fully load or redirect. Increasing this timeout provides more resilience against network delays or slow server responses."
+        "locator": "page.getByRole('link', { name: languageUiText, exact: true })",
+        "fix": "page.locator('#searchLanguage').selectOption({ label: languageUiText })",
+        "reason": "The original locator was attempting to click a direct link for language selection. However, the MCP snapshot and common Wikipedia UI show that language selection for search is done via a combobox (dropdown) with ID 'searchLanguage', where 'עברית' is an option. The fix changes the interaction to correctly select the option from the dropdown, which then triggers the expected navigation."
       }
     ]
   }

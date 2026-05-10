@@ -1,34 +1,34 @@
-Subject: Verify WhatsApp Contact Link Functionality
+Subject: Verify Search Functionality and Language-Specific Redirection
 User: no user
 Steps:
-1. Navigate to page: https://solo.beatwish.live/
-2. Locate and click on a visible WhatsApp contact link (e.g., the one with 'aria-label="שליחת הודעה בוואטסאפ"' or 'href="https://wa.me/972508266273"').
+1. Navigate to page: https://www.wikipedia.org/
+2. Type 'Artificial Intelligence' into the search input field (id: 'searchInput').
+3. Select 'Deutsch' from the language dropdown (id: 'searchLanguage').
+4. Click the 'Search' button.
 
 Expected:
-The browser should successfully initiate a WhatsApp chat with the specified phone number ('972508266273').
-The URL should change to 'https://wa.me/972508266273' or trigger the WhatsApp application/web client, indicating a successful redirection.
-Reason: WhatsApp is a primary and direct communication channel for potential customers to inquire about services. A non-functional or incorrect WhatsApp link directly hinders lead generation and customer engagement, impacting business significantly.
+The browser navigates to 'https://de.wikipedia.org/wiki/Spezial:Suche?search=Artificial+Intelligence' (or a similar German search results URL).
+The search results page in German is displayed, showing articles related to 'Artificial Intelligence' (e.g., 'Künstliche Intelligenz').
+Reason: The primary function of the Wikipedia portal is to enable users to search for information across its vast multilingual encyclopedia. Ensuring that searches correctly redirect to the appropriate language Wikipedia and display relevant results is critical for user satisfaction and data integrity.
 
 Additional:
 Category: QUALITY
 Discovered page signals:
-- Heading: השכרת ציוד הגברה ותאורה לאירועים
-- Heading: זוג רמקולים מוגברים
-- Heading: עמדת דיג'יי
-- Heading: Pioneer DDJ-400
-- Heading: מיקסר Bluetooth
-- Heading: מיקרופונים אלחוטיים
-- Heading: סטנד תאורה ואפקטים
-- Heading: מכונת עשן
-- Element: a "דלגו לתוכן הראשי"
-- Element: a "ציוד, הגברה, תאורה ודי ג׳יי לאירועים"
-- Element: a "השכרת ציוד לארועים"
-- Element: a "DJ - SOLO"
-- Element: a "דברו איתי"
-- Element: a "שלחו הודעה בוואטסאפ"
-- Element: a "למחירון הציוד"
-- Element: a "איך להרים את המסיבה ולשמור על אנרגיה גבוהה"
-- Element: a "איך לבחור חבילת הגברה שמתאימה לגודל האירוע"
-- Element: a "תכנון מוזיקלי נכון מתחיל בלוח זמנים מסודר"
-- Element: a "לכל העדכונים"
-- Element: a
+- Heading: Wikipedia The Free Encyclopedia
+- Heading: 1,000,000+ articles
+- Heading: 100,000+ articles
+- Heading: 10,000+ articles
+- Heading: 1,000+ articles
+- Heading: 100+ articles
+- Element: a #js-link-box-en "English 7,177,000+ articles"
+- Element: a #js-link-box-ja "日本語 1,500,000+ 記事"
+- Element: a #js-link-box-de "Deutsch 3.118.000+ Artikel"
+- Element: a #js-link-box-zh "中文 1,533,000+ 条目 / 條目"
+- Element: a #js-link-box-ru "Русский 2 098 000+ статей"
+- Element: a #js-link-box-fr "Français 2 755 000+ articles"
+- Element: a #js-link-box-es "Español 2.110.000+ artículos"
+- Element: a #js-link-box-it "Italiano 1.967.000+ voci"
+- Element: a #js-link-box-pt "Português 1.170.000+ artigos"
+- Element: a #js-link-box-pl "Polski 1 693 000+ haseł"
+- Element: div [role="search"] "Search Wikipedia EN Afrikaans Shqip العربية Asturianu Azərbaycanca Български 閩南語 / Bân-lâm-gú বাংলা Беларуская Català Če"
+- Element: input #searchInput [name="search"]
