@@ -1920,8 +1920,11 @@ function pageHtml(initialScenario, initialUiState = {}) {
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent), #4f9bff, var(--accent));
+      bottom: 0;
+      border: 4px solid transparent;
+      border-image: linear-gradient(90deg, var(--accent), #4f9bff, var(--accent)) 1;
+      pointer-events: none;
+      border-radius: var(--border-radius);
     }
     @keyframes shimmer {
       0%, 100% { transform: translateX(-100%); }
@@ -2294,7 +2297,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
     }
     .walkthrough-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 0 18px 18px; }
     .section-heading { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 6px 0 2px; }
-    .section-heading h3 { margin: 0; font-size: 15px; }
+    .section-heading h3 { margin: 0; font-size: 15px; color: var(--ink); font-weight: 600; }
     .toolbar { justify-content: space-between; margin-top: 8px; }
     .scenario-list { display: grid; gap: 10px; }
     .test-list { display: grid; gap: 8px; max-height: 220px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfcff; }
@@ -2887,6 +2890,21 @@ function pageHtml(initialScenario, initialUiState = {}) {
             <input id="siteUrl" type="url" placeholder="https://example.com" aria-describedby="url-help">
           </div>
           <div id="url-help" class="hint">Enter the complete URL of the website you want to test</div>
+          <div class="row" style="margin-top: 16px;">
+            <label for="scenarioCount">Choose how many scenarios to create</label>
+            <select id="scenarioCount" style="max-width: 120px;">
+              <option value="1">1 scenario</option>
+              <option value="2">2 scenarios</option>
+              <option value="3">3 scenarios</option>
+              <option value="4">4 scenarios</option>
+              <option value="5" selected>5 scenarios</option>
+              <option value="6">6 scenarios</option>
+              <option value="7">7 scenarios</option>
+              <option value="8">8 scenarios</option>
+              <option value="9">9 scenarios</option>
+              <option value="10">10 scenarios</option>
+            </select>
+          </div>
           <fieldset>
             <legend style="margin-top: 16px;">Test types to generate</legend>
             <div class="type-grid" id="testTypeGrid" role="group" aria-label="Test type selections">
@@ -3090,6 +3108,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
     const stopDiscoveryBtn = document.getElementById('stopDiscoveryBtn');
     const stopRunBtn = document.getElementById('stopRunBtn');
     const startClean = document.getElementById('startClean');
+    const scenarioCount = document.getElementById('scenarioCount');
     const cleanOldDataBtn = document.getElementById('cleanOldDataBtn');
     const floatingConsole = document.getElementById('floatingConsole');
     const floatingPreview = document.getElementById('floatingPreview');
@@ -4319,7 +4338,7 @@ function pageHtml(initialScenario, initialUiState = {}) {
 
     async function runScenarioDiscovery() {
       const url = document.getElementById('siteUrl').value.trim();
-      const count = Math.max(1, Math.min(10, Number(wizardScenarioCountValue || 5)));
+      const count = Math.max(1, Math.min(10, Number(scenarioCount ? scenarioCount.value : wizardScenarioCountValue || 5)));
       if (!url) return alert('Enter a URL first.');
       discoveryInProgress = true;
       renderScenarios();

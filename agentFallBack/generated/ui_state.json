@@ -1,7 +1,16 @@
 {
-  "scenarioDrafts": [],
-  "discoveryInsight": "",
+  "scenarioDrafts": [
+    {
+      "id": "scenario-1",
+      "title": "UI E2E user journey on Wikipedia – Die freie Enzyklopädie",
+      "category": "UI_E2E",
+      "selected": true,
+      "open": true,
+      "text": "Subject: UI E2E user journey on Wikipedia – Die freie Enzyklopädie\nUser: no user\nSteps:\n1. Navigate to page: https://de.wikipedia.org/wiki/Wikipedia:Hauptseite\n2. Verify the page loads successfully and the main content is visible\n3. Search for a relevant keyword using the site search\n4. Verify search results or matching content are displayed\n\nExpected:\nPage loads without errors\nPrimary content and controls are visible\nThe selected user journey behaves as expected\n\nAdditional:\nCategory: UI_E2E\nSource page: https://de.wikipedia.org/wiki/Wikipedia:Hauptseite\nDiscovered page signals:\n- Heading: Wikipedia:Hauptseite\n- Heading: Willkommen bei Wikipedia\n- Heading: Wikipedia aktuell\n- Heading: Artikel des Tages\n- Heading: Was geschah am 11. Mai?\n- Heading: In den Nachrichten\n- Heading: Kürzlich Verstorbene\n- Heading: Schon gewusst?\n- Element: a \"Zum Inhalt springen\"\n- Element: input #vector-main-menu-dropdown-checkbox [role=\"button\"]\n- Element: button \"In die Seitenleiste verschieben\"\n- Element: a \"Hauptseite\"\n- Element: a \"Themenportale\"\n- Element: a \"Zufälliger Artikel\"\n- Element: a \"Spezialseiten\"\n- Element: a \"Artikel verbessern\"\n- Element: a \"Neuen Artikel anlegen\"\n- Element: a \"Autorenportal\"\n- Element: a \"Hilfe\"\n- Element: a \"Letzte Änderungen\""
+    }
+  ],
+  "discoveryInsight": "Rule-based fallback discovery was used.",
   "deepSearchPages": [],
   "generatedTests": [],
-  "updatedAt": "2026-05-11T13:09:25.320Z"
+  "updatedAt": "2026-05-11T13:22:22.165Z"
 }
