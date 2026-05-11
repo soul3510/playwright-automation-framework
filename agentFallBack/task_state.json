@@ -2,9 +2,18 @@
   "currentAgent": "web-ui",
   "status": "RUNNING",
   "source": "manual",
-  "startedAt": "2026-05-10T17:01:37.283Z",
+  "startedAt": "2026-05-11T12:45:38.230Z",
   "logs": [],
   "bugReport": {
     "detectedBugs": []
+  },
+  "healer": {
+    "lessonsLearned": [
+      {
+        "locator": "page.locator('#searchInput').fill('Artificial Intelligence') and subsequent form submission",
+        "fix": "Added await expect(searchInputField).toHaveValue(...) after fill, and changed submission to searchInputField.focus() followed by searchInputField.press('Enter'). Also added page.waitForURL(...) as a smart wait.",
+        "reason": "The original submission mechanism (conditional click or page.keyboard.press('Enter')) was not reliably passing the filled input value, leading to an empty search parameter in the URL. Explicitly focusing the input and pressing Enter on it, along with verifying the fill action, ensures the value is submitted. The waitForURL provides a robust wait for navigation."
+      }
+    ]
   }
 }

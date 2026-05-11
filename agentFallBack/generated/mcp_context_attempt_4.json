@@ -1,0 +1,823 @@
+{
+  "source": "playwright-mcp-pre-gemini",
+  "note": "MCP-style live browser snapshot collected before Gemini healing.",
+  "attempt": 4,
+  "testFile": "Verify_successful_search_for_an_English_article_and_redirection_.test.ts",
+  "url": "https://www.wikipedia.org/",
+  "title": "Wikipedia",
+  "elements": [
+    {
+      "index": 0,
+      "tag": "nav",
+      "text": "English 7,177,000+ articles 日本語 1,500,000+ 記事 Deutsch 3.118.000+ Artikel 中文 1,533,000+ 条目 / 條目 Русский 2 098 000+ статей Français 2 755 000+ articles Español 2.",
+      "attrs": {
+        "aria-label": "Top languages"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 1,
+      "tag": "a",
+      "text": "English 7,177,000+ articles",
+      "attrs": {
+        "id": "js-link-box-en",
+        "href": "//en.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 2,
+      "tag": "a",
+      "text": "日本語 1,500,000+ 記事",
+      "attrs": {
+        "id": "js-link-box-ja",
+        "href": "//ja.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 3,
+      "tag": "a",
+      "text": "Deutsch 3.118.000+ Artikel",
+      "attrs": {
+        "id": "js-link-box-de",
+        "href": "//de.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 4,
+      "tag": "a",
+      "text": "中文 1,533,000+ 条目 / 條目",
+      "attrs": {
+        "id": "js-link-box-zh",
+        "href": "//zh.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 5,
+      "tag": "a",
+      "text": "Русский 2 098 000+ статей",
+      "attrs": {
+        "id": "js-link-box-ru",
+        "href": "//ru.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 6,
+      "tag": "a",
+      "text": "Français 2 755 000+ articles",
+      "attrs": {
+        "id": "js-link-box-fr",
+        "href": "//fr.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 7,
+      "tag": "a",
+      "text": "Español 2.110.000+ artículos",
+      "attrs": {
+        "id": "js-link-box-es",
+        "href": "//es.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 8,
+      "tag": "a",
+      "text": "Italiano 1.967.000+ voci",
+      "attrs": {
+        "id": "js-link-box-it",
+        "href": "//it.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 9,
+      "tag": "a",
+      "text": "Português 1.170.000+ artigos",
+      "attrs": {
+        "id": "js-link-box-pt",
+        "href": "//pt.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 10,
+      "tag": "a",
+      "text": "Polski 1 693 000+ haseł",
+      "attrs": {
+        "id": "js-link-box-pl",
+        "href": "//pl.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 11,
+      "tag": "div",
+      "text": "Search Wikipedia EN Afrikaans Shqip العربية Asturianu Azərbaycanca Български 閩南語 / Bân-lâm-gú বাংলা Беларуская Català Čeština Cymraeg Dansk Deutsch Eesti Ελληνι",
+      "attrs": {
+        "role": "search"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 13,
+      "tag": "input",
+      "text": "",
+      "attrs": {
+        "id": "searchInput",
+        "name": "search",
+        "type": "search"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 14,
+      "tag": "select",
+      "text": "Afrikaans Shqip العربية Asturianu Azərbaycanca Български 閩南語 / Bân-lâm-gú বাংলা Беларуская Català Čeština Cymraeg Dansk Deutsch Eesti Ελληνικά English Español E",
+      "attrs": {
+        "id": "searchLanguage",
+        "name": "language"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 15,
+      "tag": "button",
+      "text": "Search",
+      "attrs": {
+        "type": "submit"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 17,
+      "tag": "nav",
+      "text": "Read Wikipedia in your language",
+      "attrs": {
+        "aria-label": "All languages"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 18,
+      "tag": "button",
+      "text": "Read Wikipedia in your language",
+      "attrs": {
+        "id": "js-lang-list-button"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 19,
+      "tag": "a",
+      "text": "العربية",
+      "attrs": {
+        "href": "//ar.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 20,
+      "tag": "a",
+      "text": "Deutsch",
+      "attrs": {
+        "href": "//de.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 21,
+      "tag": "a",
+      "text": "English",
+      "attrs": {
+        "href": "//en.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 22,
+      "tag": "a",
+      "text": "Español",
+      "attrs": {
+        "href": "//es.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 23,
+      "tag": "a",
+      "text": "فارسی",
+      "attrs": {
+        "href": "//fa.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 24,
+      "tag": "a",
+      "text": "Français",
+      "attrs": {
+        "href": "//fr.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 25,
+      "tag": "a",
+      "text": "Italiano",
+      "attrs": {
+        "href": "//it.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 26,
+      "tag": "a",
+      "text": "مصرى",
+      "attrs": {
+        "href": "//arz.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 27,
+      "tag": "a",
+      "text": "Nederlands",
+      "attrs": {
+        "href": "//nl.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 28,
+      "tag": "a",
+      "text": "日本語",
+      "attrs": {
+        "href": "//ja.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 29,
+      "tag": "a",
+      "text": "Polski",
+      "attrs": {
+        "href": "//pl.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 30,
+      "tag": "a",
+      "text": "Português",
+      "attrs": {
+        "href": "//pt.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 31,
+      "tag": "a",
+      "text": "Sinugboanong Binisaya",
+      "attrs": {
+        "href": "//ceb.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 32,
+      "tag": "a",
+      "text": "Svenska",
+      "attrs": {
+        "href": "//sv.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 33,
+      "tag": "a",
+      "text": "Українська",
+      "attrs": {
+        "href": "//uk.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 34,
+      "tag": "a",
+      "text": "Tiếng Việt",
+      "attrs": {
+        "href": "//vi.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 35,
+      "tag": "a",
+      "text": "Winaray",
+      "attrs": {
+        "href": "//war.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 36,
+      "tag": "a",
+      "text": "中文",
+      "attrs": {
+        "href": "//zh.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 37,
+      "tag": "a",
+      "text": "Русский",
+      "attrs": {
+        "href": "//ru.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 38,
+      "tag": "a",
+      "text": "Afrikaans",
+      "attrs": {
+        "href": "//af.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 39,
+      "tag": "a",
+      "text": "Shqip",
+      "attrs": {
+        "href": "//sq.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 40,
+      "tag": "a",
+      "text": "Asturianu",
+      "attrs": {
+        "href": "//ast.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 41,
+      "tag": "a",
+      "text": "Azərbaycanca",
+      "attrs": {
+        "href": "//az.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 42,
+      "tag": "a",
+      "text": "Български",
+      "attrs": {
+        "href": "//bg.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 43,
+      "tag": "a",
+      "text": "閩南語 / Bân-lâm-gú",
+      "attrs": {
+        "href": "//zh-min-nan.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 44,
+      "tag": "a",
+      "text": "বাংলা",
+      "attrs": {
+        "href": "//bn.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 45,
+      "tag": "a",
+      "text": "Беларуская",
+      "attrs": {
+        "href": "//be.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 46,
+      "tag": "a",
+      "text": "Català",
+      "attrs": {
+        "href": "//ca.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 47,
+      "tag": "a",
+      "text": "Čeština",
+      "attrs": {
+        "href": "//cs.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 48,
+      "tag": "a",
+      "text": "Cymraeg",
+      "attrs": {
+        "href": "//cy.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 49,
+      "tag": "a",
+      "text": "Dansk",
+      "attrs": {
+        "href": "//da.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 50,
+      "tag": "a",
+      "text": "Eesti",
+      "attrs": {
+        "href": "//et.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 51,
+      "tag": "a",
+      "text": "Ελληνικά",
+      "attrs": {
+        "href": "//el.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 52,
+      "tag": "a",
+      "text": "Esperanto",
+      "attrs": {
+        "href": "//eo.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 53,
+      "tag": "a",
+      "text": "Euskara",
+      "attrs": {
+        "href": "//eu.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 54,
+      "tag": "a",
+      "text": "Galego",
+      "attrs": {
+        "href": "//gl.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 55,
+      "tag": "a",
+      "text": "한국어",
+      "attrs": {
+        "href": "//ko.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 56,
+      "tag": "a",
+      "text": "Հայերեն",
+      "attrs": {
+        "href": "//hy.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 57,
+      "tag": "a",
+      "text": "हिन्दी",
+      "attrs": {
+        "href": "//hi.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 58,
+      "tag": "a",
+      "text": "Hrvatski",
+      "attrs": {
+        "href": "//hr.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 59,
+      "tag": "a",
+      "text": "Bahasa Indonesia",
+      "attrs": {
+        "href": "//id.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 60,
+      "tag": "a",
+      "text": "עברית",
+      "attrs": {
+        "href": "//he.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 61,
+      "tag": "a",
+      "text": "ქართული",
+      "attrs": {
+        "href": "//ka.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 62,
+      "tag": "a",
+      "text": "Ladin",
+      "attrs": {
+        "href": "//lld.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 63,
+      "tag": "a",
+      "text": "Latina",
+      "attrs": {
+        "href": "//la.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 64,
+      "tag": "a",
+      "text": "Latviešu",
+      "attrs": {
+        "href": "//lv.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 65,
+      "tag": "a",
+      "text": "Lietuvių",
+      "attrs": {
+        "href": "//lt.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 66,
+      "tag": "a",
+      "text": "Magyar",
+      "attrs": {
+        "href": "//hu.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 67,
+      "tag": "a",
+      "text": "Македонски",
+      "attrs": {
+        "href": "//mk.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 68,
+      "tag": "a",
+      "text": "Malagasy",
+      "attrs": {
+        "href": "//mg.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 69,
+      "tag": "a",
+      "text": "मराठी",
+      "attrs": {
+        "href": "//mr.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 70,
+      "tag": "a",
+      "text": "Bahasa Melayu",
+      "attrs": {
+        "href": "//ms.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 71,
+      "tag": "a",
+      "text": "Bahaso Minangkabau",
+      "attrs": {
+        "href": "//min.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 72,
+      "tag": "a",
+      "text": "မြန်မာဘာသာ",
+      "attrs": {
+        "href": "//my.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 73,
+      "tag": "a",
+      "text": "bokmål",
+      "attrs": {
+        "href": "//no.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 74,
+      "tag": "a",
+      "text": "nynorsk",
+      "attrs": {
+        "href": "//nn.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 75,
+      "tag": "a",
+      "text": "Нохчийн",
+      "attrs": {
+        "href": "//ce.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 76,
+      "tag": "a",
+      "text": "Oʻzbekcha / Ўзбекча",
+      "attrs": {
+        "href": "//uz.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 77,
+      "tag": "a",
+      "text": "Қазақша / Qazaqşa / قازاقشا",
+      "attrs": {
+        "href": "//kk.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 78,
+      "tag": "a",
+      "text": "Română",
+      "attrs": {
+        "href": "//ro.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 79,
+      "tag": "a",
+      "text": "Simple English",
+      "attrs": {
+        "href": "//simple.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 80,
+      "tag": "a",
+      "text": "Slovenčina",
+      "attrs": {
+        "href": "//sk.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "index": 81,
+      "tag": "a",
+      "text": "Slovenščina",
+      "attrs": {
+        "href": "//sl.wikipedia.org/"
+      },
+      "visible": true,
+      "enabled": true
+    }
+  ]
+}

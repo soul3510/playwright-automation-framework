@@ -5,8 +5,8 @@ CONTEXT:
 - Use standard Playwright best practices
 - Focus on robust selectors and clear test logic
 
-TEST FILE: Verify_language_toggle_button_accessibility_attributes.test.ts
-PATH: C:\My_VSC_Projects\justVSC\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_language_toggle_button_accessibility_attributes.test.ts
+TEST FILE: Verify_successful_search_for_an_English_article_and_redirection_.test.ts
+PATH: C:\My_VSC_Projects\playwright-automation-framework\tests\generated-from-agentFallBack\Verify_successful_search_for_an_English_article_and_redirection_.test.ts
 
 CODE:
 /**
@@ -18,7 +18,7 @@ CODE:
  * - Mode: Generic (Universal) with Page Objects
  * 
  * 🎬 HEADED MODE: This test will run with visible browser
- * Run with: npx playwright test Verify_language_toggle_button_accessibility_attributes.test.ts --headed
+ * Run with: npx playwright test Verify_successful_search_for_an_English_article_and_redirection_.test.ts --headed
  */
 
 import { test, expect } from '@playwright/test';
@@ -26,50 +26,83 @@ import { LandingPage } from '../../page-objects/LandingPage';
 import { handlePageInterruptions } from '../../utils/pageInterruptions';
 
 
-test.describe('Verify_language_toggle_button_accessibility_attributes', () => {
+test.describe('Verify_successful_search_for_an_English_article_and_redirection_', () => {
   
   test.beforeEach(async () => {
       test.info().annotations.push({ type: 'Owner', description: 'AI Agent' });
       test.info().annotations.push({ type: 'Test Type', description: 'Generic' });
-      test.info().annotations.push({ type: 'Description', description: 'Verify language toggle button accessibility attributes' });
+      test.info().annotations.push({ type: 'Description', description: 'Verify successful search for an English article and redirection.' });
   });
 
-  test('Verify language toggle button accessibility attributes', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
+  test('Verify successful search for an English article and redirection.', { tag: ['@smoke', '@generic'] }, async ({ page }) => {
     // Initialize page object
     const landingPage = new LandingPage(page);
     const inputData = {};
     // =========================================
-    // STEP 1: NAVIGATE TO PAGE: HTTPS://AUTOMATION-DEMO.BEATWISH.LIVE/
+    // STEP 1: NAVIGATE TO PAGE: HTTPS://WWW.WIKIPEDIA.ORG/
     // =========================================
-    console.log('\n🚀 STEP 1: Navigate to page: https://automation-demo.beatwish.live/');
+    console.log('\n🚀 STEP 1: Navigate to page: https://www.wikipedia.org/');
 
-    console.log('📍 Navigating to URL: https://automation-demo.beatwish.live/');
-    await page.goto('https://automation-demo.beatwish.live/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    console.log('📍 Navigating to URL: https://www.wikipedia.org/');
+    await page.goto('https://www.wikipedia.org/', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
     await handlePageInterruptions(page);
     console.log('✅ Navigation completed successfully');
     console.log('✅ Step 1 completed');
 
     // =========================================
-    // STEP 2: INSPECT THE '🌐 ENGLISH' BUTTON ELEMENT WITH `ID='LANGUAGETOGGLE'`.
+    // STEP 2: TYPE 'ARTIFICIAL INTELLIGENCE' INTO THE SEARCH INPUT FIELD WITH ID 'SEARCHINPUT'.
     // =========================================
-    console.log('\n🚀 STEP 2: Inspect the '🌐 English' button element with `id='languageToggle'`.');
+    console.log('\n🚀 STEP 2: Type 'Artificial Intelligence' into the search input field with id 'searchInput'.');
 
     await handlePageInterruptions(page);
 
-    console.log('⚠️ Step 2: Pattern not recognized - Inspect the '🌐 English' button element with `id='languageToggle'`.');
-    // TODO: Implement this step - pattern not recognized
-    console.log('ℹ️ This step needs manual implementation');
+    console.log('⌨️ Preparing to fill field: the search input field with id \'searchInput\'.');
+    const searchInput = page.getByRole('searchbox').or(page.locator('input[type="search"], input[name="search"], input[name="searchInput"], #searchInput')).first();
+    await expect(searchInput).toBeVisible({ timeout: 10000 });
+    await searchInput.fill('Artificial Intelligence');
+    console.log('✅ Field filled: the search input field with id \'searchInput\'.');
     console.log('✅ Step 2 completed');
 
-    // Verification: The '🌐 English' button has an `aria-label` attribute set to 'Change language'.
-    // Verification: The button is focusable via keyboard navigation (e.g., using Tab key).
-    // Verification: Reason: The site is primarily in Hebrew but offers an English toggle. Ensuring the language toggle is accessible (e.g., for screen readers) is important for international users or users with disabilities, demonstrating inclusive design.
-    // Custom verification for: The '🌐 English' button has an `aria-label` attribute set to 'Change language'.
-    // The button is focusable via keyboard navigation (e.g., using Tab key).
-    // Reason: The site is primarily in Hebrew but offers an English toggle. Ensuring the language toggle is accessible (e.g., for screen readers) is important for international users or users with disabilities, demonstrating inclusive design.
-    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
-    console.log('Custom verification completed with generic page visibility check');
+    // =========================================
+    // STEP 3: ENSURE THE LANGUAGE DROPDOWN WITH ID 'SEARCHLANGUAGE' IS SET TO 'ENGLISH' (OR ITS DEFAULT VALUE).
+    // =========================================
+    console.log('\n🚀 STEP 3: Ensure the language dropdown with id 'searchLanguage' is set to 'English' (or its default value).');
+
+    await handlePageInterruptions(page);
+
+    console.log('⚠️ Step 3: Pattern not recognized - Ensure the language dropdown with id 'searchLanguage' is set to 'English' (or its default value).');
+    // TODO: Implement this step - pattern not recognized
+    console.log('ℹ️ This step needs manual implementation');
+    console.log('✅ Step 3 completed');
+
+    // =========================================
+    // STEP 4: CLICK THE 'SEARCH' BUTTON (ELEMENT WITH TYPE='SUBMIT').
+    // =========================================
+    console.log('\n🚀 STEP 4: Click the 'Search' button (element with type='submit').');
+
+    await handlePageInterruptions(page);
+
+    console.log('🖱️ Preparing to click element: Search\' button (element with type=\'submit\').');
+    console.log('🎯 Submitting search');
+    const searchButton = page.getByRole('button', { name: /search/i }).first();
+    if (await searchButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await searchButton.click();
+    } else {
+      await page.keyboard.press('Enter');
+    }
+    await page.waitForLoadState('domcontentloaded');
+    console.log('✅ Search submitted successfully');
+    console.log('✅ Step 4 completed');
+
+    // Verification: The browser navigates to 'https://en.wikipedia.org/wiki/Artificial_intelligence' (or a similar direct article page).
+    // Verification: The page title contains 'Artificial intelligence - Wikipedia'.
+    // Verification: The main heading of the article is 'Artificial intelligence'.
+    // Verification: Reason: The search functionality is the core method for users to find information. Ensuring it works correctly, especially for common terms, is critical for user experience.
+    await expect(page.locator('body')).toBeVisible();
+    await expect(page.locator('body')).toContainText(/Artificial|Intelligence/i);
+    const finalTitle = await page.title();
+    expect(finalTitle.length).toBeGreaterThan(0);
 
   });
 });

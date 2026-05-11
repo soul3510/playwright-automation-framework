@@ -1,61 +1,7 @@
 {
-  "scenarioDrafts": [
-    {
-      "id": "scenario-1",
-      "title": "Verify main content presentation and navigation to secured demo",
-      "category": "UI_E2E",
-      "selected": true,
-      "open": true,
-      "text": "Subject: Verify main content presentation and navigation to secured demo\nUser: no user\nSteps:\n1. Navigate to page: https://automation-demo.beatwish.live/\n2. Verify the main heading 'דמו תשתית LLM ו־Agents לאוטומציית QA.' is visible.\n3. Verify the 'הוראות כניסה' (Login instructions) section is present and readable.\n4. Click on the 'כניסה לדמו המאובטח' (Entry to the secured demo) navigation link.\n\nExpected:\nThe main heading and login instructions section are clearly visible and readable.\nThe browser successfully navigates to 'https://qa-agent.work/'.\nReason: It's crucial for primary users (recruiters, hiring managers) to quickly understand the site's purpose and find the entry point to the actual demo. This validates the core user journey and ensures key information is accessible.\n\nAdditional:\nCategory: UI_E2E\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\""
-    },
-    {
-      "id": "scenario-2",
-      "title": "Verify language toggle button accessibility attributes",
-      "category": "ACCESSIBILITY",
-      "selected": true,
-      "open": false,
-      "text": "Subject: Verify language toggle button accessibility attributes\nUser: no user\nSteps:\n1. Navigate to page: https://automation-demo.beatwish.live/\n2. Inspect the '🌐 English' button element with `id='languageToggle'`.\n\nExpected:\nThe '🌐 English' button has an `aria-label` attribute set to 'Change language'.\nThe button is focusable via keyboard navigation (e.g., using Tab key).\nReason: The site is primarily in Hebrew but offers an English toggle. Ensuring the language toggle is accessible (e.g., for screen readers) is important for international users or users with disabilities, demonstrating inclusive design.\n\nAdditional:\nCategory: ACCESSIBILITY\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\""
-    },
-    {
-      "id": "scenario-3",
-      "title": "Verify layout integrity on a common mobile viewport",
-      "category": "RESPONSIVE",
-      "selected": true,
-      "open": false,
-      "text": "Subject: Verify layout integrity on a common mobile viewport\nUser: no user\nSteps:\n1. Navigate to page: https://automation-demo.beatwish.live/\n2. Set the browser viewport to a common mobile resolution (e.g., 375x667 pixels).\n3. Scroll through the entire page content from top to bottom.\n\nExpected:\nAll text blocks and headings are readable without horizontal scrolling.\nNavigation links and buttons are accessible and not overlapping.\nKey content elements (like the 4-step process) are appropriately scaled and positioned, maintaining their logical flow.\nReason: Primary users (recruiters, hiring managers) may access the site from various devices, including mobile phones. A professional demo site must maintain readability and usability across different screen sizes to ensure a positive user experience.\n\nAdditional:\nCategory: RESPONSIVE\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\""
-    },
-    {
-      "id": "scenario-4",
-      "title": "Verify essential SEO elements for discoverability",
-      "category": "SEO",
-      "selected": true,
-      "open": false,
-      "text": "Subject: Verify essential SEO elements for discoverability\nUser: no user\nSteps:\n1. Navigate to page: https://automation-demo.beatwish.live/\n2. Retrieve the page's HTML head section and main content.\n\nExpected:\nThe `<title>` tag contains 'Eyal Sooliman | AI Automation Interview Demo'.\nThe main heading (`<h1>`) 'דמו תשתית LLM ו־Agents לאוטומציית QA.' is present and semantically correct, reflecting the page's primary topic.\nWhile `metaDescription` and `metaKeywords` are currently empty, it's noted that their absence could impact search engine visibility. If implemented, they should be relevant to 'AI Automation', 'QA', 'LLM', 'Agents', and 'Eyal Sooliman'.\nReason: Even for a personal demo site, basic SEO helps ensure Eyal Sooliman's expertise and the demo are discoverable by relevant search queries (e.g., his name, 'AI QA automation'). This is crucial for attracting potential employers or collaborators.\n\nAdditional:\nCategory: SEO\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\""
-    },
-    {
-      "id": "scenario-5",
-      "title": "Verify presence of basic HTTP security headers",
-      "category": "SECURITY",
-      "selected": true,
-      "open": false,
-      "text": "Subject: Verify presence of basic HTTP security headers\nUser: no user\nSteps:\n1. Navigate to page: https://automation-demo.beatwish.live/\n2. Verify the page loads successfully and the main content is visible\n3. Complete the most important visible user journey for this site\n4. Verify the result matches the site purpose\n\nExpected:\nThe response headers include 'X-Content-Type-Options' with value 'nosniff' to prevent MIME-sniffing vulnerabilities.\nThe response headers include 'X-Frame-Options' with value 'DENY' or 'SAMEORIGIN' to prevent clickjacking attacks.\nThe response headers include 'Strict-Transport-Security' (HSTS) to enforce secure (HTTPS) connections.\nA 'Content-Security-Policy' header is present (even if basic) to mitigate Cross-Site Scripting (XSS) and data injection attacks.\nReason: The site mentions a 'secured demo,' indicating an awareness of security. Even the public landing page should implement basic security headers to protect visitors from common web vulnerabilities (e.g., XSS, clickjacking) and demonstrate adherence to security best practices.\n\nAdditional:\nCategory: SECURITY\nSource page: https://automation-demo.beatwish.live/\nDiscovered page signals:\n- Heading: דמו תשתית LLM ו־Agents לאוטומציית QA.\n- Heading: הוראות כניסה\n- Heading: קצת עליי\n- Heading: מה אני ממליץ לראות בזמן הדמו\n- Element: button #languageToggle \"🌐 English\"\n- Element: a \"מה חשוב לראות\"\n- Element: a \"כניסה לדמו המאובטח\"\n- Element: a \"in לפרופיל הלינקדאין שלי\""
-    }
-  ],
-  "discoveryInsight": "Semantic discovery: This website serves as a professional portfolio and interview demonstration for Eyal Sooliman, showcasing his expertise in AI-driven QA automation using LLMs and Agents. It explains his methodology, provides instructions for accessing a secured demo, and highlights key aspects of his work for potential employers or collaborators. Users: Recruiters, Hiring Managers (QA/Automation roles), Technical Interviewers. Goals: Understand Eyal's expertise and approach to QA automation, Learn how to access the secured demo environment, Review the recommended flow and engineering thinking behind the demo.",
+  "scenarioDrafts": [],
+  "discoveryInsight": "",
   "deepSearchPages": [],
-  "generatedTests": [
-    {
-      "name": "Verify_language_toggle_button_accessibility_attributes.test.ts",
-      "relativePath": "tests/generated-from-agentFallBack/Verify_language_toggle_button_accessibility_attributes.test.ts",
-      "size": 4892,
-      "lastModified": "2026-05-10T17:01:46.831Z"
-    },
-    {
-      "name": "Verify_main_content_presentation_and_navigation_to_secured_demo.test.ts",
-      "relativePath": "tests/generated-from-agentFallBack/Verify_main_content_presentation_and_navigation_to_secured_demo.test.ts",
-      "size": 8675,
-      "lastModified": "2026-05-10T17:01:24.841Z"
-    }
-  ],
-  "updatedAt": "2026-05-10T17:02:08.735Z"
+  "generatedTests": [],
+  "updatedAt": "2026-05-11T13:09:25.320Z"
 }
